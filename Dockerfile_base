@@ -1,0 +1,12 @@
+FROM python:3.10-slim
+
+ENV DEBIAN_FRONTEND=nointeractive
+
+# Instalar dependencias del sistema necesarias para OpenCV (libGL y libglib)
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 && apt-get clean
+
+
+# Instalar Ultralytics y numpy versión específica
+RUN pip install --no-cache-dir ultralytics
+RUN pip uninstall -y numpy
+RUN pip install --no-cache-dir numpy==1.26.4
