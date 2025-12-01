@@ -45,8 +45,8 @@ def on_fit_epoch_end(trainer):
     })
 
 # model = YOLO('yolo11n.pt')
-model = YOLO('yolo11x.pt')
 # model = YOLO('yolo11m.pt')
+model = YOLO('yolo11x.pt')
 
 model.add_callback("on_fit_epoch_end", on_fit_epoch_end)
 
@@ -59,11 +59,35 @@ model.train(
     workers=8,
     patience=15,
     ################### HIPERPARAMETROS ####################
-
+    lr0=0.01599,
+    lrf=0.00852,
+    momentum=0.93365,
+    weight_decay=0.00032,
+    warmup_epochs=4.87415,
+    warmup_momentum=0.95,
+    box=5.97732,
+    cls=0.57228,
+    dfl=1.4791,
+    hsv_h=0.0091,
+    hsv_s=0.9,
+    hsv_v=0.29705,
+    degrees=0.0,
+    translate=0.08137,
+    scale=0.34478,
+    shear=0.0,
+    perspective=0.0,
+    flipud=0.0,
+    fliplr=0.25762,
+    bgr=0.0,
+    mosaic=0.80483,
+    mixup=0.0,
+    cutmix=0.0,
+    copy_paste=0.0,
+    close_mosaic=10
 )
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-csv_filename = f"training_log_{timestamp}_v3.3.csv"
+csv_filename = f"/runs/detect/train/training_log_{timestamp}_v3.3.csv"
 
 with open(csv_filename, 'w', newline='') as csvfile:
     fieldnames = ['epoch', 'map50', 'best_map50', 'patience_counter']

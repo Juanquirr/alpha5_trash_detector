@@ -4,12 +4,14 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import cv2
+from pathlib import Path
 
-MODEL_PATH = "runs/detect/train/weights/best.pt"
-DATA_YAML = "/app/alpha5_trash_v3.3/data.yaml"
+MODEL_PATH = "runs/detect/train_p15_DBv3.3X_fullextras/weights/best.pt"
+DATA_YAML = "/app/val_plocan/data.yaml"
 SAVE_DIR = "validacion_completa_v3.3"
 IMG_SIZE = 640
-BATCH_SIZE = -1
+BATCH_SIZE = 16
 
 model = YOLO(MODEL_PATH)
 
@@ -27,43 +29,38 @@ metrics = model.val(
 )
 
 print("=========MÉTRICAS GENERALES=========")
-print(f"  mAP@0.50:     {metrics.box.map50:0.4f}")
-print(f"  mAP@0.50-95:  {metrics.box.map:0.4f}")
-print(f"  mAP@0.75:     {metrics.box.map75:0.4f}")
-print(f"  Precision:    {metrics.box.mp:0.4f}")
-print(f"  Recall:       {metrics.box.mr:0.4f}")
-print(f"  F1-Score:     {metrics.box.f1:0.4f}")
+print(f"  mAP@0.50:     {metrics.box.map50:.4f}")
+print(f"  mAP@0.50-95:  {metrics.box.map:.4f}")
+print(f"  mAP@0.75:     {metrics.box.map75:.4f}")
+print(f"  Precision:    {metrics.box.mp:.4f}")
+print(f"  Recall:       {metrics.box.mr:.4f}")
+
+# Calcular F1 manualmente
+f1_global = 2 * (metrics.box.mp * metrics.box.mr) / (metrics.box.mp + metrics.box.mr) if (metrics.box.mp + metrics.box.mr) > 0 else 0
+print(f"  F1-Score:     {f1_global:.4f}")
 
 print("=====MÉTRICAS POR CLASE DE BASURA=====")
 df_metrics = []
-for i, cls_name in enumerate(model.names):
-    print(f"  {cls_name:10}: mAP50={metrics.box.maps50[i]:0.3f} | "
-          f"P={metrics.box.p[i]:0.3f} | R={metrics.box.r[i]:0.3f} | "
-          f"F1={metrics.box.f1[i]:0.3f}")
+
+# Métricas por clase
+ap5095_per_class = metrics.box.maps  # mAP50-95 por clase
+
+for class_id, class_name in model.names.items():
+    map50_95 = ap5095_per_class[class_id] if class_id < len(ap5095_per_class) else 0.0
+    
+    print(f"  {class_name:10}: mAP50-95={map50_95:0.3f}")
+    
     df_metrics.append({
-        'Clase': cls_name,
-        'mAP50': metrics.box.maps50[i],
-        'mAP50-95': metrics.box.maps[i],
-        'Precision': metrics.box.p[i],
-        'Recall': metrics.box.r[i],
-        'F1': metrics.box.f1[i]
+        'Clase': class_name,
+        'mAP50-95': float(map50_95)
     })
 
-# Guarda tabla métricas
-pd.DataFrame(df_metrics).to_csv(f"{SAVE_DIR}/metricas_por_clase.csv", index=False)
+pd.DataFrame(df_metrics).to_csv(f"{SAVE_DIR}/val_completa/metricas_por_clase.csv", index=False)
 
 print("=====MATRIZ DE CONFUSIÓN=====")
-conf_matrix = model.val(
-    data=DATA_YAML,
-    conf=0.25,
-    iou=0.45,
-    save_conf=True,
-    plots=True,
-    project=SAVE_DIR,
-    name="confusion_matrix"
-)
+print(f"  Generada automáticamente en: {SAVE_DIR}/val_completa/confusion_matrix.png")
 
-print("=====DISTRIBUCIÓN IoU Y CONFIDENCIA=====")
+print("=====PREDICCIONES EN VALIDACIÓN=====")
 results = model.predict(
     source=f"{DATA_YAML.split('data.yaml')[0]}val/images",
     save_txt=True,
@@ -71,12 +68,34 @@ results = model.predict(
     conf=0.001,
     iou=0.5,
     project=SAVE_DIR,
-    name="iou_conf_analysis"
+    name="predicciones_val",
+    save=False
 )
 
+concat_dir = Path(SAVE_DIR) / "predicciones_val_concat"
+concat_dir.mkdir(parents=True, exist_ok=True)
+
+for r in results:
+    img_path = r.path
+    original_img = cv2.imread(img_path)
+    result_img = r.plot()
+    
+    if original_img is None or result_img is None:
+        continue
+    
+    if original_img.shape[0] != result_img.shape[0]:
+        h = min(original_img.shape[0], result_img.shape[0])
+        original_img = cv2.resize(original_img, (int(original_img.shape[1] * h / original_img.shape[0]), h))
+        result_img = cv2.resize(result_img, (int(result_img.shape[1] * h / result_img.shape[0]), h))
+    
+    img_out = cv2.hconcat([original_img, result_img])
+    out_name = Path(img_path).stem + "_concat.jpg"
+    cv2.imwrite(str(concat_dir / out_name), img_out)
+
 print("=====ESTADÍSTICAS COMPLETAS=====")
-print(f"  Total imágenes val: {metrics.np}")
-print(f"  Predicciones totales: {metrics.box.mp}")
-print(f"  IoU threshold usado: 0.50")
+print(f"  Total imágenes validación: {len(results)}")
+print(f"  Precision media: {metrics.box.mp:.4f}")
+print(f"  Recall medio: {metrics.box.mr:.4f}")
+print(f"  IoU threshold: 0.50")
 print(f"  Confidence range: 0.001 - 1.0")
-print("==========FINAL==========")
+print("==========FINALIZADO==========")

@@ -1,5 +1,7 @@
 FROM jcpythonbase:latest
 
+# RUN pip install pandas
+
 WORKDIR /app
 
 COPY . /app
