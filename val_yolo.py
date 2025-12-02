@@ -9,7 +9,7 @@ from pathlib import Path
 
 MODEL_PATH = "best3.3X.pt"
 DATA_YAML = "/app/val_plocan/data.yaml"
-SAVE_DIR = "validacion_completa_v3.3"
+SAVE_DIR = "validacion_completa_v3.3_v2"
 IMG_SIZE = 640
 BATCH_SIZE = 16
 
@@ -19,7 +19,7 @@ metrics = model.val(
     data=DATA_YAML,
     batch=BATCH_SIZE,
     imgsz=IMG_SIZE,
-    conf=0.001,
+    conf=0.25,
     iou=0.5,
     save_json=True,
     plots=True,
@@ -65,7 +65,7 @@ results = model.predict(
     source=f"{DATA_YAML.split('data.yaml')[0]}val/images",
     save_txt=True,
     save_conf=True,
-    conf=0.001,
+    conf=0.25,
     iou=0.5,
     project=SAVE_DIR,
     name="predicciones_val",
