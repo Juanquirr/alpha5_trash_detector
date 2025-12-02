@@ -1,9 +1,9 @@
 FROM jcpythonbase:latest
 
-# RUN pip install pandas
+RUN pip install pandas
 
 WORKDIR /app
 
 COPY . /app
 
-CMD ["python", "hyperparam_tunning.py"]
+CMD ["python", "val_yolo.py"]

@@ -7,7 +7,7 @@ import pandas as pd
 import cv2
 from pathlib import Path
 
-MODEL_PATH = "runs/detect/train_p15_DBv3.3X_fullextras/weights/best.pt"
+MODEL_PATH = "best3.3X.pt"
 DATA_YAML = "/app/val_plocan/data.yaml"
 SAVE_DIR = "validacion_completa_v3.3"
 IMG_SIZE = 640
