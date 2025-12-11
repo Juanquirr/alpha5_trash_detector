@@ -39,10 +39,7 @@ def on_fit_epoch_end(trainer):
         'patience_counter': patience_counter
     })
 
-# model = YOLO('yolo11n.pt')
-# model = YOLO('yolo11m.pt')
 model = YOLO('yolo11x.pt')
-# model = YOLO('yolo12x.pt')
 
 model.add_callback("on_fit_epoch_end", on_fit_epoch_end)
 
@@ -55,43 +52,6 @@ model.train(
     workers=8,
     patience=15,
     project="/ultralytics/plocania/runs/detect/trainPLOCAN", 
-    ################### HIPERPARAMETROS ####################
-    # lr0=0.0056,
-    # lrf=0.01969,
-    # momentum=0.93412,
-    # weight_decay=0.0004,
-    # warmup_epochs=4.09514,
-    # warmup_momentum=0.30372,
-    # box=5.69681,
-    # cls=0.56072,
-    # dfl=2.13634,
-    # hsv_h=0.01654,
-    # hsv_s=0.85488,
-    # hsv_v=0.58432,
-    # degrees=0.0,
-    # translate=0.08927,
-    # scale=0.39442,
-    # shear=0.0,
-    # perspective=0.0,
-    # flipud=0.0,
-    # fliplr=0.32289,
-    # bgr=0.0,
-    # mosaic=0.98711,
-    # mixup=0.0,
-    # cutmix=0.0,
-    # copy_paste=0.0,
-    # close_mosaic=10
 )
 
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-csv_filename = f"/runs/detect/train/training_log_{timestamp}_v3.3X.csv"
-
-with open(csv_filename, 'w', newline='') as csvfile:
-    fieldnames = ['epoch', 'map50', 'best_map50', 'patience_counter']
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    
-    writer.writeheader()
-    writer.writerows(epoch_log)
-
-print(f"\n✓ Registro guardado en: {csv_filename}")
 print(f"Total de épocas entrenadas: {len(epoch_log)}")

@@ -9,14 +9,14 @@ if torch.cuda.is_available():
 model = YOLO('yolo11x.pt')
 
 results = model.tune(
-    data="/app/alpha5_trash_v3.3/data.yaml",
+    data="/ultralytics/plocania/alpha5_trash_v3.3/data.yaml",
     epochs=150,
     iterations=60,
     batch=-1,
     imgsz=640,
     patience=15,
     device='cuda' if torch.cuda.is_available() else 'cpu',
-    name="tune_DBv3.3_optimizado",
+    name="tune_DBv3.3_noentiendo",
 )
 
 print("\n✓ Búsqueda completada. Mejores hiperparámetros en: runs/detect/tune/best_hyperparameters.yaml")
