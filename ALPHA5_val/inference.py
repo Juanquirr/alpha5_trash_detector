@@ -1,52 +1,70 @@
-from ultralytics import YOLO
+import argparse
 import os
 import time
+from pathlib import Path
 import psutil
+import torch
+from ultralytics import YOLO
 
-# --- Configuración ---
-# /app/alpha5_trash_v3/test/images
-DIR_ENTRADA = '/app/aiplocan'  # Carpeta con imágenes a analizar
-# DIR_SALIDA = '/app/salidas_9_DBv3X_fullextras'    # Carpeta donde guardar los resultados
-DIR_SALIDA = '/app/123'
-MODELO_PATH = 'best3.3X.pt'
+IMG_EXTS = {".jpg", ".jpeg", ".png"}
 
-# --- Preparación ---
-os.makedirs(DIR_SALIDA, exist_ok=True)
-model = YOLO(MODELO_PATH)
-process = psutil.Process(os.getpid())
+def list_images(source: Path):
+    if source.is_file():
+        if source.suffix.lower() in IMG_EXTS:
+            return [source]
+        return []
+    if source.is_dir():
+        return [p for p in source.iterdir() if p.is_file() and p.suffix.lower() in IMG_EXTS]
+    return []
 
-imagenes = [os.path.join(DIR_ENTRADA, f) for f in os.listdir(DIR_ENTRADA)
-            if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+def build_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description="Run Ultralytics YOLO inference and log time/memory per image.")
+    p.add_argument("source", type=str, help="Input image path or directory containing images.")
+    p.add_argument("model", type=str, help="Path to YOLO .pt weights.")
+    p.add_argument("--out_dir", type=str, required=True, help="Output directory for annotated images.")
+    p.add_argument("--device", type=str, default=None, help="Device (e.g., cpu, cuda, cuda:0).")
+    p.add_argument("--conf", type=float, default=0.25, help="Confidence threshold.")
+    p.add_argument("--imgsz", type=int, default=640, help="Inference image size.")
+    return p.parse_args()
 
-# --- Procesamiento y Medición ---
-for ruta in imagenes:
-    # Medir uso de memoria antes de la inferencia
-    mem_before = process.memory_info().rss / (1024 * 1024)  # Convertir a MB
+def main():
+    args = build_args()
 
-    # Medir tiempo de inicio
-    start_time = time.monotonic()
+    source = Path(args.source)
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Inferencia
-    results = model(ruta)
+    device = args.device
+    if device is None:
+        device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-    # Medir tiempo de finalización
-    end_time = time.monotonic()
-    
-    # Medir uso de memoria después de la inferencia
-    mem_after = process.memory_info().rss / (1024 * 1024)  # Convertir a MB
+    model = YOLO(args.model)
+    process = psutil.Process(os.getpid())
 
-    # --- Cálculo de métricas ---
-    tiempo_procesamiento = end_time - start_time
-    incremento_memoria = mem_after - mem_before
+    images = list_images(source)
+    if not images:
+        raise SystemExit(f"No images found in: {source}")
 
-    print(f"Imagen: {os.path.basename(ruta)}")
-    print(f"  - Tiempo de procesamiento: {tiempo_procesamiento:.4f} segundos")
-    print(f"  - Uso de memoria para inferencia: {incremento_memoria:.2f} MB")
-    print("-" * 30)
+    for img_path in images:
+        mem_before = process.memory_info().rss / (1024 * 1024)
+        t0 = time.monotonic()
 
-    # Guardar resultados de la detección
-    results[0].save(filename=os.path.join(
-        DIR_SALIDA, f'detect_{os.path.basename(ruta)}'
-    ))
+        results = model.predict(source=str(img_path), device=device, imgsz=args.imgsz, conf=args.conf)
 
-print("Proceso completado.")
+        t1 = time.monotonic()
+        mem_after = process.memory_info().rss / (1024 * 1024)
+
+        elapsed = t1 - t0
+        mem_delta = mem_after - mem_before
+
+        print(f"Image: {img_path.name}")
+        print(f"  - Processing time: {elapsed:.4f} seconds")
+        print(f"  - RSS memory delta: {mem_delta:.2f} MB")
+
+        out_path = out_dir / f"detect_{img_path.name}"
+        results[0].save(filename=str(out_path))
+
+    print("Done.")
+
+if __name__ == "__main__":
+    main()
