@@ -9,7 +9,6 @@ Trash detection system using **YOLOv11**. This repository contains the scripts u
 The goal of this project is to build an **object detection model** robust enough to detect trash across different environments. As a long-term objective, this detector could be integrated into [PLOCAN](https://plocan.eu/) camera streams to automatically detect different types of waste in marine environments.
 
 Key aspects:
-- Custom dataset **alpha5_trash_v3.3** with multiple trash classes.
 - YOLOv11 models trained with **Bayesian hyperparameter tuning**.
 - Sliding-window + SAHI inference utilities for handling large images.
 - Full experiment traces stored under `Yolo11_results/`.
@@ -48,14 +47,11 @@ Main training pipeline:
   This file contains the main code for training a model, using ArgParse library.
   How to use:
   ```python train_args_yolo.py data.yaml yolo11x.pt```
-  
-- [train_yolo.py](ALPHA5_train/train_yolo.py)
-  This file contains the same code than [train_args_yolo.py](ALPHA5_train/train_args_yolo.py), but without ArgParse library.
-  How to use:
-  ```python train_yolo.py```
 
-- **ALPHA5_train/hyperparam_tunning.py**  
-  In this file …
+- [hyperparam_yolo_tunning.py](ALPHA5_train/hyperparam_yolo_tunning.py)
+  This file contains the code to look for hyperparams in a YOLO model, using ArgParse library.
+  How to use:
+  ```python hyperparam_yolo_tunning.py data.yaml yolo11x.pt 100 20```
 
 - **ALPHA5_train/img_strattifier.py**  
   In this file …
