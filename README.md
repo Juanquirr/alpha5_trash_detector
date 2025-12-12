@@ -16,10 +16,6 @@ Key aspects:
 
 ---
 
-Your “Environment” section is correct, but it can be made more natural in English and more useful by adding the **exact commands** to build/run the container (so a reviewer can reproduce it immediately). Docker’s own docs emphasize that the Dockerfile is the recipe used to build an image/container, so it’s good to explicitly say “build the image” and “run the container” and then execute scripts inside it.[1][2]
-
-Here’s a polished version you can paste into your README:
-
 ## Environment
 
 The training and validation environment can be reproduced using the provided [Dockerfile](Dockerfile). Build the image and run a container, then execute the training/validation scripts inside the container.
