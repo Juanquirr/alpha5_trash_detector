@@ -1,200 +1,159 @@
 import os
 import random
 import shutil
+import argparse
 from collections import defaultdict
 
 random.seed(42)
-EXT_IMGS = (".jpg", ".jpeg", ".png")
+IMG_EXTS = (".jpg", ".jpeg", ".png")
 
 
-def count_instances_yolo(annotation_path):
+def count_yolo_instances(label_path: str) -> dict[int, int]:
     counts = defaultdict(int)
-    with open(annotation_path, "r", encoding="utf-8") as f:
+    with open(label_path, "r", encoding="utf-8") as f:
         for line in f:
-            if not line.strip():
+            line = line.strip()
+            if not line:
                 continue
             class_id = int(line.split()[0])
             counts[class_id] += 1
-    return counts
+    return dict(counts)
 
 
-def load_dataset(mixed_folder):
-    """
-    Devuelve:
-      - image_details: [(img_name, ann_name, counts_por_clase), ...]
-      - class_to_images: {class_id: [indices de image_details que contienen esa clase]}
-      - total_counts: instancias totales por clase
-    """
-    images = [f for f in os.listdir(mixed_folder)
-              if f.lower().endswith(EXT_IMGS)]
-
-    image_details = []
-    class_to_images = defaultdict(list)
-    total_counts = defaultdict(int)
-
-    for idx, img in enumerate(images):
-        base, _ = os.path.splitext(img)
-        ann = base + ".txt"
-        ann_path = os.path.join(mixed_folder, ann)
-        if not os.path.exists(ann_path):
+def load_samples(mixed_dir: str):
+    samples = []
+    for img_name in os.listdir(mixed_dir):
+        if not img_name.lower().endswith(IMG_EXTS):
             continue
 
-        counts = count_instances_yolo(ann_path)
+        stem, _ = os.path.splitext(img_name)
+        label_name = stem + ".txt"
+        label_path = os.path.join(mixed_dir, label_name)
+        if not os.path.exists(label_path):
+            continue
+
+        counts = count_yolo_instances(label_path)
         if not counts:
             continue
 
-        image_details.append((img, ann, counts))
+        samples.append((img_name, label_name, counts))
+    return samples
 
+
+def stratified_instance_split(samples, split_ratios=(0.7, 0.2, 0.1)):
+    total_counts = defaultdict(int)
+    for _, _, counts in samples:
         for c, n in counts.items():
-            class_to_images[c].append(idx)
             total_counts[c] += n
+    total_counts = dict(total_counts)
 
-    return image_details, class_to_images, total_counts
-
-
-def stratified_instance_split(image_details, class_to_images, total_counts,
-                              split_ratios=(0.7, 0.2, 0.1)):
-    """
-    Intenta conseguir, para cada clase c:
-      instancias_train[c] ≈ 0.7 * total_counts[c]
-      instancias_val[c]   ≈ 0.2 * total_counts[c]
-      instancias_test[c]  ≈ 0.1 * total_counts[c]
-    usando asignación greedy de imágenes. 
-    """
-    # objetivos de instancias por clase y split
     target_train = {c: int(total_counts[c] * split_ratios[0]) for c in total_counts}
-    target_val   = {c: int(total_counts[c] * split_ratios[1]) for c in total_counts}
-    target_test  = {c: total_counts[c] - target_train[c] - target_val[c] for c in total_counts}
+    target_val = {c: int(total_counts[c] * split_ratios[1]) for c in total_counts}
+    target_test = {c: total_counts[c] - target_train[c] - target_val[c] for c in total_counts}
 
-    # contadores actuales
     used_train = defaultdict(int)
-    used_val   = defaultdict(int)
-    used_test  = defaultdict(int)
+    used_val = defaultdict(int)
+    used_test = defaultdict(int)
 
-    n = len(image_details)
-    indices = list(range(n))
+    indices = list(range(len(samples)))
     random.shuffle(indices)
 
-    split_assign = {"train": set(), "val": set(), "test": set()}
+    assigned = {"train": set(), "val": set(), "test": set()}
 
-    def can_add(idx, split):
-        img, ann, counts = image_details[idx]
-        if split == "train":
-            for c, n in counts.items():
-                if used_train[c] + n > target_train[c]:
-                    return False
-        elif split == "val":
-            for c, n in counts.items():
-                if used_val[c] + n > target_val[c]:
-                    return False
-        else:  # test
-            for c, n in counts.items():
-                if used_test[c] + n > target_test[c]:
-                    return False
+    def can_add(i, split):
+        _, _, counts = samples[i]
+        used = used_train if split == "train" else used_val if split == "val" else used_test
+        target = target_train if split == "train" else target_val if split == "val" else target_test
+        for c, n in counts.items():
+            if used[c] + n > target.get(c, 0):
+                return False
         return True
 
-    def add(idx, split):
-        img, ann, counts = image_details[idx]
-        if split == "train":
-            for c, n in counts.items():
-                used_train[c] += n
-            split_assign["train"].add(idx)
-        elif split == "val":
-            for c, n in counts.items():
-                used_val[c] += n
-            split_assign["val"].add(idx)
-        else:
-            for c, n in counts.items():
-                used_test[c] += n
-            split_assign["test"].add(idx)
+    def add(i, split):
+        _, _, counts = samples[i]
+        used = used_train if split == "train" else used_val if split == "val" else used_test
+        for c, n in counts.items():
+            used[c] += n
+        assigned[split].add(i)
 
-    # estrategia simple: primera pasada para train, luego val, luego test
-    for split, target, used in [("train", target_train, used_train),
-                                ("val", target_val, used_val),
-                                ("test", target_test, used_test)]:
-        for idx in indices:
-            if idx in split_assign["train"] or idx in split_assign["val"] or idx in split_assign["test"]:
+    for split in ("train", "val", "test"):
+        for i in indices:
+            if i in assigned["train"] or i in assigned["val"] or i in assigned["test"]:
                 continue
-            if can_add(idx, split):
-                add(idx, split)
+            if can_add(i, split):
+                add(i, split)
 
-    # cualquier imagen no asignada aún va al split con mayor "hueco" global
-    for idx in indices:
-        if idx in split_assign["train"] or idx in split_assign["val"] or idx in split_assign["test"]:
+    for i in indices:
+        if i in assigned["train"] or i in assigned["val"] or i in assigned["test"]:
             continue
-        # elegir split con menos fracción de cumplimiento de objetivos
-        scores = {}
-        for split, target, used in [("train", target_train, used_train),
-                                    ("val", target_val, used_val),
-                                    ("test", target_test, used_test)]:
-            # suma de proporciones usadas/objetivo
-            s = 0.0
-            k = 0
+
+        def fill_score(split):
+            used = used_train if split == "train" else used_val if split == "val" else used_test
+            target = target_train if split == "train" else target_val if split == "val" else target_test
+            ratios = []
             for c in total_counts:
-                if target[c] > 0:
-                    s += min(1.0, used[c] / target[c])
-                    k += 1
-            scores[split] = s / max(1, k)
+                t = target.get(c, 0)
+                if t > 0:
+                    ratios.append(min(1.0, used[c] / t))
+            return sum(ratios) / max(1, len(ratios))
+
+        scores = {s: fill_score(s) for s in ("train", "val", "test")}
         best_split = min(scores, key=scores.get)
-        if can_add(idx, best_split):
-            add(idx, best_split)
+
+        if can_add(i, best_split):
+            add(i, best_split)
         else:
-            # si no cabe en ninguno según objetivos, lo mandamos a train por defecto
-            add(idx, "train")
+            add(i, "train")
 
-    train_set = [image_details[i] for i in split_assign["train"]]
-    val_set   = [image_details[i] for i in split_assign["val"]]
-    test_set  = [image_details[i] for i in split_assign["test"]]
+    train_set = [samples[i] for i in assigned["train"]]
+    val_set = [samples[i] for i in assigned["val"]]
+    test_set = [samples[i] for i in assigned["test"]]
 
-    return train_set, val_set, test_set, (used_train, used_val, used_test), (target_train, target_val, target_test)
+    used = {"train": dict(used_train), "val": dict(used_val), "test": dict(used_test)}
+    targets = {"train": target_train, "val": target_val, "test": target_test}
+
+    return train_set, val_set, test_set, total_counts, used, targets
 
 
-def copy_split(mixed_folder, output_folder, split_name, dataset):
-    img_out = os.path.join(output_folder, split_name, "images")
-    lab_out = os.path.join(output_folder, split_name, "labels")
+def copy_split(mixed_dir: str, out_dir: str, split_name: str, dataset):
+    img_out = os.path.join(out_dir, split_name, "images")
+    lbl_out = os.path.join(out_dir, split_name, "labels")
     os.makedirs(img_out, exist_ok=True)
-    os.makedirs(lab_out, exist_ok=True)
+    os.makedirs(lbl_out, exist_ok=True)
 
-    for img, ann, _ in dataset:
-        shutil.copy(os.path.join(mixed_folder, img),
-                    os.path.join(img_out, img))
-        shutil.copy(os.path.join(mixed_folder, ann),
-                    os.path.join(lab_out, ann))
+    for img_name, lbl_name, _ in dataset:
+        shutil.copy(os.path.join(mixed_dir, img_name), os.path.join(img_out, img_name))
+        shutil.copy(os.path.join(mixed_dir, lbl_name), os.path.join(lbl_out, lbl_name))
 
 
-def balance_by_instance_splits(mixed_folder, output_folder,
-                               split_ratios=(0.7, 0.2, 0.1)):
-    image_details, class_to_images, total_counts = load_dataset(mixed_folder)
-    print("Instancias totales por clase:", dict(total_counts))
+def balance_by_instance_splits(mixed_dir: str, out_dir: str, split_ratios=(0.7, 0.2, 0.1)):
+    samples = load_samples(mixed_dir)
+    train_set, val_set, test_set, totals, used, targets = stratified_instance_split(samples, split_ratios)
 
-    train_set, val_set, test_set, used_sets, target_sets = stratified_instance_split(
-        image_details, class_to_images, total_counts, split_ratios
-    )
+    for split_name, ds in (("train", train_set), ("val", val_set), ("test", test_set)):
+        copy_split(mixed_dir, out_dir, split_name, ds)
 
-    # copiar archivos
-    for name, ds in [("train", train_set), ("val", val_set), ("test", test_set)]:
-        copy_split(mixed_folder, output_folder, name, ds)
+    print("Total instances per class:", totals)
+    print("Targets:", targets)
+    print("Used:", used)
 
-    # mostrar stats
-    used_train, used_val, used_test = used_sets
-    target_train, target_val, target_test = target_sets
-    print("Objetivos train:", target_train)
-    print("Usado   train:", dict(used_train))
-    print("Objetivos val:", target_val)
-    print("Usado   val:", dict(used_val))
-    print("Objetivos test:", target_test)
-    print("Usado   test:", dict(used_test))
+    return used
 
-    return {
-        "train": dict(used_train),
-        "val": dict(used_val),
-        "test": dict(used_test),
-    }
+
+def build_args():
+    p = argparse.ArgumentParser(description="Instance-stratified dataset split for YOLO labels")
+    p.add_argument("mixed_dir", type=str, help="Folder containing images and YOLO .txt labels")
+    p.add_argument("--out_dir", type=str, default=None, help="Output folder (default: <mixed_dir>/balanced_by_instances)")
+    p.add_argument("--seed", type=int, default=42, help="Random seed")
+    p.add_argument("--ratios", type=float, nargs=3, default=(0.7, 0.2, 0.1),
+                   help="Split ratios: train val test (e.g. --ratios 0.7 0.2 0.1)")
+    return p.parse_args()
 
 
 if __name__ == "__main__":
-    mixed_folder = r"imagesv3.3"
-    output_folder = os.path.join(mixed_folder, "balanced_by_instances")
+    args = build_args()
+    random.seed(args.seed)
 
-    stats = balance_by_instance_splits(mixed_folder, output_folder)
-    print("Instancias finales por clase y split:", stats)
+    out_dir = args.out_dir or os.path.join(args.mixed_dir, "balanced_by_instances")
+    stats = balance_by_instance_splits(args.mixed_dir, out_dir, split_ratios=tuple(args.ratios))
+    print("Final instances per split:", stats)
