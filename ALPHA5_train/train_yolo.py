@@ -54,9 +54,15 @@ def build_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--optimizer",
         type=str,
-        default="AdamW",
+        default="Adam",
         choices=["SGD", "Adam", "AdamW", "NAdam", "RAdam", "RMSProp", "auto"],
         help="Optimizer to use",
+    )
+    parser.add_argument(
+        "--amp",
+        type=str,
+        default="True",
+        help="Automatic Mixed Precision. False state is recommended for a YOLO 12 train.",
     )
     parser.add_argument(
         "--hyperparams",
@@ -147,6 +153,7 @@ def train_yolo(args: argparse.Namespace) -> None:
         project=args.project,
         name=args.name,
         optimizer=args.optimizer,
+        amp=args.amp
         **hparams,
     )
 
