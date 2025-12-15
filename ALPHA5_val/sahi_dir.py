@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+
 import cv2
 from tqdm import tqdm
 from sahi import AutoDetectionModel
@@ -17,7 +18,7 @@ BAR_FORMAT = (
 )
 
 def build_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="SAHI sliced inference (Ultralytics) with dual tqdm bars.")
+    p = argparse.ArgumentParser(description="SAHI sliced inference (Ultralytics) with a single tqdm bar.")
 
     p.add_argument("source", type=str, help="Input image file or directory.")
     p.add_argument("model_path", type=str, help="Path to YOLO .pt weights.")
@@ -37,7 +38,7 @@ def build_args() -> argparse.Namespace:
         type=str,
         default="png",
         choices=["png", "jpg", "jpeg"],
-        help="Output image format.",
+        help="Output image format (if SAHI only exports PNG, conversion is done afterwards).",
     )
     return p.parse_args()
 
@@ -68,22 +69,26 @@ def export_visual(result, out_dir: Path, file_stem: str, fmt: str):
     fmt = fmt.lower().lstrip(".")
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # Try newer signature first (with export_format)
     try:
         result.export_visuals(
             export_dir=str(out_dir),
             file_name=file_stem,
-            export_format=fmt,
+            export_format=fmt,  # may not exist in older SAHI
         )
         return
     except TypeError:
+        # Fallback: older SAHI, only file_name supported, default PNG
         result.export_visuals(
             export_dir=str(out_dir),
             file_name=file_stem,
         )
 
+    # If the user asked for PNG, we're done
     if fmt in ("png",):
         return
 
+    # Otherwise convert the produced PNG to requested format if present
     png_path = out_dir / f"{file_stem}.png"
     if not png_path.exists():
         return
@@ -94,6 +99,7 @@ def export_visual(result, out_dir: Path, file_stem: str, fmt: str):
 
     out_path = out_dir / f"{file_stem}.{fmt}"
     cv2.imwrite(str(out_path), img)
+    # Remove PNG to keep only requested extension
     png_path.unlink(missing_ok=True)
 
 
@@ -115,12 +121,11 @@ def main():
         device=args.device,
     )
 
-    pbar_images = tqdm(
+    pbar = tqdm(
         total=len(images),
         desc="SAHI images",
         unit="img",
-        position=1,
-        leave=True,
+        leave=False,
         bar_format=BAR_FORMAT,
         colour=PURPLE,
         dynamic_ncols=True,
@@ -128,16 +133,7 @@ def main():
 
     try:
         for img_path in images:
-            pbar_crops = tqdm(
-                total=1,
-                desc=f"{img_path.name} crops",
-                unit="crop",
-                position=0,
-                leave=False,
-                bar_format=BAR_FORMAT,
-                colour=PURPLE,
-                dynamic_ncols=True,
-            )
+            pbar.set_description_str(img_path.name)
 
             result = get_sliced_prediction(
                 image=str(img_path),
@@ -151,11 +147,10 @@ def main():
             file_stem = safe_unique_name(img_path)
             export_visual(result, out_dir, file_stem, args.format)
 
-            pbar_crops.close()
-            pbar_images.update(1)
-
+            pbar.update(1)
     finally:
-        pbar_images.close()
+        pbar.close()
+
 
 if __name__ == "__main__":
     main()

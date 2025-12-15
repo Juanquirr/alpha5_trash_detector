@@ -64,19 +64,6 @@ Main training pipeline:
 
 Validation and evaluation scripts:
 
-- `ALPHA5_val/val_yolo.py` – validation with metrics (mAP, IoU, confusion matrix, etc.).
-- `ALPHA5_val/inference.py` – inference on single images or folders.
-- `ALPHA5_val/sahi.py`, `sahi_dir.py`, `sahi_test.py` – SAHI-based inference.
-- `ALPHA5_val/sliding2x2.py`, `sliding3x2.py` – sliding-window tiling strategies.
-
----
-
-## File descriptions
-
-Use this format to document each script/config in more detail:
-
-
-
 - **ALPHA5_val/val_yolo.py**  
   In this file …
 
@@ -86,8 +73,16 @@ Use this format to document each script/config in more detail:
 - **ALPHA5_val/sahi.py**  
   In this file …
 
-- **ALPHA5_val/sahi_dir.py**  
+- **ALPHA5_val/sahi_dir.py**
   In this file …
-
-- **AL
+  #### How to control it
+  SAHI doesn’t offer a “slice_count=N” parameter; you’d need to compute a slice size/overlap that yields approximately that number for your typical image size (or implement custom slicing and call get_sliced_prediction with your own slice boxes). The built-in API is size/overlap-driven.
+  - Fewer crops → increase slice_height/slice_width and/or decrease overlap ratios.​
+  - More crops → decrease slice_height/slice_width and/or increase overlap ratios.
+  
+- [pair_concat.py](ALPHA5_val/pair_concat.py)
+  This file..
+  How to use:
+  ```python pair_concat.py /path/originals /path/preds --match stem --out_dir /path/out```
+  ```python pair_concat.py /path/originals /path/preds --match stem --out_dir /path/out```
  
