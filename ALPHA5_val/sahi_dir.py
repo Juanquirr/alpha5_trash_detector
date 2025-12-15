@@ -1,6 +1,5 @@
 import argparse
 from pathlib import Path
-
 import cv2
 from tqdm import tqdm
 from sahi import AutoDetectionModel
@@ -18,15 +17,15 @@ BAR_FORMAT = (
 )
 
 def build_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="SAHI sliced inference (Ultralytics) with a single tqdm bar.")
+    p = argparse.ArgumentParser(description="SAHI sliced inference (Ultralytics) with dual tqdm bars.")
 
     p.add_argument("source", type=str, help="Input image file or directory.")
     p.add_argument("model_path", type=str, help="Path to YOLO .pt weights.")
+    p.add_argument("project", type=str, help="Output directory.")
 
     p.add_argument("--device", type=str, default="cuda:0", help="Device (e.g., cpu, cuda:0).")
     p.add_argument("--conf", type=float, default=0.25, help="Confidence threshold.")
-    p.add_argument("--project", type=str, required=True, help="Output directory.")
-
+    
     p.add_argument("--slice_height", type=int, default=320, help="Slice height.")
     p.add_argument("--slice_width", type=int, default=320, help="Slice width.")
     p.add_argument("--overlap_height_ratio", type=float, default=0.2, help="Slice overlap height ratio.")
@@ -38,7 +37,7 @@ def build_args() -> argparse.Namespace:
         type=str,
         default="png",
         choices=["png", "jpg", "jpeg"],
-        help="Output image format (if SAHI only exports PNG, conversion is done afterwards).",
+        help="Output image format.",
     )
     return p.parse_args()
 
@@ -69,26 +68,22 @@ def export_visual(result, out_dir: Path, file_stem: str, fmt: str):
     fmt = fmt.lower().lstrip(".")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Try newer signature first (with export_format)
     try:
         result.export_visuals(
             export_dir=str(out_dir),
             file_name=file_stem,
-            export_format=fmt,  # may not exist in older SAHI
+            export_format=fmt,
         )
         return
     except TypeError:
-        # Fallback: older SAHI, only file_name supported, default PNG
         result.export_visuals(
             export_dir=str(out_dir),
             file_name=file_stem,
         )
 
-    # If the user asked for PNG, we're done
     if fmt in ("png",):
         return
 
-    # Otherwise convert the produced PNG to requested format if present
     png_path = out_dir / f"{file_stem}.png"
     if not png_path.exists():
         return
@@ -99,7 +94,6 @@ def export_visual(result, out_dir: Path, file_stem: str, fmt: str):
 
     out_path = out_dir / f"{file_stem}.{fmt}"
     cv2.imwrite(str(out_path), img)
-    # Optional: remove PNG to keep only requested extension
     png_path.unlink(missing_ok=True)
 
 
@@ -121,11 +115,12 @@ def main():
         device=args.device,
     )
 
-    pbar = tqdm(
+    pbar_images = tqdm(
         total=len(images),
         desc="SAHI images",
         unit="img",
-        leave=False,
+        position=1,
+        leave=True,
         bar_format=BAR_FORMAT,
         colour=PURPLE,
         dynamic_ncols=True,
@@ -133,7 +128,16 @@ def main():
 
     try:
         for img_path in images:
-            pbar.set_description_str(img_path.name)
+            pbar_crops = tqdm(
+                total=1,
+                desc=f"{img_path.name} crops",
+                unit="crop",
+                position=0,
+                leave=False,
+                bar_format=BAR_FORMAT,
+                colour=PURPLE,
+                dynamic_ncols=True,
+            )
 
             result = get_sliced_prediction(
                 image=str(img_path),
@@ -147,10 +151,11 @@ def main():
             file_stem = safe_unique_name(img_path)
             export_visual(result, out_dir, file_stem, args.format)
 
-            pbar.update(1)
-    finally:
-        pbar.close()
+            pbar_crops.close()
+            pbar_images.update(1)
 
+    finally:
+        pbar_images.close()
 
 if __name__ == "__main__":
     main()

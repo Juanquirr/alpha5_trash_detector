@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 IMG_EXTS = {".jpg", ".jpeg", ".png"}
 PURPLE = "#8000ff"
+GREEN = "#00ff00"
 BAR_FORMAT = (
     "{desc:<28} "
     "|{bar}| "
@@ -24,6 +25,16 @@ class UniformCrops:
         self._overlap_ratio = overlap_ratio
 
     def crop(self, frame: np.ndarray, crops_number: int):
+        """
+        Split frame into uniform overlapping crops.
+        
+        Args:
+            frame: Input image (numpy array)
+            crops_number: Number of crops (must be even and positive)
+            
+        Returns:
+            Tuple of (crops_list, coordinates_list)
+        """
         if (crops_number % 2 != 0) or (crops_number <= 0):
             raise ValueError("crops_number must be even and positive")
 
@@ -35,6 +46,16 @@ class UniformCrops:
         return crops, coords
 
     def _get_crops_coords(self, frame: np.ndarray, crops_number: int):
+        """
+        Calculate crop coordinates for uniform grid with overlap.
+        
+        Args:
+            frame: Input image
+            crops_number: Number of crops to generate
+            
+        Returns:
+            List of (x_min, y_min, x_max, y_max) tuples
+        """
         import math
 
         height, width = frame.shape[:2]
@@ -70,6 +91,16 @@ class UniformCrops:
         return coords
 
 def compute_iou_xyxy(a, b) -> float:
+    """
+    Compute Intersection over Union for two bounding boxes in xyxy format.
+    
+    Args:
+        a: First box [x1, y1, x2, y2]
+        b: Second box [x1, y1, x2, y2]
+        
+    Returns:
+        IoU value between 0 and 1
+    """
     ax1, ay1, ax2, ay2 = a
     bx1, by1, bx2, by2 = b
     x1, y1 = max(ax1, bx1), max(ay1, by1)
@@ -81,6 +112,18 @@ def compute_iou_xyxy(a, b) -> float:
     return inter / union if union > 0 else 0.0
 
 def greedy_nms_classwise(boxes, scores, classes, iou_thres: float):
+    """
+    Apply class-wise Non-Maximum Suppression.
+    
+    Args:
+        boxes: Array of bounding boxes
+        scores: Array of confidence scores
+        classes: Array of class IDs
+        iou_thres: IoU threshold for suppression
+        
+    Returns:
+        List of indices to keep
+    """
     keep = []
     for cls_id in sorted(set(classes)):
         idxs = [i for i, c in enumerate(classes) if c == cls_id]
@@ -101,18 +144,43 @@ def greedy_nms_classwise(boxes, scores, classes, iou_thres: float):
     return keep
 
 def iter_images(source: Path, recursive: bool):
+    """
+    List all image files from source path.
+    
+    Args:
+        source: File or directory path
+        recursive: Search recursively if True
+        
+    Returns:
+        List of image file paths
+    """
     if source.is_file():
         return [source] if source.suffix.lower() in IMG_EXTS else []
     if source.is_dir():
         it = source.rglob("*") if recursive else source.iterdir()
-        return [p for p in it if p.is_file() and p.suffix.lower() in IMG_EXTS]
+        return sorted([p for p in it if p.is_file() and p.suffix.lower() in IMG_EXTS])
     return []
 
 def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: float, device: str,
-                  crops_number: int, overlap: float, save_crops: bool, pbar: tqdm | None):
+                  crops_number: int, overlap: float, save_crops: bool, pbar_crops: tqdm | None):
+    """
+    Process a single image with tiled inference.
+    
+    Args:
+        model: YOLO model instance
+        img_path: Path to input image
+        out_dir: Output directory
+        conf: Confidence threshold
+        iou: IoU threshold for NMS
+        device: Device for inference
+        crops_number: Number of crops to generate
+        overlap: Overlap ratio between crops
+        save_crops: Whether to save individual crop predictions
+        pbar_crops: Progress bar for crops
+    """
     img = cv2.imread(str(img_path))
     if img is None:
-        print(f"Skipping unreadable image: {img_path}")
+        tqdm.write(f"⚠️  Skipping unreadable image: {img_path}")
         return
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -125,9 +193,9 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
 
     all_boxes, all_scores, all_classes = [], [], []
 
-    if pbar is not None:
-        pbar.reset(total=len(crops))
-        pbar.set_description_str(f"{img_path.name} crops")
+    if pbar_crops is not None:
+        pbar_crops.reset(total=len(crops))
+        pbar_crops.set_description_str(f"{img_path.name}")
 
     for idx, (crop, (x_min, y_min, _, _)) in enumerate(zip(crops, coords)):
         results = model.predict(crop, device=device, conf=conf, verbose=False)
@@ -138,8 +206,8 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
             cv2.imwrite(str(crops_dir / f"crop_{idx:02d}.jpg"), crop_annot)
 
         if r.boxes is None or len(r.boxes) == 0:
-            if pbar is not None:
-                pbar.update(1)
+            if pbar_crops is not None:
+                pbar_crops.update(1)
             continue
 
         boxes = r.boxes.xyxy.cpu().numpy()
@@ -157,8 +225,8 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
             all_scores.append(float(s))
             all_classes.append(int(c))
 
-        if pbar is not None:
-            pbar.update(1)
+        if pbar_crops is not None:
+            pbar_crops.update(1)
 
     if all_boxes:
         boxes = np.array(all_boxes, dtype=np.float32)
@@ -189,7 +257,7 @@ def build_args():
     p.add_argument("--device", type=str, default="cuda:0", help="Device (e.g., cpu, cuda:0).")
 
     p.add_argument("--crops", type=int, default=4, help="Number of crops (must be even). More than 8 crops is not recomended.")
-    p.add_argument("--overlap", type=float, default=0.25, help="Overlap ratio in [0, 1).")
+    p.add_argument("--overlap", type=float, default=0.2, help="Overlap ratio in [0, 1).")
     p.add_argument("--save_crops", action="store_true", help="Save annotated crop images.")
     p.add_argument("--recursive", action="store_true", help="Search images recursively when source is a directory.")
     return p.parse_args()
@@ -201,20 +269,35 @@ def main():
     out_dir = Path(args.out_dir)
 
     if args.crops <= 0 or args.crops % 2 != 0:
-        raise SystemExit("--crops must be an even positive integer")
+        raise SystemExit("❌ --crops must be an even positive integer")
 
     model = YOLO(args.model)
 
     images = iter_images(source, recursive=args.recursive)
     if not images:
-        raise SystemExit(f"No supported images found in: {source}")
+        raise SystemExit(f"❌ No supported images found in: {source}")
 
-    pbar = tqdm(
-        total=1,
-        desc="Waiting...",
-        leave=False,
+    print(f"✓ Found {len(images)} image(s)")
+
+    pbar_images = tqdm(
+        total=len(images),
+        desc="Images processed",
+        unit="img",
+        position=1,
+        leave=True,
         bar_format=BAR_FORMAT,
         colour=PURPLE,
+        dynamic_ncols=True,
+    )
+
+    pbar_crops = tqdm(
+        total=1,
+        desc="Waiting...",
+        unit="crop",
+        position=0,
+        leave=False,
+        bar_format=BAR_FORMAT,
+        colour=GREEN,
         dynamic_ncols=True,
     )
 
@@ -230,12 +313,14 @@ def main():
                 crops_number=args.crops,
                 overlap=args.overlap,
                 save_crops=args.save_crops,
-                pbar=pbar,
+                pbar_crops=pbar_crops,
             )
+            pbar_images.update(1)
     finally:
-        pbar.close()
+        pbar_crops.close()
+        pbar_images.close()
 
-    print(f"😎 Crops done! Image(s) stored at {args.out_dir}")
+    print(f"\n😎 Crops done! Image(s) stored at {args.out_dir}")
 
 if __name__ == "__main__":
     main()
