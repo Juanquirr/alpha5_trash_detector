@@ -1,8 +1,7 @@
-# Alpha5 Trash Detector
+# Alpha5 - Trash Detector
 
-Trash detection system using **YOLOv11**. This repository contains the scripts used for training, validation, and result analysis of a multi-class trash detector trained on a custom labeled dataset.
+Trash detection system using **YOLO 11**. This repository contains the scripts used for training, validation, and result analysis of a multi-class trash detector trained on a custom labeled dataset.
 
----
 
 ## Project overview
 
@@ -10,10 +9,9 @@ The goal of this project is to build an **object detection model** robust enough
 
 Key aspects:
 - YOLOv11 models trained with **Bayesian hyperparameter tuning**.
-- Sliding-window + SAHI inference utilities for handling large images.
-- Full experiment traces stored under `Yolo11_results/`.
+- Sliding-window + SAHI inference utilities for handling small objects or complex images.
+- Best experiment traces stored under `Yolo11_results/`.
 
----
 
 ## Environment
 
@@ -21,7 +19,7 @@ The training and validation environment can be reproduced using the provided [Do
 
 ### Build
 ```
-docker build -f .\Dockerfile -t yolo11:tag .
+docker build -f ./Dockerfile -t yolo11:tag .
 ```
 
 ### Run
@@ -29,60 +27,100 @@ docker build -f .\Dockerfile -t yolo11:tag .
 docker run -it --gpus all --shm-size=8g -v "$pwd:/ultralytics/USER" --name "..." yolo11:tag
 ```
 
-Inside the container:
+## Dataset
+
+**`ALPHA5_train/alpha5_trash_v3.3/data.yaml`**: Standard Ultralytics YAML defining `train`/`val`/`test` paths and class names.
 ```
-python train_args_yolo.py
-python val_args_yolo.py
+nc: 8
+names:
+  0: plastic_bottle
+  1: glass
+  2: can
+  3: plastic_bag
+  4: metal_scrap
+  5: plastic_wrapper
+  6: trash_pile
+  7: trash
 ```
 
----
 
 ## How to use
 
 ### 1. Training
 
-Main training pipeline:
+#### `train_yolo.py`
+Main training pipeline with ArgParse, early stopping and mAP50 monitoring per epoch.
 
-- [train_args_yolo.py](ALPHA5_train/train_args_yolo.py)
-  This file contains the main code for training a model, using ArgParse library.
-  How to use:
-  ```python train_args_yolo.py data.yaml yolo11x.pt```
+```
+python train_yolo.py data/alpha5_trash_v3.3/data.yaml yolo11x.pt \
+  --epochs 300 --batch -1 --imgsz 640 --workers 8 \
+  --project /ultralytics/plocania/runs/detect/train --name alpha5_yolo11x
+```
 
-- [hyperparam_yolo_tunning.py](ALPHA5_train/hyperparam_yolo_tunning.py)
-  This file contains the code to look for hyperparams in a YOLO model, using ArgParse library.
-  How to use:
-  ```python hyperparam_yolo_tunning.py data.yaml yolo11x.pt 100 20```
+#### `hyperparam_yolo_tunning.py`
+Hyperparameter tuning with `model.tune()`.
 
-- **ALPHA5_train/img_strattifier.py**  
-  In this file …
+```
+python hyperparam_yolo_tunning.py \
+  data/alpha5_trash_v3.3/data.yaml yolo11x.pt 50 20 \
+  --imgsz 640 --batch -1 --name alpha5_tune
+```
 
-- **ALPHA5_train/alpha5_trash_v3.3/data.yaml**  
-  In this file …
+#### `img_stratifier.py`
+Instance-stratified dataset split (by object count, not image count).
 
+```
+python img_stratifier.py mixed_dataset \
+  --out_dir alpha5_trash_v3.3/instance_balanced \
+  --ratios 0.7 0.2 0.1
+```
 
 ### 2. Validation & inference
 
-Validation and evaluation scripts:
+#### `val_yolo.py`
+Full validation + optional predictions/concat export.
 
-- **ALPHA5_val/val_yolo.py**  
-  In this file …
+```
+python val_yolo.py data/alpha5_trash_v3.3/data.yaml runs/detect/train/exp/weights/best.pt \
+  --imgsz 640 --batch 16 --conf 0.25 --iou 0.35 \
+  --plots --save_json --per_class_csv \
+  --predict_val --concat --concat_dirname predictions_val_concat
+```
 
-- **ALPHA5_val/inference.py**  
-  In this file …
+#### `inference.py`
+Simple inference with time/memory profiling.
 
-- **ALPHA5_val/sahi.py**  
-  In this file …
+```
+python inference.py images/ yolo11x.pt outputs_inference \
+  --device cuda:0 --conf 0.25 --imgsz 640
+```
 
-- **ALPHA5_val/sahi_dir.py**
-  In this file …
-  #### How to control it
-  SAHI doesn’t offer a “slice_count=N” parameter; you’d need to compute a slice size/overlap that yields approximately that number for your typical image size (or implement custom slicing and call get_sliced_prediction with your own slice boxes). The built-in API is size/overlap-driven.
-  - Fewer crops → increase slice_height/slice_width and/or decrease overlap ratios.​
-  - More crops → decrease slice_height/slice_width and/or increase overlap ratios.
-  
-- [pair_concat.py](ALPHA5_val/pair_concat.py)
-  This file..
-  How to use:
-  ```python pair_concat.py /path/originals /path/preds --match stem --out_dir /path/out```
-  ```python pair_concat.py /path/originals /path/preds --match stem --out_dir /path/out```
- 
+#### `sahi_dir.py`
+SAHI sliced inference (size/overlap-driven).
+
+```
+python sahi_dir.py big_images/ yolo11x.pt sahi_outputs \
+  --slice_height 320 --slice_width 320 \
+  --overlap_height_ratio 0.2 --overlap_width_ratio 0.2 \
+  --device cuda:0 --format jpg --recursive
+```
+
+#### `sliding_windows.py`
+Custom uniform sliding window with global NMS.
+
+```
+python sliding_windows.py big_images/ yolo11x.pt \
+  --crops 6 --overlap 0.2 --conf 0.25 --iou 0.45 \
+  --device cuda:0 --save_crops --draw_grid \
+  --out_dir sliding_windows_outputs
+```
+
+#### `pair_concat.py`
+Concatenate paired images (original | prediction) by alphabetical order.
+
+```
+python pair_concat.py originals_dir preds_dir \
+  --out_dir concatenated_pairs --suffix _concat
+```
+
+---
