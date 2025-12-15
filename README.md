@@ -48,7 +48,7 @@ names:
 
 ### 1. Training
 
-#### `train_yolo.py`
+#### [train_yolo.py](ALPHA5_train/train_yolo.py)
 Main training pipeline with ArgParse, early stopping and mAP50 monitoring per epoch.
 
 ```
@@ -57,7 +57,7 @@ python train_yolo.py data/alpha5_trash_v3.3/data.yaml yolo11x.pt \
   --project /ultralytics/plocania/runs/detect/train --name alpha5_yolo11x
 ```
 
-#### `hyperparam_yolo_tunning.py`
+#### [hyperparam_yolo_tunning.py](ALPHA5_train/hyperparam_yolo_tunning.py)
 Hyperparameter tuning with `model.tune()`.
 
 ```
@@ -66,7 +66,7 @@ python hyperparam_yolo_tunning.py \
   --imgsz 640 --batch -1 --name alpha5_tune
 ```
 
-#### `img_stratifier.py`
+#### [img_stratifier.py](ALPHA5_train/img_stratifier.py)
 Instance-stratified dataset split (by object count, not image count).
 
 ```
@@ -77,7 +77,7 @@ python img_stratifier.py mixed_dataset \
 
 ### 2. Validation & inference
 
-#### `val_yolo.py`
+#### [val_yolo.py](ALPHA5_val/val_yolo.py)
 Full validation + optional predictions/concat export.
 
 ```
@@ -87,7 +87,7 @@ python val_yolo.py data/alpha5_trash_v3.3/data.yaml runs/detect/train/exp/weight
   --predict_val --concat --concat_dirname predictions_val_concat
 ```
 
-#### `inference.py`
+#### [inference.py](ALPHA5_val/inference.py)
 Simple inference with time/memory profiling.
 
 ```
@@ -95,7 +95,7 @@ python inference.py images/ yolo11x.pt outputs_inference \
   --device cuda:0 --conf 0.25 --imgsz 640
 ```
 
-#### `sahi_dir.py`
+#### [sahi_dir.py](ALPHA5_val/sahi_dir.py)
 SAHI sliced inference (size/overlap-driven).
 
 ```
@@ -105,8 +105,8 @@ python sahi_dir.py big_images/ yolo11x.pt sahi_outputs \
   --device cuda:0 --format jpg --recursive
 ```
 
-#### `sliding_windows.py`
-Custom uniform sliding window with global NMS.
+#### [static_slices.py](ALPHA5_val/static_slices.py)
+Custom script to perform uniform static slices with global NMS in an image.
 
 ```
 python sliding_windows.py big_images/ yolo11x.pt \
@@ -115,7 +115,7 @@ python sliding_windows.py big_images/ yolo11x.pt \
   --out_dir sliding_windows_outputs
 ```
 
-#### `pair_concat.py`
+#### [pair_concat.py](ALPHA5_val/pair_concat.py)
 Concatenate paired images (original | prediction) by alphabetical order.
 
 ```
