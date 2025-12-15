@@ -161,8 +161,30 @@ def iter_images(source: Path, recursive: bool):
         return sorted([p for p in it if p.is_file() and p.suffix.lower() in IMG_EXTS])
     return []
 
+
+def draw_crop_grid(base_img: np.ndarray, coords, color=(0, 255, 255), thickness=1) -> np.ndarray:
+    """
+    Draw crop rectangles on a copy of the original image.
+    
+    Args:
+        base_img: Original image
+        coords: List of (x_min, y_min, x_max, y_max) crop coordinates (floats)
+        color: BGR color for the grid lines
+        thickness: Line thickness
+        
+    Returns:
+        Image with crop grid drawn
+    """
+    grid_img = base_img.copy()
+    for (x_min, y_min, x_max, y_max) in coords:
+        x1, y1, x2, y2 = map(int, map(round, (x_min, y_min, x_max, y_max)))
+        cv2.rectangle(grid_img, (x1, y1), (x2, y2), color, thickness)
+    return grid_img
+
+
 def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: float, device: str,
-                  crops_number: int, overlap: float, save_crops: bool, pbar_crops: tqdm | None):
+                  crops_number: int, overlap: float, save_crops: bool, draw_grid: bool,
+                  pbar_crops: tqdm | None):
     """
     Process a single image with tiled inference.
     
@@ -176,6 +198,7 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
         crops_number: Number of crops to generate
         overlap: Overlap ratio between crops
         save_crops: Whether to save individual crop predictions
+        draw_grid: Whether to save the original image with crop grid drawn
         pbar_crops: Progress bar for crops
     """
     img = cv2.imread(str(img_path))
@@ -190,6 +213,11 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
 
     cropper = UniformCrops(overlap_ratio=overlap)
     crops, coords = cropper.crop(img, crops_number=crops_number)
+
+    if draw_grid:
+        grid_img = draw_crop_grid(img, coords, color=(0, 255, 255), thickness=1)
+        grid_path = out_dir / f"{img_path.stem}_grid_{crops_number}.jpg"
+        cv2.imwrite(str(grid_path), grid_img)
 
     all_boxes, all_scores, all_classes = [], [], []
 
@@ -259,6 +287,7 @@ def build_args():
     p.add_argument("--crops", type=int, default=4, help="Number of crops (must be even). More than 8 crops is not recomended.")
     p.add_argument("--overlap", type=float, default=0.2, help="Overlap ratio in [0, 1).")
     p.add_argument("--save_crops", action="store_true", help="Save annotated crop images.")
+    p.add_argument("--draw_grid", action="store_true", help="Save original image with crop grid drawn.")
     p.add_argument("--recursive", action="store_true", help="Search images recursively when source is a directory.")
     return p.parse_args()
 
@@ -313,6 +342,7 @@ def main():
                 crops_number=args.crops,
                 overlap=args.overlap,
                 save_crops=args.save_crops,
+                draw_grid=args.draw_grid,
                 pbar_crops=pbar_crops,
             )
             pbar_images.update(1)
