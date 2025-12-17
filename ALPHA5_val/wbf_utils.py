@@ -149,3 +149,76 @@ def greedy_nms_classwise(boxes, scores, classes, iou_thres: float):
         keep.extend(picked)
     keep.sort(key=lambda i: scores[i], reverse=True)
     return keep
+
+
+def deduplicate_detections(boxes, scores, classes, 
+                          iou_threshold=0.5,
+                          trash_class_id=7,
+                          prioritize_non_trash=True,
+                          keep_all=False):
+    """
+    Remove duplicate detections, keeping highest confidence.
+    Special handling for 'trash' class: deprioritize in favor of specific classes.
+    
+    Args:
+        boxes: Array [N, 4] in xyxy format
+        scores: Array [N] confidence scores
+        classes: Array [N] class IDs
+        iou_threshold: IoU >= this → consider duplicates
+        trash_class_id: Class ID for generic "trash" (default: 7)
+        prioritize_non_trash: If True, prefer non-trash classes over trash
+        keep_all: If True, skip deduplication (show all detections)
+        
+    Returns:
+        Filtered (boxes, scores, classes) with duplicates removed
+    """
+    if len(boxes) == 0 or keep_all:
+        return boxes, scores, classes
+    
+    n = len(boxes)
+    keep_mask = np.ones(n, dtype=bool)
+    
+    # Sort by confidence descending
+    sorted_indices = np.argsort(-scores)
+    
+    for i in range(n):
+        if not keep_mask[sorted_indices[i]]:
+            continue
+        
+        idx_i = sorted_indices[i]
+        box_i = boxes[idx_i]
+        score_i = scores[idx_i]
+        cls_i = classes[idx_i]
+        
+        # Find overlapping detections
+        for j in range(i + 1, n):
+            idx_j = sorted_indices[j]
+            
+            if not keep_mask[idx_j]:
+                continue
+            
+            box_j = boxes[idx_j]
+            cls_j = classes[idx_j]
+            
+            iou = compute_iou_xyxy(box_i, box_j)
+            
+            if iou >= iou_threshold:
+                # Overlapping detections found
+                
+                if prioritize_non_trash:
+                    # Special logic: trash loses to any specific class
+                    if cls_i == trash_class_id and cls_j != trash_class_id:
+                        # Keep j (specific class), discard i (trash)
+                        keep_mask[idx_i] = False
+                        break  # i is discarded, move to next
+                    elif cls_i != trash_class_id and cls_j == trash_class_id:
+                        # Keep i (specific class), discard j (trash)
+                        keep_mask[idx_j] = False
+                    else:
+                        # Both same priority: keep higher confidence (i)
+                        keep_mask[idx_j] = False
+                else:
+                    # Standard: keep higher confidence (always i since sorted)
+                    keep_mask[idx_j] = False
+    
+    return boxes[keep_mask], scores[keep_mask], classes[keep_mask]

@@ -7,7 +7,7 @@ from ultralytics.utils.plotting import Annotator, colors
 from tqdm import tqdm
 
 from crop_utils import UniformCrops, draw_crop_grid, iter_images
-from wbf_utils import weighted_boxes_fusion, greedy_nms_classwise
+from wbf_utils import weighted_boxes_fusion, greedy_nms_classwise, deduplicate_detections
 
 
 PURPLE = "#8000ff"
@@ -23,10 +23,12 @@ BAR_FORMAT = (
 
 def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: float, 
                  device: str, crops_number: int, overlap: float, fusion_method: str,
-                 save_crops: bool, draw_grid: bool, pbar_crops: tqdm = None):
+                 save_crops: bool, draw_grid: bool,
+                 iou_dedup: float, trash_id: int, prioritize_specific: bool, keep_all: bool,
+                 pbar_crops: tqdm = None):
     """
     Process a single image with tiled inference.
-    Supports both NMS and WBF fusion methods.
+    Supports both NMS and WBF fusion methods with deduplication.
     
     Args:
         model: YOLO model instance
@@ -40,6 +42,10 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
         fusion_method: 'nms' or 'wbf'
         save_crops: Whether to save individual crop predictions
         draw_grid: Whether to save the original image with crop grid drawn
+        iou_dedup: IoU threshold for deduplication
+        trash_id: Class ID for 'trash' to deprioritize
+        prioritize_specific: Deprioritize 'trash' in favor of specific classes
+        keep_all: Keep all detections (no deduplication)
         pbar_crops: Progress bar for crops
     """
     img = cv2.imread(str(img_path))
@@ -99,24 +105,33 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
         if pbar_crops is not None:
             pbar_crops.update(1)
 
-    # Apply fusion method
+    # Apply fusion method + deduplication
     if all_boxes:
         boxes = np.array(all_boxes, dtype=np.float32)
         scores = np.array(all_scores, dtype=np.float32)
         classes = np.array(all_classes, dtype=np.int32)
 
+        # Step 1: Fusion (WBF or NMS)
         if fusion_method == "wbf":
-            # Weighted Boxes Fusion
             boxes, scores, classes = weighted_boxes_fusion(
                 boxes, scores, classes,
                 iou_thres=iou,
                 skip_box_thr=conf
             )
         else:  # nms
-            # Classic Non-Maximum Suppression
             keep = greedy_nms_classwise(boxes, scores, classes, iou_thres=iou)
             boxes, scores, classes = boxes[keep], scores[keep], classes[keep]
 
+        # Step 2: Deduplication (ANTES de anotar)
+        boxes, scores, classes = deduplicate_detections(
+            boxes, scores, classes,
+            iou_threshold=iou_dedup,
+            trash_class_id=trash_id,
+            prioritize_non_trash=prioritize_specific,
+            keep_all=keep_all
+        )
+
+        # Step 3: Annotate (con detecciones ya filtradas)
         annotator = Annotator(img, line_width=2, example=model.names)
         for box, score, cls_id in zip(boxes, scores, classes):
             name = model.names.get(int(cls_id), str(int(cls_id)))
@@ -159,6 +174,16 @@ def build_args():
     p.add_argument("--recursive", action="store_true", 
                    help="Search images recursively when source is a directory.")
     
+    # Deduplication parameters
+    p.add_argument("--keep_all", action="store_true",
+                   help="Keep all detections (no deduplication)")
+    p.add_argument("--iou_dedup", type=float, default=0.8,
+                   help="IoU threshold for deduplication (default: 0.8)")
+    p.add_argument("--trash_id", type=int, default=7,
+                   help="Class ID for 'trash' to deprioritize (default: 7)")
+    p.add_argument("--prioritize_specific", action="store_true",
+                   help="Deprioritize 'trash' in favor of specific classes")
+    
     return p.parse_args()
 
 
@@ -179,6 +204,10 @@ def main():
     
     print(f"✓ Found {len(images)} image(s)")
     print(f"✓ Fusion method: {args.fusion.upper()}")
+    if not args.keep_all:
+        print(f"✓ Deduplication: IoU >= {args.iou_dedup}")
+        if args.prioritize_specific:
+            print(f"✓ Trash deprioritization: class_id={args.trash_id}")
     
     pbar_images = tqdm(
         total=len(images),
@@ -216,6 +245,10 @@ def main():
                 fusion_method=args.fusion,
                 save_crops=args.save_crops,
                 draw_grid=args.draw_grid,
+                iou_dedup=args.iou_dedup,
+                trash_id=args.trash_id,
+                prioritize_specific=args.prioritize_specific,
+                keep_all=args.keep_all,
                 pbar_crops=pbar_crops,
             )
             pbar_images.update(1)
