@@ -1,9 +1,3 @@
-"""
-inference_tiled.py
-
-Tiled inference with Ultralytics YOLO supporting both NMS and WBF fusion methods.
-"""
-
 import argparse
 from pathlib import Path
 import cv2
@@ -13,7 +7,7 @@ from ultralytics.utils.plotting import Annotator, colors
 from tqdm import tqdm
 
 from crop_utils import UniformCrops, draw_crop_grid, iter_images
-from wbf_utils import compute_iou_xyxy, weighted_boxes_fusion, greedy_nms_classwise
+from wbf_utils import weighted_boxes_fusion, greedy_nms_classwise
 
 
 PURPLE = "#8000ff"
