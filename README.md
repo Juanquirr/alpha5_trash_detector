@@ -2,6 +2,8 @@
 
 Trash detection system using **YOLO 11**. This repository contains the scripts used for training, validation, and result analysis of a multi-class trash detector trained on a custom labeled dataset.
 
+## Author
+- Juan Carlos Rodríguez Ramírez
 
 ## Project overview
 
@@ -52,9 +54,9 @@ names:
 Main training pipeline with ArgParse, early stopping and mAP50 monitoring per epoch.
 
 ```
-python train_yolo.py data/alpha5_trash_v3.3/data.yaml yolo11x.pt \
+python train_yolo.py data/alpha5_trash_v3.3/data.yaml model.pt \
   --epochs 300 --batch -1 --imgsz 640 --workers 8 \
-  --project /ultralytics/plocania/runs/detect/train --name alpha5_yolo11x
+  --project /ultralytics/USER/runs/detect/train --name alpha5_yolo11
 ```
 
 #### [hyperparam_yolo_tunning.py](ALPHA5_train/hyperparam_yolo_tunning.py)
@@ -62,7 +64,7 @@ Hyperparameter tuning with `model.tune()`.
 
 ```
 python hyperparam_yolo_tunning.py \
-  data/alpha5_trash_v3.3/data.yaml yolo11x.pt 50 20 \
+  data/alpha5_trash_v3.3/data.yaml model.pt 50 20 \
   --imgsz 640 --batch -1 --name alpha5_tune
 ```
 
@@ -91,7 +93,7 @@ python val_yolo.py data/alpha5_trash_v3.3/data.yaml runs/detect/train/exp/weight
 Simple inference with time/memory profiling.
 
 ```
-python inference.py images/ yolo11x.pt outputs_inference \
+python inference.py images/ model.pt outputs_inference \
   --device cuda:0 --conf 0.25 --imgsz 640
 ```
 
@@ -99,7 +101,7 @@ python inference.py images/ yolo11x.pt outputs_inference \
 SAHI sliced inference (size/overlap-driven).
 
 ```
-python sahi_dir.py big_images/ yolo11x.pt sahi_outputs \
+python sahi_dir.py big_images/ model.pt sahi_outputs \
   --slice_height 320 --slice_width 320 \
   --overlap_height_ratio 0.2 --overlap_width_ratio 0.2 \
   --device cuda:0 --format jpg --recursive
@@ -109,7 +111,7 @@ python sahi_dir.py big_images/ yolo11x.pt sahi_outputs \
 Custom script to perform uniform static slices with global NMS in an image.
 
 ```
-python sliding_windows.py big_images/ yolo11x.pt \
+python sliding_windows.py big_images/ model.pt \
   --crops 6 --overlap 0.2 --conf 0.25 --iou 0.45 \
   --device cuda:0 --save_crops --draw_grid \
   --out_dir sliding_windows_outputs
@@ -124,3 +126,14 @@ python pair_concat.py originals_dir preds_dir \
 ```
 
 ---
+
+## Disclaimer
+
+For this project, **yolo11x.pt** (YOLOv11's heaviest model) was used due to its superior performance on small and complex object detection. Lighter models (`yolo11n/s/m`) were tested but yielded lower mAP50 and recall scores.
+
+Feel free to experiment with:
+- Other YOLOv11 sizes: `yolo11n.pt`, `yolo11s.pt`, `yolo11m.pt`
+- Ultralytics versions: YOLOv8, YOLOv12  
+- Custom models: `from_scratch` or fine-tuning your own checkpoints
+
+**Recommendation**: For limited hardware, start with `yolo11m.pt` and use `--imgsz 416` to balance speed vs accuracy.
