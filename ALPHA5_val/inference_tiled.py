@@ -1,3 +1,9 @@
+"""
+inference_tiled.py
+
+Tiled inference with Ultralytics YOLO supporting both NMS and WBF fusion methods.
+"""
+
 import argparse
 from pathlib import Path
 import cv2
@@ -7,9 +13,9 @@ from ultralytics.utils.plotting import Annotator, colors
 from tqdm import tqdm
 
 from crop_utils import UniformCrops, draw_crop_grid, iter_images
-from wbf_utils import compute_iou_xyxy, weighted_boxes_fusion
+from wbf_utils import compute_iou_xyxy, weighted_boxes_fusion, greedy_nms_classwise
 
-IMG_EXTS = {".jpg", ".jpeg", ".png"}
+
 PURPLE = "#8000ff"
 GREEN = "#00ff00"
 BAR_FORMAT = (
@@ -20,22 +26,24 @@ BAR_FORMAT = (
     "[{elapsed}<{remaining}, {rate_fmt}]"
 )
 
-def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: float, device: str,
-                  crops_number: int, overlap: float, save_crops: bool, draw_grid: bool,
-                  pbar_crops: tqdm | None):
+
+def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: float, 
+                 device: str, crops_number: int, overlap: float, fusion_method: str,
+                 save_crops: bool, draw_grid: bool, pbar_crops: tqdm = None):
     """
-    Process a single image with tiled inference using Weighted Boxes Fusion.
-    Crop grid automatically adapts to image orientation.
+    Process a single image with tiled inference.
+    Supports both NMS and WBF fusion methods.
     
     Args:
         model: YOLO model instance
         img_path: Path to input image
         out_dir: Output directory
         conf: Confidence threshold
-        iou: IoU threshold for WBF (boxes with IoU >= threshold are fused)
+        iou: IoU threshold for fusion method
         device: Device for inference
         crops_number: Number of crops to generate
         overlap: Overlap ratio between crops
+        fusion_method: 'nms' or 'wbf'
         save_crops: Whether to save individual crop predictions
         draw_grid: Whether to save the original image with crop grid drawn
         pbar_crops: Progress bar for crops
@@ -97,17 +105,23 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
         if pbar_crops is not None:
             pbar_crops.update(1)
 
-    # Apply Weighted Boxes Fusion
+    # Apply fusion method
     if all_boxes:
         boxes = np.array(all_boxes, dtype=np.float32)
         scores = np.array(all_scores, dtype=np.float32)
         classes = np.array(all_classes, dtype=np.int32)
 
-        boxes, scores, classes = weighted_boxes_fusion(
-            boxes, scores, classes, 
-            iou_thres=iou,
-            skip_box_thr=conf
-        )
+        if fusion_method == "wbf":
+            # Weighted Boxes Fusion
+            boxes, scores, classes = weighted_boxes_fusion(
+                boxes, scores, classes,
+                iou_thres=iou,
+                skip_box_thr=conf
+            )
+        else:  # nms
+            # Classic Non-Maximum Suppression
+            keep = greedy_nms_classwise(boxes, scores, classes, iou_thres=iou)
+            boxes, scores, classes = boxes[keep], scores[keep], classes[keep]
 
         annotator = Annotator(img, line_width=2, example=model.names)
         for box, score, cls_id in zip(boxes, scores, classes):
@@ -121,41 +135,57 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
 
 
 def build_args():
-    p = argparse.ArgumentParser(description="Tiled inference with Ultralytics YOLO using WBF (Weighted Boxes Fusion).")
+    p = argparse.ArgumentParser(
+        description="Tiled inference with Ultralytics YOLO supporting NMS and WBF fusion methods."
+    )
     p.add_argument("source", type=str, help="Input image path or directory.")
     p.add_argument("model", type=str, help="Path to YOLO weights (.pt).")
-
-    p.add_argument("--out_dir", type=str, default="aiplocan_wbf_inferences", help="Output directory.")
-    p.add_argument("--conf", type=float, default=0.25, help="Confidence threshold.")
-    p.add_argument("--iou", type=float, default=0.5, help="IoU threshold for WBF fusion (recommended 0.5-0.6).")
-    p.add_argument("--device", type=str, default="cuda:0", help="Device (e.g., cpu, cuda:0).")
-
-    p.add_argument("--crops", type=int, default=4, help="Number of crops (must be even). More than 8 crops is not recommended.")
-    p.add_argument("--overlap", type=float, default=0.2, help="Overlap ratio in [0, 1).")
-    p.add_argument("--fusion", choices=["nms", "wbf"], default="wbf", help="Fusion method: nms (classic) or wbf (weighted)")
-    p.add_argument("--save_crops", action="store_true", help="Save annotated crop images.")
-    p.add_argument("--draw_grid", action="store_true", help="Save original image with crop grid drawn.")
-    p.add_argument("--recursive", action="store_true", help="Search images recursively when source is a directory.")
+    
+    p.add_argument("--out_dir", type=str, default="tiled_inferences", 
+                   help="Output directory.")
+    p.add_argument("--conf", type=float, default=0.25, 
+                   help="Confidence threshold.")
+    p.add_argument("--iou", type=float, default=0.5, 
+                   help="IoU threshold for fusion (0.45 for NMS, 0.5-0.6 for WBF).")
+    p.add_argument("--device", type=str, default="cuda:0", 
+                   help="Device (e.g., cpu, cuda:0).")
+    
+    p.add_argument("--crops", type=int, default=4, 
+                   help="Number of crops (must be even). Max 8 recommended.")
+    p.add_argument("--overlap", type=float, default=0.2, 
+                   help="Overlap ratio in [0, 1).")
+    
+    p.add_argument("--fusion", choices=["nms", "wbf"], default="wbf",
+                   help="Fusion method: 'nms' (classic suppression) or 'wbf' (weighted fusion).")
+    
+    p.add_argument("--save_crops", action="store_true", 
+                   help="Save annotated crop images.")
+    p.add_argument("--draw_grid", action="store_true", 
+                   help="Save original image with crop grid drawn.")
+    p.add_argument("--recursive", action="store_true", 
+                   help="Search images recursively when source is a directory.")
+    
     return p.parse_args()
 
 
 def main():
     args = build_args()
-
+    
     source = Path(args.source)
     out_dir = Path(args.out_dir)
-
+    
     if args.crops <= 0 or args.crops % 2 != 0:
         raise SystemExit("❌ --crops must be an even positive integer")
-
+    
     model = YOLO(args.model)
-
+    
     images = iter_images(source, recursive=args.recursive)
     if not images:
         raise SystemExit(f"❌ No supported images found in: {source}")
-
+    
     print(f"✓ Found {len(images)} image(s)")
-
+    print(f"✓ Fusion method: {args.fusion.upper()}")
+    
     pbar_images = tqdm(
         total=len(images),
         desc="Images processed",
@@ -166,7 +196,7 @@ def main():
         colour=PURPLE,
         dynamic_ncols=True,
     )
-
+    
     pbar_crops = tqdm(
         total=1,
         desc="Waiting...",
@@ -177,7 +207,7 @@ def main():
         colour=GREEN,
         dynamic_ncols=True,
     )
-
+    
     try:
         for img_path in images:
             process_image(
@@ -189,6 +219,7 @@ def main():
                 device=args.device,
                 crops_number=args.crops,
                 overlap=args.overlap,
+                fusion_method=args.fusion,
                 save_crops=args.save_crops,
                 draw_grid=args.draw_grid,
                 pbar_crops=pbar_crops,
@@ -197,8 +228,8 @@ def main():
     finally:
         pbar_crops.close()
         pbar_images.close()
-
-    print(f"\n😎 Crops done! Image(s) stored at {args.out_dir}")
+    
+    print(f"\n✓ Tiled inference complete! Results in {args.out_dir}")
 
 
 if __name__ == "__main__":

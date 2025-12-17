@@ -118,3 +118,34 @@ def weighted_boxes_fusion(boxes, scores, classes, iou_thres=0.5, skip_box_thr=0.
         np.array(fused_scores, dtype=np.float32),
         np.array(fused_classes, dtype=np.int32)
     )
+
+
+def greedy_nms_classwise(boxes, scores, classes, iou_thres: float):
+    """
+    Apply class-wise Non-Maximum Suppression (classic method).
+    
+    Args:
+        boxes: Array of bounding boxes [N, 4]
+        scores: Array of confidence scores [N]
+        classes: Array of class IDs [N]
+        iou_thres: IoU threshold for suppression
+        
+    Returns:
+        List of indices to keep
+    """
+    keep = []
+    for cls_id in sorted(set(classes)):
+        idxs = [i for i, c in enumerate(classes) if c == cls_id]
+        idxs.sort(key=lambda i: scores[i], reverse=True)
+        picked = []
+        for i in idxs:
+            ok = True
+            for j in picked:
+                if compute_iou_xyxy(boxes[i], boxes[j]) > iou_thres:
+                    ok = False
+                    break
+            if ok:
+                picked.append(i)
+        keep.extend(picked)
+    keep.sort(key=lambda i: scores[i], reverse=True)
+    return keep
