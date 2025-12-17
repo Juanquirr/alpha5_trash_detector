@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import cv2
+from pathlib import Path
 
 class UniformCrops:
     """
@@ -93,6 +94,7 @@ class UniformCrops:
 
         return coords
     
+
 def draw_crop_grid(base_img, coords, color=(0, 255, 255), thickness=2):
     """Draw crop rectangles on image."""
     grid_img = base_img.copy()
@@ -100,3 +102,15 @@ def draw_crop_grid(base_img, coords, color=(0, 255, 255), thickness=2):
         x1, y1, x2, y2 = map(int, map(round, (x_min, y_min, x_max, y_max)))
         cv2.rectangle(grid_img, (x1, y1), (x2, y2), color, thickness)
     return grid_img
+
+
+IMG_EXTS = {".jpg", ".jpeg", ".png"}
+
+def iter_images(source: Path, recursive: bool):
+    """List all image files from source path."""
+    if source.is_file():
+        return [source] if source.suffix.lower() in IMG_EXTS else []
+    if source.is_dir():
+        it = source.rglob("*") if recursive else source.iterdir()
+        return sorted([p for p in it if p.is_file() and p.suffix.lower() in IMG_EXTS])
+    return []
