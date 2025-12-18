@@ -122,7 +122,7 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
             keep = greedy_nms_classwise(boxes, scores, classes, iou_thres=iou)
             boxes, scores, classes = boxes[keep], scores[keep], classes[keep]
 
-        # Step 2: Deduplication (ANTES de anotar)
+        # Step 2: Deduplication
         boxes, scores, classes = deduplicate_detections(
             boxes, scores, classes,
             iou_threshold=iou_dedup,
@@ -131,7 +131,7 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
             keep_all=keep_all
         )
 
-        # Step 3: Annotate (con detecciones ya filtradas)
+        # Step 3: Annotate
         annotator = Annotator(img, line_width=2, example=model.names)
         for box, score, cls_id in zip(boxes, scores, classes):
             name = model.names.get(int(cls_id), str(int(cls_id)))
@@ -177,8 +177,8 @@ def build_args():
     # Deduplication parameters
     p.add_argument("--keep_all", action="store_true",
                    help="Keep all detections (no deduplication)")
-    p.add_argument("--iou_dedup", type=float, default=0.8,
-                   help="IoU threshold for deduplication (default: 0.8)")
+    p.add_argument("--iou_dedup", type=float, default=0.5,
+                   help="IoU threshold for deduplication (default: 0.5)")
     p.add_argument("--trash_id", type=int, default=7,
                    help="Class ID for 'trash' to deprioritize (default: 7)")
     p.add_argument("--prioritize_specific", action="store_true",
