@@ -20,12 +20,12 @@ Key aspects:
 The training and validation environment can be reproduced using the provided [Dockerfile](Dockerfile). Build the image and run a container, then execute the training/validation scripts inside the container.
 
 ### Build
-```
+```bash
 docker build -f ./Dockerfile -t yolo11:tag .
 ```
 
 ### Run
-```
+```bash
 docker run -it --gpus all --shm-size=8g -v "$pwd:/ultralytics/USER" --name "..." yolo11:tag
 ```
 
@@ -53,8 +53,8 @@ names:
 #### [train_yolo.py](ALPHA5_train/train_yolo.py)
 Main training pipeline with ArgParse, early stopping and mAP50 monitoring per epoch.
 
-```
-python train_yolo.py data/alpha5_trash_v3.3/data.yaml model.pt \
+```bash
+python train_yolo.py data/alpha5_trash_v3.3/data.yaml yolo_model.pt \
   --epochs 300 --batch -1 --imgsz 640 --workers 8 \
   --project /ultralytics/USER/runs/detect/train --name alpha5_yolo11
 ```
@@ -62,16 +62,16 @@ python train_yolo.py data/alpha5_trash_v3.3/data.yaml model.pt \
 #### [hyperparam_yolo_tunning.py](ALPHA5_train/hyperparam_yolo_tunning.py)
 Hyperparameter tuning with `model.tune()`.
 
-```
+```bash
 python hyperparam_yolo_tunning.py \
-  data/alpha5_trash_v3.3/data.yaml model.pt 50 20 \
+  data/alpha5_trash_v3.3/data.yaml yolo_model.pt 50 20 \
   --imgsz 640 --batch -1 --name alpha5_tune
 ```
 
 #### [img_stratifier.py](ALPHA5_train/img_stratifier.py)
 Instance-stratified dataset split (by object count, not image count).
 
-```
+```bash
 python img_stratifier.py mixed_dataset \
   --out_dir alpha5_trash_v3.3/instance_balanced \
   --ratios 0.7 0.2 0.1
@@ -82,7 +82,7 @@ python img_stratifier.py mixed_dataset \
 #### [val_yolo.py](ALPHA5_val/val_yolo.py)
 Full validation + optional predictions/concat export.
 
-```
+```bash
 python val_yolo.py data/alpha5_trash_v3.3/data.yaml runs/detect/train/exp/weights/best.pt \
   --imgsz 640 --batch 16 --conf 0.25 --iou 0.35 \
   --plots --save_json --per_class_csv \
@@ -92,38 +92,118 @@ python val_yolo.py data/alpha5_trash_v3.3/data.yaml runs/detect/train/exp/weight
 #### [inference.py](ALPHA5_val/inference.py)
 Simple inference with time/memory profiling.
 
-```
-python inference.py images/ model.pt outputs_inference \
+```bash
+python inference.py images/ yolo_model.pt outputs_inference \
   --device cuda:0 --conf 0.25 --imgsz 640
 ```
 
 #### [sahi_dir.py](ALPHA5_val/sahi_dir.py)
 SAHI sliced inference (size/overlap-driven).
 
-```
-python sahi_dir.py big_images/ model.pt sahi_outputs \
+```bash
+python sahi_dir.py big_images/ yolo_model.pt sahi_outputs \
   --slice_height 320 --slice_width 320 \
   --overlap_height_ratio 0.2 --overlap_width_ratio 0.2 \
   --device cuda:0 --format jpg --recursive
 ```
 
-#### [static_slices.py](ALPHA5_val/static_slices.py)
-Custom script to perform uniform static slices with global NMS in an image.
-
-```
-python sliding_windows.py big_images/ model.pt \
-  --crops 6 --overlap 0.2 --conf 0.25 --iou 0.45 \
-  --device cuda:0 --save_crops --draw_grid \
-  --out_dir sliding_windows_outputs
-```
-
 #### [pair_concat.py](ALPHA5_val/pair_concat.py)
 Concatenate paired images (original | prediction) by alphabetical order.
 
-```
+```bash
 python pair_concat.py originals_dir preds_dir \
   --out_dir concatenated_pairs --suffix _concat
 ```
+
+#### [crop_maker.py](ALPHA5_val/crop_maker.py)
+Generate static crops and/or grid visualization **without inference**.
+
+```bash
+python crop_maker.py big_images/ \
+  --crops 6 \
+  --overlap 0.2 \
+  --save_crops \
+  --draw_grid \
+  --recursive \
+  --out_dir image_crops
+```
+
+#### [inference_tiled.py](ALPHA5_val/inference_tiled.py)
+YOLO inference on uniform crops with NMS/WBF fusion + deduplication + trash class prioritization.
+
+```bash
+python inference_tiled.py big_images/ yolo11x.pt \
+  --crops 6 \
+  --overlap 0.2 \
+  --conf 0.25 \
+  --iou 0.5 \
+  --fusion wbf \
+  --iou_dedup 0.5 \
+  --trash_id 7 \
+  --prioritize_specific \
+  --device cuda:0 \
+  --save_crops \
+  --draw_grid \
+  --recursive \
+  --out_dir tiled_inferences
+```
+
+**Key parameters**:
+- `--fusion wbf|nms`: Crop fusion method
+- `--iou_dedup`: Final deduplication IoU threshold
+- `--trash_id 7 --prioritize_specific`: Prefer specific classes over the id indicated
+- `--save_crops`: Save per-crop predictions
+
+
+#### [hybrid_pipeline.py](ALPHA5_val/hybrid_pipeline.py)
+**Two-stage hybrid pipeline**: Full image → Crops → Smart filtering → WBF merge
+
+```bash
+python hybrid_pipeline.py big_images/ yolo11x.pt \
+  --crops 6 \
+  --overlap 0.2 \
+  --conf 0.25 \
+  --crops_iou 0.5 \
+  --high_iou 0.85 \
+  --suspect_iou 0.3 \
+  --merge_iou 0.5 \
+  --device cuda:0 \
+  --save_intermediate \
+  --draw_grid \
+  --recursive \
+  --out_dir hybrid_results
+```
+
+**Pipeline stages**:
+1. **Full image inference**
+2. **Crops inference + WBF**
+3. **Smart filtering**: Keep crops detections validated by full (IoU≥0.85) OR new small objects (IoU<0.3)
+4. **Final WBF merge**
+
+**Output** (with `--save_intermediate`):
+```
+*_hybrid_final.jpg          # Final result
+*_stage1_full.jpg           # Full image only
+*_stage2_crops_raw.jpg      # Crops before filtering
+*_stage3_crops_filtered.jpg # Crops after smart filtering
+```
+
+## Complete workflow example
+
+```bash
+# 1. Generate crops (optional, for inspection)
+python crop_maker.py big_images/ --crops 6 --out_dir crops_only
+
+# 2. Run tiled inference (recommended)
+python inference_tiled.py big_images/ yolo_model.pt \
+  --crops 6 --fusion wbf --out_dir tiled_results
+
+# 3. Run hybrid pipeline (most robust)
+python hybrid_pipeline.py big_images/ yolo_model.pt \
+  --crops 6 --save_intermediate --out_dir hybrid_results
+```
+
+**Recommendation**: Use **`inference_tiled.py`** for most cases (WBF fusion). Use **`hybrid_pipeline.py`** for maximum precision on small objects.
 
 ---
 
