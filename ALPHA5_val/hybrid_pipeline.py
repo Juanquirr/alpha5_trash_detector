@@ -195,12 +195,71 @@ def save_annotated_image(img, boxes, scores, classes, model, save_path):
     cv2.imwrite(str(save_path), img_out)
 
 
+def filter_detections_by_confidence(boxes, scores, classes, conf_threshold=0.5, trash_id=7):
+    """
+    Filter detections based on confidence rules and class priority.
+    
+    Rules:
+    - If there's a tie (≥2 boxes with conf > 0.5), choose the one with highest confidence
+    - If the highest is "trash" and there's another with conf > 0.5, choose the second highest
+    
+    Args:
+        boxes: Array of bounding boxes [N, 4] in xyxy format
+        scores: Array of confidence scores [N]
+        classes: Array of class IDs [N]
+        conf_threshold: Confidence threshold to consider a tie (default: 0.5)
+    
+    Returns:
+        Filtered boxes, scores, classes
+    """
+    if len(boxes) == 0:
+        return boxes, scores, classes
+    
+    keep_indices = []
+    used = np.zeros(len(boxes), dtype=bool)
+    
+    for i in range(len(boxes)):
+        if used[i]:
+            continue
+        
+        group_indices = [i]
+        for j in range(i + 1, len(boxes)):
+            if used[j]:
+                continue
+            iou = compute_iou_xyxy(boxes[i], boxes[j])
+            if iou > 0.5:  # TODO
+                group_indices.append(j)
+        
+        for idx in group_indices:
+            used[idx] = True
+        
+        if len(group_indices) == 1:
+            keep_indices.append(group_indices[0])
+        else:
+            high_conf_in_group = [idx for idx in group_indices if scores[idx] > conf_threshold]
+            
+            if len(high_conf_in_group) >= 2:
+                high_conf_in_group = sorted(high_conf_in_group, key=lambda x: scores[x], reverse=True)
+                
+                if classes[high_conf_in_group[0]] == trash_id:
+                    keep_indices.append(high_conf_in_group[1])
+                else:
+                    keep_indices.append(high_conf_in_group[0])
+            else:
+                keep_indices.append(max(group_indices, key=lambda x: scores[x]))
+    
+    if not keep_indices:
+        return np.empty((0, 4), dtype=np.float32), np.array([]), np.array([])
+    
+    return boxes[keep_indices], scores[keep_indices], classes[keep_indices]
+
+
 def process_image_hybrid(model: YOLO, img_path: Path, out_dir: Path,
                         conf: float, device: str,
                         crops_number: int, overlap: float, crops_iou: float,
                         high_iou: float, suspect_iou: float, merge_iou: float,
                         save_intermediate: bool, draw_grid: bool, pbar_crops: tqdm = None):
-    """Process image using hybrid two-stage pipeline."""
+    """Process image using hybrid two-stage pipeline with confidence-based filtering."""
     img = cv2.imread(str(img_path))
     if img is None:
         tqdm.write(f"⚠️  Skip: {img_path}")
@@ -234,6 +293,11 @@ def process_image_hybrid(model: YOLO, img_path: Path, out_dir: Path,
         full_boxes, full_scores, full_classes,
         filtered_boxes, filtered_scores, filtered_classes,
         merge_iou=merge_iou
+    )
+    
+    # Stage 5: Confidence filter with class priority
+    final_boxes, final_scores, final_classes = filter_detections_by_confidence(
+        final_boxes, final_scores, final_classes
     )
     
     # Save intermediate results
