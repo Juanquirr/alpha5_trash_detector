@@ -154,6 +154,21 @@ python inference_tiled.py big_images/ yolo11x.pt \
 - `--trash_id 7 --prioritize_specific`: Prefer specific classes over the id indicated
 - `--save_crops`: Save per-crop predictions
 
+#### [patched_inference_alpha.py](ALPHA5_val/patched_inference_alpha.py)
+YOLO inference using libraries abstracting logic. Done by Kolesnikov Dmitry. 
+
+```bash
+python inference_patched.py source/ model.pt \
+    --out_dir patched_results \
+    --conf 0.3 \
+    --iou 0.5 \
+    --patch_size 640 \
+    --overlap 0.25 \
+    --nms_threshold 0.25 \
+    --device cuda:0 \
+    --save_comparison \
+    --imgsz 640
+```
 
 #### [hybrid_pipeline.py](ALPHA5_val/hybrid_pipeline.py)
 **Two-stage hybrid pipeline**: Full image → Crops → Smart filtering → WBF merge
