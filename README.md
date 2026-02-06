@@ -21,12 +21,12 @@ The training and validation environment can be reproduced using the provided [Do
 
 ### Build
 ```bash
-docker build -f ./Dockerfile -t yolo11:tag .
+docker build -f ./Dockerfile -t yolo:tag .
 ```
 
 ### Run
 ```bash
-docker run -it --gpus all --shm-size=8g -v "$pwd:/ultralytics/USER" --name "..." yolo11:tag
+docker run -it --gpus all --shm-size=8g -v "$pwd:/ultralytics/USER" --name "..." yolo:tag
 ```
 
 ## Dataset
@@ -54,8 +54,8 @@ names:
 Main training pipeline with ArgParse, early stopping and mAP50 monitoring per epoch.
 
 ```bash
-python train_yolo.py data/alpha5_trash_v3.3/data.yaml yolo_model.pt \
-  --epochs 300 --batch -1 --imgsz 640 --workers 8 \
+python train_yolo.py data.yaml yolo_model.pt \
+  --epochs 300 --batch -1 --imgsz 640 --workers 4 \
   --project /ultralytics/USER/runs/detect/train --name alpha5_yolo11
 ```
 
@@ -64,7 +64,7 @@ Hyperparameter tuning with `model.tune()`.
 
 ```bash
 python hyperparam_yolo_tunning.py \
-  data/alpha5_trash_v3.3/data.yaml yolo_model.pt 50 20 \
+  data.yaml yolo_model.pt 50 20 \
   --imgsz 640 --batch -1 --name alpha5_tune
 ```
 
@@ -73,7 +73,7 @@ Instance-stratified dataset split (by object count, not image count).
 
 ```bash
 python img_stratifier.py mixed_dataset \
-  --out_dir alpha5_trash_v3.3/instance_balanced \
+  --out_dir instance_balanced \
   --ratios 0.7 0.2 0.1
 ```
 
@@ -93,7 +93,7 @@ python val_yolo.py data/alpha5_trash_v3.3/data.yaml runs/detect/train/exp/weight
 Simple inference with time/memory profiling.
 
 ```bash
-python inference.py images/ yolo_model.pt outputs_inference \
+python inference.py big_images/ yolo_model.pt outputs_inference \
   --device cuda:0 --conf 0.25 --imgsz 640
 ```
 
@@ -132,7 +132,7 @@ python crop_maker.py big_images/ \
 YOLO inference on uniform crops with NMS/WBF fusion + deduplication + trash class prioritization.
 
 ```bash
-python inference_tiled.py big_images/ yolo11x.pt \
+python inference_tiled.py images/ yolo_model.pt \
   --crops 6 \
   --overlap 0.2 \
   --conf 0.25 \
