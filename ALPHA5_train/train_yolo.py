@@ -20,19 +20,19 @@ def build_arguments() -> argparse.Namespace:
     parser.add_argument(
         "data",
         type=str,
-        help="Path to the dataset data.yaml file",
+        help="Path to the dataset data.yaml file. This file should specify the paths to the training and validation datasets.",
     )
     parser.add_argument(
         "model",
         type=str,
-        help="Ultralytics YOLO model spec (e.g., yolo11x.pt or /path/to/weights.pt)",
+        help="Ultralytics YOLO model spec (e.g., yolo11x.pt or /path/to/weights.pt).",
     )
 
     # Training arguments
     parser.add_argument("--epochs", type=int, default=300, help="Number of training epochs")
     parser.add_argument("--batch", type=int, default=-1, help="Batch size (-1 for AutoBatch)")
     parser.add_argument("--imgsz", type=int, default=640, help="Training image size")
-    parser.add_argument("--workers", type=int, default=8, help="Number of dataloader workers")
+    parser.add_argument("--workers", type=int, default=4, help="Number of dataloader workers")
     parser.add_argument("--patience", type=int, default=15, help="Early-stopping patience (epochs)")
     parser.add_argument("--device", type=str, default="cuda", help="Device (cuda, cpu, cuda:0, ...)")
 
@@ -40,39 +40,33 @@ def build_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--project",
         type=str,
-        default="/ultralytics/plocania/runs/detect/train",
-        help="Project directory where results are saved",
+        default="/ultralytics/USER/runs/detect/train",
+        help="Project directory where results are saved (default: /ultralytics/USER/runs/detect/train).",
     )
     parser.add_argument(
         "--name",
         type=str,
         default=None,
-        help="Experiment name (subfolder under project)",
+        help="Experiment name (subfolder under project) - defaults to current timestamp.",
     )
 
     # Optimizer / hyperparameters
     parser.add_argument(
         "--optimizer",
         type=str,
-        default="Adam",
+        default="AdamW",
         choices=["SGD", "Adam", "AdamW", "NAdam", "RAdam", "RMSProp", "auto"],
-        help="Optimizer to use",
-    )
-    parser.add_argument(
-        "--amp",
-        type=str,
-        default="True",
-        help="Automatic Mixed Precision. False state is recommended for a YOLO 12 train.",
+        help="Optimizer to use (default: AdamW). 'auto' will choose AdamW for transformer-based models and SGD for others.",
     )
     parser.add_argument(
         "--hyperparams",
         type=str,
         default=None,
-        help="Path to a YAML hyperparameters file (optional)",
+        help="Path to a YAML hyperparameters file. Overrides default hyperparameters.",
     )
 
     # Misc
-    parser.add_argument("--verbose", action="store_true", help="Print CUDA / PyTorch info")
+    parser.add_argument("--verbose", action="store_true", help="Print CUDA / PyTorch info.")
 
     return parser.parse_args()
 
@@ -153,7 +147,6 @@ def train_yolo(args: argparse.Namespace) -> None:
         project=args.project,
         name=args.name,
         optimizer=args.optimizer,
-        amp=args.amp
         **hparams,
     )
 
