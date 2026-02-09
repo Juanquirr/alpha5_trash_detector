@@ -1,6 +1,6 @@
 """
-Alpha5 Visualizer - Comparador de métodos de inferencia
-Aplicación GUI para visualizar y comparar métodos de detección de objetos pequeños
+Alpha5 Visualizer - Inference methods comparator
+GUI application to visualize and compare small-object detection methods.
 """
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -17,10 +17,10 @@ from inference_methods import AVAILABLE_METHODS, get_available_methods, get_meth
 class Alpha5Visualizer:
     def __init__(self, root):
         self.root = root
-        self.root.title("Alpha5 Visualizer - Comparador de Inferencias")
+        self.root.title("Alpha5 Visualizer - Inference Comparator")
         self.root.geometry("1600x900")
 
-        # Variables
+        # State variables
         self.model = None
         self.model_path = None
         self.image = None
@@ -32,34 +32,34 @@ class Alpha5Visualizer:
         self.setup_ui()
 
     def setup_ui(self):
-        """Configurar interfaz de usuario"""
+        """Configure UI layout and widgets."""
 
-        # =============== TOP FRAME: Carga de modelo e imagen ===============
+        # =============== TOP FRAME: Model and image load ===============
         top_frame = ttk.Frame(self.root, padding="10")
         top_frame.pack(side=tk.TOP, fill=tk.X)
 
-        # Modelo
-        ttk.Label(top_frame, text="Modelo:").grid(row=0, column=0, sticky=tk.W, padx=5)
-        self.model_label = ttk.Label(top_frame, text="No cargado", foreground="red")
+        # Model
+        ttk.Label(top_frame, text="Model:").grid(row=0, column=0, sticky=tk.W, padx=5)
+        self.model_label = ttk.Label(top_frame, text="Not loaded", foreground="red")
         self.model_label.grid(row=0, column=1, sticky=tk.W, padx=5)
-        ttk.Button(top_frame, text="Cargar Modelo (.pt)", 
+        ttk.Button(top_frame, text="Load Model (.pt)", 
                   command=self.load_model).grid(row=0, column=2, padx=5)
 
-        # Imagen/Vídeo
-        ttk.Label(top_frame, text="Imagen:").grid(row=1, column=0, sticky=tk.W, padx=5)
-        self.image_label = ttk.Label(top_frame, text="No cargada", foreground="red")
+        # Image / Video
+        ttk.Label(top_frame, text="Image:").grid(row=1, column=0, sticky=tk.W, padx=5)
+        self.image_label = ttk.Label(top_frame, text="Not loaded", foreground="red")
         self.image_label.grid(row=1, column=1, sticky=tk.W, padx=5)
-        ttk.Button(top_frame, text="Cargar Imagen", 
+        ttk.Button(top_frame, text="Load Image", 
                   command=self.load_image).grid(row=1, column=2, padx=5)
-        ttk.Button(top_frame, text="Cargar Vídeo", 
+        ttk.Button(top_frame, text="Load Video", 
                   command=self.load_video).grid(row=1, column=3, padx=5)
 
-        # =============== MIDDLE FRAME: Selección de métodos y parámetros ===============
+        # =============== MIDDLE FRAME: Methods selection and global params ===============
         middle_frame = ttk.Frame(self.root, padding="10")
         middle_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=False)
 
-        # Panel izquierdo: Selección de métodos
-        methods_frame = ttk.LabelFrame(middle_frame, text="Métodos de Inferencia", padding="10")
+        # Left panel: methods selection
+        methods_frame = ttk.LabelFrame(middle_frame, text="Inference Methods", padding="10")
         methods_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
 
         self.method_vars = {}
@@ -74,14 +74,14 @@ class Alpha5Visualizer:
                 variable=var
             ).grid(row=i, column=0, sticky=tk.W, pady=2)
 
-        # Botón para ejecutar
-        ttk.Button(methods_frame, text="🚀 Ejecutar Métodos Seleccionados", 
+        # Run button
+        ttk.Button(methods_frame, text="🚀 Run Selected Methods", 
                   command=self.run_selected_methods, 
                   style="Accent.TButton").grid(row=len(available_methods), 
                                                column=0, pady=10, sticky=tk.EW)
 
-        # Panel derecho: Parámetros globales
-        params_frame = ttk.LabelFrame(middle_frame, text="Parámetros Globales", padding="10")
+        # Right panel: global parameters
+        params_frame = ttk.LabelFrame(middle_frame, text="Global Parameters", padding="10")
         params_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
 
         ttk.Label(params_frame, text="Confidence:").grid(row=0, column=0, sticky=tk.W)
@@ -104,24 +104,24 @@ class Alpha5Visualizer:
 
         params_frame.columnconfigure(1, weight=1)
 
-        # =============== BOTTOM FRAME: Visualización ===============
+        # =============== BOTTOM FRAME: Visualization ===============
         bottom_frame = ttk.Frame(self.root, padding="10")
         bottom_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
-        # Selector de vista
+        # View selector
         view_frame = ttk.Frame(bottom_frame)
         view_frame.pack(side=tk.TOP, fill=tk.X, pady=5)
 
-        ttk.Label(view_frame, text="Vista:").pack(side=tk.LEFT, padx=5)
+        ttk.Label(view_frame, text="View:").pack(side=tk.LEFT, padx=5)
         self.view_mode = tk.StringVar(value="single")
-        ttk.Radiobutton(view_frame, text="Individual", variable=self.view_mode, 
+        ttk.Radiobutton(view_frame, text="Single", variable=self.view_mode, 
                        value="single", command=self.update_view).pack(side=tk.LEFT, padx=5)
-        ttk.Radiobutton(view_frame, text="Comparar 2", variable=self.view_mode, 
+        ttk.Radiobutton(view_frame, text="Compare 2", variable=self.view_mode, 
                        value="compare2", command=self.update_view).pack(side=tk.LEFT, padx=5)
-        ttk.Radiobutton(view_frame, text="Comparar 3", variable=self.view_mode, 
+        ttk.Radiobutton(view_frame, text="Compare 3", variable=self.view_mode, 
                        value="compare3", command=self.update_view).pack(side=tk.LEFT, padx=5)
 
-        # Dropdowns para selección
+        # Dropdowns for method selection
         selector_frame = ttk.Frame(bottom_frame)
         selector_frame.pack(side=tk.TOP, fill=tk.X, pady=5)
 
@@ -129,13 +129,13 @@ class Alpha5Visualizer:
         for i in range(3):
             frame = ttk.Frame(selector_frame)
             frame.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
-            ttk.Label(frame, text=f"Método {i+1}:").pack(side=tk.LEFT)
+            ttk.Label(frame, text=f"Method {i+1}:").pack(side=tk.LEFT)
             selector = ttk.Combobox(frame, state='readonly', width=20)
             selector.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
             selector.bind('<<ComboboxSelected>>', lambda e, idx=i: self.on_method_selected(idx))
             self.method_selectors.append(selector)
 
-        # Canvas para mostrar imágenes
+        # Canvases to display images
         canvas_frame = ttk.Frame(bottom_frame)
         canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -145,7 +145,7 @@ class Alpha5Visualizer:
             frame = ttk.Frame(canvas_frame, relief=tk.RIDGE, borderwidth=2)
             frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-            label = ttk.Label(frame, text=f"Método {i+1}", font=("Arial", 10, "bold"))
+            label = ttk.Label(frame, text=f"Method {i+1}", font=("Arial", 10, "bold"))
             label.pack(side=tk.TOP)
             self.canvas_labels.append(label)
 
@@ -153,44 +153,44 @@ class Alpha5Visualizer:
             canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
             self.canvases.append(canvas)
 
-            # Etiqueta de stats
+            # Stats label
             stats_label = ttk.Label(frame, text="", font=("Arial", 8))
             stats_label.pack(side=tk.BOTTOM)
             self.canvas_labels.append(stats_label)
 
-        # Barra de estado
-        self.status_var = tk.StringVar(value="Listo")
+        # Status bar
+        self.status_var = tk.StringVar(value="Ready")
         status_bar = ttk.Label(self.root, textvariable=self.status_var, 
                               relief=tk.SUNKEN, anchor=tk.W)
         status_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
     def load_model(self):
-        """Cargar modelo YOLO"""
+        """Load YOLO model from disk."""
         filepath = filedialog.askopenfilename(
-            title="Seleccionar modelo YOLO",
-            filetypes=[("YOLO weights", "*.pt"), ("Todos los archivos", "*.*")]
+            title="Select YOLO model",
+            filetypes=[("YOLO weights", "*.pt"), ("All files", "*.*")]
         )
         if not filepath:
             return
 
         try:
-            self.status_var.set("Cargando modelo...")
+            self.status_var.set("Loading model...")
             self.root.update()
             self.model = YOLO(filepath)
             self.model_path = filepath
             self.model_label.config(text=Path(filepath).name, foreground="green")
-            self.status_var.set(f"Modelo cargado: {Path(filepath).name}")
-            messagebox.showinfo("Éxito", "Modelo cargado correctamente")
+            self.status_var.set(f"Model loaded: {Path(filepath).name}")
+            messagebox.showinfo("Success", "Model loaded successfully.")
         except Exception as e:
-            messagebox.showerror("Error", f"Error al cargar modelo:\n{str(e)}")
-            self.status_var.set("Error al cargar modelo")
+            messagebox.showerror("Error", f"Error loading model:\n{str(e)}")
+            self.status_var.set("Error loading model")
 
     def load_image(self):
-        """Cargar imagen"""
+        """Load a single image from disk."""
         filepath = filedialog.askopenfilename(
-            title="Seleccionar imagen",
-            filetypes=[("Imágenes", "*.jpg *.jpeg *.png *.bmp"), 
-                      ("Todos los archivos", "*.*")]
+            title="Select image",
+            filetypes=[("Images", "*.jpg *.jpeg *.png *.bmp"), 
+                      ("All files", "*.*")]
         )
         if not filepath:
             return
@@ -198,37 +198,40 @@ class Alpha5Visualizer:
         try:
             self.image = cv2.imread(filepath)
             if self.image is None:
-                raise ValueError("No se pudo leer la imagen")
+                raise ValueError("Could not read image from disk.")
             self.image_path = filepath
             self.image_label.config(text=Path(filepath).name, foreground="green")
-            self.status_var.set(f"Imagen cargada: {Path(filepath).name}")
+            self.status_var.set(f"Image loaded: {Path(filepath).name}")
 
-            # Limpiar resultados anteriores
+            # Clear previous results
             self.results = {}
             self.update_method_dropdowns()
 
-            messagebox.showinfo("Éxito", "Imagen cargada correctamente")
+            messagebox.showinfo("Success", "Image loaded successfully.")
         except Exception as e:
-            messagebox.showerror("Error", f"Error al cargar imagen:\n{str(e)}")
+            messagebox.showerror("Error", f"Error loading image:\n{str(e)}")
 
     def load_video(self):
-        """Cargar vídeo (placeholder - se puede expandir)"""
-        messagebox.showinfo("Info", "Funcionalidad de vídeo en desarrollo.\n"
-                           "Implementar navegación frame por frame.")
+        """Load video (placeholder, not yet implemented)."""
+        messagebox.showinfo(
+            "Info",
+            "Video functionality is under development.\n"
+            "Frame-by-frame navigation will be implemented here.",
+        )
 
     def run_selected_methods(self):
-        """Ejecutar métodos seleccionados"""
+        """Run all selected inference methods."""
         if self.model is None:
-            messagebox.showwarning("Advertencia", "Primero carga un modelo")
+            messagebox.showwarning("Warning", "Please load a model first.")
             return
         if self.image is None:
-            messagebox.showwarning("Advertencia", "Primero carga una imagen")
+            messagebox.showwarning("Warning", "Please load an image first.")
             return
 
-        # Obtener métodos seleccionados
+        # Get selected methods
         selected = [name for name, var in self.method_vars.items() if var.get()]
         if not selected:
-            messagebox.showwarning("Advertencia", "Selecciona al menos un método")
+            messagebox.showwarning("Warning", "Select at least one method.")
             return
 
         self.status_var.set("Ejecutando inferencias...")
@@ -267,10 +270,10 @@ class Alpha5Visualizer:
         # Actualizar dropdowns y vista
         self.root.after(0, self.update_method_dropdowns)
         self.root.after(0, self.update_view)
-        self.status_var.set(f"Completado: {len(selected_methods)} métodos ejecutados")
+        self.status_var.set(f"Completed: {len(selected_methods)} methods executed.")
 
     def update_method_dropdowns(self):
-        """Actualizar dropdowns con métodos ejecutados"""
+        """Update dropdowns with methods that have results."""
         available = list(self.results.keys())
         for selector in self.method_selectors:
             selector['values'] = available
@@ -279,11 +282,11 @@ class Alpha5Visualizer:
                                     len(available) - 1))
 
     def on_method_selected(self, selector_idx):
-        """Callback cuando se selecciona un método en dropdown"""
+        """Callback when a method is selected in one of the dropdowns."""
         self.update_view()
 
     def update_view(self):
-        """Actualizar visualización según modo seleccionado"""
+        """Update visualization according to current view mode."""
         mode = self.view_mode.get()
 
         if mode == "single":
@@ -305,11 +308,11 @@ class Alpha5Visualizer:
             for canvas in self.canvases:
                 canvas.master.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Actualizar imágenes
+        # Refresh images
         self.display_images()
 
     def display_images(self):
-        """Mostrar imágenes en los canvas"""
+        """Render images into each visible canvas."""
         mode = self.view_mode.get()
         num_views = {"single": 1, "compare2": 2, "compare3": 3}[mode]
 
