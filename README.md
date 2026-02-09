@@ -170,11 +170,32 @@ python inference_patched.py source/ model.pt \
     --imgsz 640
 ```
 
+#### [tta.py](ALPHA5_val/tta.py)
+Applies augmentations during inference time. Each augmented variation is inferenced, and combines every detection with WBF/NMS. 
+
+```bash
+python inference_tta.py source/ yolo_model.pt --conf 0.25 --tta_iou 0.5
+```
+
+#### [super_resolution_inference.py](ALPHA5_val/super_resolution_inference.py)
+Super Resolution preprocessing for YOLO inference. Improves small object detection by upscaling images before detection.
+
+```bash
+python super_resolution_inference.py source/ yolo_model.pt --sr_method method
+```
+
+#### [multi_scale_ensemble.py](ALPHA5_val/multi_scale_ensemble.py)
+Multi-Scale Inference for YOLO. Detects at multiple resolutions and fuses results.
+
+```bash
+python inference_multiscale.py source/ yolo_model.pt --scales 640 1280 1920
+```
+
 #### [hybrid_pipeline.py](ALPHA5_val/hybrid_pipeline.py)
 **Two-stage hybrid pipeline**: Full image → Crops → Smart filtering → WBF merge
 
 ```bash
-python hybrid_pipeline.py big_images/ yolo11x.pt \
+python hybrid_pipeline.py big_images/ yolo_model.pt \
   --crops 6 \
   --overlap 0.2 \
   --conf 0.25 \
