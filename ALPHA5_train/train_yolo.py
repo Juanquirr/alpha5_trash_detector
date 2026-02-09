@@ -54,7 +54,7 @@ def build_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--optimizer",
         type=str,
-        default="AdamW",
+        default="auto",
         choices=["SGD", "Adam", "AdamW", "NAdam", "RAdam", "RMSProp", "auto"],
         help="Optimizer to use (default: AdamW). 'auto' will choose AdamW for transformer-based models and SGD for others.",
     )
