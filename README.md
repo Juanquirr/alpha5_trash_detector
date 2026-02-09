@@ -249,7 +249,7 @@ For this project, **yolo11x.pt** (YOLOv11's heaviest model) was used due to its 
 
 Feel free to experiment with:
 - Other YOLOv11 sizes: `yolo11n.pt`, `yolo11s.pt`, `yolo11m.pt`
-- Ultralytics versions: YOLOv8, YOLOv12  
+- Ultralytics versions: YOLOv8, YOLOv26  
 - Custom models: `from_scratch` or fine-tuning your own checkpoints
 
 **Recommendation**: For limited hardware, start with `yolo11m.pt` and use `--imgsz 416` to balance speed vs accuracy.
