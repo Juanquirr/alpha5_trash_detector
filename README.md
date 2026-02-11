@@ -1,10 +1,10 @@
-# Alpha5 - Advanced Trash Detection System
+# Alpha5 - Trash Detection System
 
 Trash detection system using YOLOv11 with multiple inference strategies and an interactive visualization interface. This repository provides a comprehensive toolkit for object detection with emphasis on waste classification across diverse environmental conditions.
 
 ## Author
 
-Juan Carlos Rodríguez Ramírez
+- Juan Carlos Rodríguez Ramírez
 
 ## Project overview
 
@@ -36,12 +36,99 @@ names:
 
 Class 7 (trash) serves as a generic fallback category when specific classification is uncertain.
 
-## Architecture
+## Training
 
-### Core components
+This repository includes standalone scripts to prepare datasets, train Ultralytics YOLO models, and run hyperparameter tuning.
+
+### Dataset preparation
+
+#### 1) Instance-stratified split (by object instances)
+Use `img_stratifier.py` to split a mixed folder (images and YOLO `.txt` labels in the same directory) into `train/`, `val/`, and `test/` so that the *number of labeled instances per class* is balanced across splits.
+
+```bash
+python img_stratifier.py /path/to/mixed_dir \
+  --out_dir /path/to/output_dir \
+  --ratios 0.7 0.2 0.1 \
+  --seed 42
+```
+
+The script copies files into the standard YOLO layout: `output_dir/{train,val,test}/images` and `output_dir/{train,val,test}/labels`.
+
+#### 2) Create empty labels for negative samples
+Use `create_empty_labels.py` to create empty label files for images that do not have a corresponding `.txt` label file (useful when you keep negative samples).
+
+```bash
+# Only report dataset structure (counts images, labels, empty/non-empty, missing labels)
+python create_empty_labels.py /path/to/split_dir --check_only
+
+# Dry run (prints what would be created)
+python create_empty_labels.py /path/to/split_dir --dry_run
+
+# Create missing empty labels under /path/to/split_dir/labels
+python create_empty_labels.py /path/to/split_dir
+```
+
+The expected split structure is `/path/to/split_dir/images` and `/path/to/split_dir/labels`.
+
+### Train a YOLO model
+
+Use `train_yolo.py` to run Ultralytics training with configurable epochs, image size, workers, optimizer, and optional hyperparameter overrides from a YAML file.
+
+```bash
+python train_yolo.py /path/to/data.yaml yolo11x.pt \
+  --epochs 300 \
+  --batch -1 \
+  --imgsz 640 \
+  --workers 4 \
+  --patience 15 \
+  --device cuda \
+  --project /ultralytics/USER/runs/detect/train \
+  --name alpha5_yolo11 \
+  --optimizer auto
+```
+
+`train_yolo.py` also logs per-epoch `metrics/mAP50(B)` through a training callback and tracks a patience counter based on improvements of mAP50.
+
+#### Optional: override hyperparameters
+You can pass a YAML file via `--hyperparams` to override Ultralytics training hyperparameters
+
+```bash
+python train_yolo.py /path/to/data.yaml yolo11x.pt \
+  --epochs 200 \
+  --imgsz 640 \
+  --hyperparams /path/to/hparams.yaml
+```
+
+If `close_mosaic` is present in that YAML, the script casts it to an integer before calling `model.train()`.
+
+### Hyperparameter tuning
+
+Use `hyperparam_yolo_tunning.py` to run Ultralytics `model.tune()` with a fixed number of epochs per iteration and a specified number of iterations.
+
+```bash
+python hyperparam_yolo_tunning.py /path/to/data.yaml yolo11x.pt 50 20 \
+  --batch -1 \
+  --imgsz 640 \
+  --patience 15 \
+  --device cuda \
+  --name tune_exp \
+  --project /ultralytics/USER/runs/detect/tune
+```
+
+You can provide additional initial tuning kwargs through `--tune_kwargs` as a YAML file; the script filters out reserved keys such as `data`, `model`, `epochs`, `iterations`, `batch`, `imgsz`, `patience`, `device`, `name`, `project`, and `resume`.
+
+```bash
+python hyperparam_yolo_tunning.py /path/to/data.yaml yolo11x.pt 30 25 \
+  --tune_kwargs /path/to/tune_kwargs.yaml
+```
+
+If `close_mosaic` is provided in `--tune_kwargs`, the script casts it to an integer before calling `model.tune()`.
+
+
+## Validating a model
 
 ```
-alpha5/
+ALPHA5_val/visualizer/
 ├── alpha5_base.py          # Base classes (InferenceMethod, InferenceResult)
 ├── utils.py                # Utilities (crops, WBF, NMS, deduplication)
 ├── inference_methods.py    # Six inference method implementations
@@ -88,9 +175,7 @@ docker run -it --gpus all --shm-size=8g \
   alpha5:latest
 ```
 
-## Usage
-
-### GUI Application
+## Usage of GUI Application
 
 Launch the interactive visualizer:
 
@@ -155,11 +240,11 @@ print(f"Elapsed time: {result.elapsed_time:.2f}s")
 cv2.imwrite('output.jpg', result.image)
 ```
 
-## Deduplication system
+### Deduplication system
 
 The deduplication module eliminates redundant detections while optionally prioritizing specific classes over generic ones.
 
-### Parameters
+#### Parameters
 
 - `deduplicate`: Enable/disable deduplication (bool)
 - `dedup_iou`: IoU threshold for considering detections as duplicates (float, 0.0-1.0)
@@ -187,9 +272,9 @@ When `prioritize_specific=False`:
 | SuperRes    | False       | Single preprocessing step |
 | Hybrid      | True        | Full + crops strategy requires merging |
 
-## Method parameters
+### Method parameters
 
-### Basic
+#### Basic
 
 ```python
 {
@@ -203,7 +288,7 @@ When `prioritize_specific=False`:
 }
 ```
 
-### Tiled
+#### Tiled
 
 ```python
 {
@@ -219,7 +304,7 @@ When `prioritize_specific=False`:
 }
 ```
 
-### MultiScale
+#### MultiScale
 
 ```python
 {
@@ -234,7 +319,7 @@ When `prioritize_specific=False`:
 }
 ```
 
-### TTA
+#### TTA
 
 ```python
 {
@@ -249,7 +334,7 @@ When `prioritize_specific=False`:
 }
 ```
 
-### SuperRes
+#### SuperRes
 
 ```python
 {
@@ -264,7 +349,7 @@ When `prioritize_specific=False`:
 }
 ```
 
-### Hybrid
+#### Hybrid
 
 ```python
 {
@@ -279,9 +364,9 @@ When `prioritize_specific=False`:
 }
 ```
 
-## Performance considerations
+### Performance considerations
 
-### Method selection guide
+#### Method selection guide
 
 - **Basic**: Fast inference on standard images, minimal overhead
 - **Tiled**: Recommended for images with small objects or high resolution
@@ -290,7 +375,7 @@ When `prioritize_specific=False`:
 - **SuperRes**: Benefits low-quality or low-contrast images
 - **Hybrid**: Maximum detection quality, highest computational cost
 
-### Computational requirements
+#### Computational requirements
 
 Tested on YOLOv11x with input resolution 640x640:
 
@@ -315,17 +400,6 @@ This project uses YOLOv11x for optimal performance on small and complex object d
 
 For resource-constrained environments, use `yolov11m.pt` with `imgsz=416`.
 
-## Training scripts
-
-Training utilities are located in the `experiments/` directory:
-
-- `train_yolo.py`: Main training pipeline with early stopping
-- `hyperparam_yolo_tunning.py`: Bayesian hyperparameter optimization
-- `img_stratifier.py`: Instance-balanced dataset splitting
-- `val_yolo.py`: Comprehensive validation with metrics export
-
-Refer to the original README in `experiments/` for detailed training instructions.
-
 ## Citation
 
 If you use this code in your research, please cite:
@@ -333,10 +407,10 @@ If you use this code in your research, please cite:
 ```
 @misc{alpha5,
   author = {Rodríguez Ramírez, Juan Carlos},
-  title = {Alpha5: Advanced Trash Detection System},
+  title = {Alpha5: Trash Detection System},
   year = {2026},
   publisher = {GitHub},
-  howpublished = {\url{https://github.com/yourusername/alpha5}}
+  howpublished = {\url{https://github.com/Juanquirr/alpha5}}
 }
 ```
 
