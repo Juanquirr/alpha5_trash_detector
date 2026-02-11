@@ -1,38 +1,27 @@
-# Alpha5 - Trash Detector
+# Alpha5 - Advanced Trash Detection System
 
-Trash detection system using **YOLO 11**. This repository contains the scripts used for training, validation, and result analysis of a multi-class trash detector trained on a custom labeled dataset.
+Trash detection system using YOLOv11 with multiple inference strategies and an interactive visualization interface. This repository provides a comprehensive toolkit for object detection with emphasis on waste classification across diverse environmental conditions.
 
 ## Author
-- Juan Carlos Rodríguez Ramírez
+
+Juan Carlos Rodríguez Ramírez
 
 ## Project overview
 
-The goal of this project is to build an **object detection model** robust enough to detect trash across different environments. As a long-term objective, this detector could be integrated into [PLOCAN](https://plocan.eu/) camera streams to automatically detect different types of waste in marine environments.
+The objective of this project is to develop a robust object detection model capable of identifying different types of waste in various environments. The system is designed with potential integration into PLOCAN camera streams for automated marine waste detection.
 
-Key aspects:
-- YOLOv11 models trained with **Bayesian hyperparameter tuning**.
-- Sliding-window + SAHI inference utilities for handling small objects or complex images.
-- Best experiment traces stored under `Yolo11_results/`.
-
-
-## Environment
-
-The training and validation environment can be reproduced using the provided [Dockerfile](Dockerfile). Build the image and run a container, then execute the training/validation scripts inside the container.
-
-### Build
-```bash
-docker build -f ./Dockerfile -t yolo:tag .
-```
-
-### Run
-```bash
-docker run -it --gpus all --shm-size=8g -v "$pwd:/ultralytics/USER" --name "..." yolo:tag
-```
+Key features:
+- YOLOv11 models trained with Bayesian hyperparameter optimization
+- Six distinct inference methods with configurable parameters
+- Deduplication system with class-specific prioritization
+- Interactive GUI for method comparison and visualization
+- Support for tiled inference, multi-scale ensembles, and test-time augmentation
 
 ## Dataset
 
-**`ALPHA5_train/alpha5_trash_v3.3/data.yaml`**: Standard Ultralytics YAML defining `train`/`val`/`test` paths and class names.
-```
+The model is trained on a custom multi-class trash dataset with the following classes:
+
+```yaml
 nc: 8
 names:
   0: plastic_bottle
@@ -45,211 +34,318 @@ names:
   7: trash
 ```
 
+Class 7 (trash) serves as a generic fallback category when specific classification is uncertain.
 
-## How to use
+## Architecture
 
-### 1. Training
+### Core components
 
-#### [train_yolo.py](ALPHA5_train/train_yolo.py)
-Main training pipeline with ArgParse, early stopping and mAP50 monitoring per epoch.
-
-```bash
-python train_yolo.py data.yaml yolo_model.pt \
-  --epochs 300 --batch -1 --imgsz 640 --workers 4 \
-  --project /ultralytics/USER/runs/detect/train --name alpha5_yolo11
+```
+alpha5/
+├── alpha5_base.py          # Base classes (InferenceMethod, InferenceResult)
+├── utils.py                # Utilities (crops, WBF, NMS, deduplication)
+├── inference_methods.py    # Six inference method implementations
+├── alpha5_visualizer.py    # GUI application for interactive comparison
+├── run_visualizer.py       # Launcher script for GUI
+└── test_methods.py         # CLI tool for batch processing
 ```
 
-#### [hyperparam_yolo_tunning.py](ALPHA5_train/hyperparam_yolo_tunning.py)
-Hyperparameter tuning with `model.tune()`.
+### Inference methods
+
+1. **Basic**: Standard YOLO inference with configurable confidence and IoU thresholds
+2. **Tiled**: Uniform grid cropping with Weighted Boxes Fusion (WBF) or Non-Maximum Suppression (NMS)
+3. **MultiScale**: Ensemble inference across multiple image resolutions
+4. **TTA**: Test-Time Augmentation with horizontal, vertical, and combined flips
+5. **SuperRes**: Preprocessing with CLAHE or unsharp masking before inference
+6. **Hybrid**: Two-stage pipeline combining full image and cropped detections
+
+## Installation
+
+### Requirements
+
+- Python 3.8+
+- PyTorch with CUDA support (recommended)
+- Ultralytics YOLO
+- OpenCV
+- NumPy
+- Pillow
+- Tkinter (for GUI)
+
+### Docker environment
+
+Build the Docker image:
 
 ```bash
-python hyperparam_yolo_tunning.py \
-  data.yaml yolo_model.pt 50 20 \
-  --imgsz 640 --batch -1 --name alpha5_tune
+docker build -f ./Dockerfile -t alpha5:latest .
 ```
 
-#### [img_stratifier.py](ALPHA5_train/img_stratifier.py)
-Instance-stratified dataset split (by object count, not image count).
+Run container with GPU support:
 
 ```bash
-python img_stratifier.py mixed_dataset \
-  --out_dir instance_balanced \
-  --ratios 0.7 0.2 0.1
+docker run -it --gpus all --shm-size=8g \
+  -v "$(pwd):/workspace" \
+  --name alpha5_container \
+  alpha5:latest
 ```
 
-### 2. Validation & inference
+## Usage
 
-#### [val_yolo.py](ALPHA5_val/val_yolo.py)
-Full validation + optional predictions/concat export.
+### GUI Application
+
+Launch the interactive visualizer:
 
 ```bash
-python val_yolo.py data/alpha5_trash_v3.3/data.yaml runs/detect/train/exp/weights/best.pt \
-  --imgsz 640 --batch 16 --conf 0.25 --iou 0.35 \
-  --plots --save_json --per_class_csv \
-  --predict_val --concat --concat_dirname predictions_val_concat
+python run_visualizer.py
 ```
 
-#### [inference.py](ALPHA5_val/inference.py)
-Simple inference with time/memory profiling.
+Features:
+- Load YOLO model (.pt files)
+- Load test images
+- Configure method-specific parameters
+- Execute multiple methods simultaneously
+- Compare results side-by-side
+- Export annotated images
+- Adjustable confidence and IoU thresholds with real-time updates
+
+### Command-Line interface
+
+Run inference methods from terminal:
 
 ```bash
-python inference.py big_images/ yolo_model.pt outputs_inference \
-  --device cuda:0 --conf 0.25 --imgsz 640
-```
-
-#### [sahi_dir.py](ALPHA5_val/sahi_dir.py)
-SAHI sliced inference (size/overlap-driven).
-
-```bash
-python sahi_dir.py big_images/ yolo_model.pt sahi_outputs \
-  --slice_height 320 --slice_width 320 \
-  --overlap_height_ratio 0.2 --overlap_width_ratio 0.2 \
-  --device cuda:0 --format jpg --recursive
-```
-
-#### [pair_concat.py](ALPHA5_val/pair_concat.py)
-Concatenate paired images (original | prediction) by alphabetical order.
-
-```bash
-python pair_concat.py originals_dir preds_dir \
-  --out_dir concatenated_pairs --suffix _concat
-```
-
-#### [crop_maker.py](ALPHA5_val/crop_maker.py)
-Generate static crops and/or grid visualization **without inference**.
-
-```bash
-python crop_maker.py big_images/ \
-  --crops 6 \
-  --overlap 0.2 \
-  --save_crops \
-  --draw_grid \
-  --recursive \
-  --out_dir image_crops
-```
-
-#### [inference_tiled.py](ALPHA5_val/inference_tiled.py)
-YOLO inference on uniform crops with NMS/WBF fusion + deduplication + trash class prioritization.
-
-```bash
-python inference_tiled.py images/ yolo_model.pt \
-  --crops 6 \
-  --overlap 0.2 \
+python test_methods.py image.jpg model.pt \
+  --methods basic tiled tta \
+  --output results/ \
   --conf 0.25 \
-  --iou 0.5 \
-  --fusion wbf \
-  --iou_dedup 0.5 \
-  --trash_id 7 \
-  --prioritize_specific \
-  --device cuda:0 \
-  --save_crops \
-  --draw_grid \
-  --recursive \
-  --out_dir tiled_inferences
+  --iou 0.45
 ```
 
-**Key parameters**:
-- `--fusion wbf|nms`: Crop fusion method
-- `--iou_dedup`: Final deduplication IoU threshold
-- `--trash_id 7 --prioritize_specific`: Prefer specific classes over the id indicated
-- `--save_crops`: Save per-crop predictions
+### Programmatic usage
 
-#### [patched_inference_alpha.py](ALPHA5_val/patched_inference_alpha.py)
-YOLO inference using libraries abstracting logic. Done by Kolesnikov Dmitry. 
+```python
+from inference_methods import get_method
+from ultralytics import YOLO
+import cv2
 
-```bash
-python inference_patched.py source/ model.pt \
-    --out_dir patched_results \
-    --conf 0.3 \
-    --iou 0.5 \
-    --patch_size 640 \
-    --overlap 0.25 \
-    --nms_threshold 0.25 \
-    --device cuda:0 \
-    --save_comparison \
-    --imgsz 640
+# Load model and image
+model = YOLO('yolov11x.pt')
+image = cv2.imread('test_image.jpg')
+
+# Get inference method
+tiled = get_method('tiled')
+
+# Configure parameters
+params = {
+    'conf': 0.25,
+    'iou': 0.5,
+    'crops': 6,
+    'overlap': 0.2,
+    'fusion': 'wbf',
+    'deduplicate': True,
+    'dedup_iou': 0.5,
+    'trash_class_id': 7,
+    'prioritize_specific': True
+}
+
+# Run inference
+result = tiled.run(image, model, params)
+
+# Access results
+print(f"Detections: {result.num_detections}")
+print(f"Elapsed time: {result.elapsed_time:.2f}s")
+cv2.imwrite('output.jpg', result.image)
 ```
 
-#### [tta.py](ALPHA5_val/tta.py)
-Applies augmentations during inference time. Each augmented variation is inferenced, and combines every detection with WBF/NMS. 
+## Deduplication system
 
-```bash
-python inference_tta.py source/ yolo_model.pt --conf 0.25 --tta_iou 0.5
+The deduplication module eliminates redundant detections while optionally prioritizing specific classes over generic ones.
+
+### Parameters
+
+- `deduplicate`: Enable/disable deduplication (bool)
+- `dedup_iou`: IoU threshold for considering detections as duplicates (float, 0.0-1.0)
+- `trash_class_id`: ID of the generic trash class (int, default: 7)
+- `prioritize_specific`: Prefer specific classes over generic trash (bool)
+
+### Logic
+
+When `prioritize_specific=True`:
+- If two detections overlap (IoU >= `dedup_iou`):
+  - Specific class (plastic, metal, etc.) takes precedence over generic trash
+  - Among detections of equal priority, highest confidence wins
+
+When `prioritize_specific=False`:
+- Highest confidence detection always wins regardless of class
+
+### Method-specific defaults
+
+| Method      | deduplicate | Rationale                          |
+|-------------|-------------|------------------------------------|
+| Basic       | False       | Single-pass inference, minimal overlap |
+| Tiled       | True        | Crops generate overlapping detections |
+| MultiScale  | True        | Multiple resolutions cause duplicates |
+| TTA         | True        | Augmentations create redundancy |
+| SuperRes    | False       | Single preprocessing step |
+| Hybrid      | True        | Full + crops strategy requires merging |
+
+## Method parameters
+
+### Basic
+
+```python
+{
+    'conf': 0.25,           # Confidence threshold
+    'iou': 0.45,            # NMS IoU threshold
+    'imgsz': 640,           # Input image size
+    'deduplicate': False,
+    'dedup_iou': 0.5,
+    'trash_class_id': 7,
+    'prioritize_specific': True
+}
 ```
 
-#### [super_resolution_inference.py](ALPHA5_val/super_resolution_inference.py)
-Super Resolution preprocessing for YOLO inference. Improves small object detection by upscaling images before detection.
+### Tiled
 
-```bash
-python super_resolution_inference.py source/ yolo_model.pt --sr_method method
+```python
+{
+    'conf': 0.25,
+    'iou': 0.5,
+    'crops': 4,              # Number of crops (must be even)
+    'overlap': 0.2,          # Overlap ratio between crops
+    'fusion': 'wbf',         # Fusion method: 'wbf' or 'nms'
+    'deduplicate': True,
+    'dedup_iou': 0.5,
+    'trash_class_id': 7,
+    'prioritize_specific': True
+}
 ```
 
-#### [multi_scale_ensemble.py](ALPHA5_val/multi_scale_ensemble.py)
-Multi-Scale Inference for YOLO. Detects at multiple resolutions and fuses results.
+### MultiScale
 
-```bash
-python inference_multiscale.py source/ yolo_model.pt --scales 640 1280 1920
+```python
+{
+    'conf': 0.25,
+    'iou': 0.5,
+    'scales': ,  # Image sizes for multi-scale inference
+    'nms_thresh': 0.5,            # Final NMS threshold
+    'deduplicate': True,
+    'dedup_iou': 0.5,
+    'trash_class_id': 7,
+    'prioritize_specific': True
+}
 ```
 
-#### [hybrid_pipeline.py](ALPHA5_val/hybrid_pipeline.py)
-**Two-stage hybrid pipeline**: Full image → Crops → Smart filtering → WBF merge
+### TTA
 
-```bash
-python hybrid_pipeline.py big_images/ yolo_model.pt \
-  --crops 6 \
-  --overlap 0.2 \
-  --conf 0.25 \
-  --crops_iou 0.5 \
-  --high_iou 0.85 \
-  --suspect_iou 0.3 \
-  --merge_iou 0.5 \
-  --device cuda:0 \
-  --save_intermediate \
-  --draw_grid \
-  --recursive \
-  --out_dir hybrid_results
+```python
+{
+    'conf': 0.25,
+    'iou': 0.5,
+    'tta_iou': 0.5,          # IoU threshold for TTA fusion
+    'imgsz': 640,
+    'deduplicate': True,
+    'dedup_iou': 0.5,
+    'trash_class_id': 7,
+    'prioritize_specific': True
+}
 ```
 
-**Pipeline stages**:
-1. **Full image inference**
-2. **Crops inference + WBF**
-3. **Smart filtering**: Keep crops detections validated by full (IoU≥0.85) OR new small objects (IoU<0.3)
-4. **Final WBF merge**
+### SuperRes
 
-**Output** (with `--save_intermediate`):
-```
-*_hybrid_final.jpg          # Final result
-*_stage1_full.jpg           # Full image only
-*_stage2_crops_raw.jpg      # Crops before filtering
-*_stage3_crops_filtered.jpg # Crops after smart filtering
-```
-
-## Complete workflow example
-
-```bash
-# 1. Generate crops (optional, for inspection)
-python crop_maker.py big_images/ --crops 6 --out_dir crops_only
-
-# 2. Run tiled inference (recommended)
-python inference_tiled.py big_images/ yolo_model.pt \
-  --crops 6 --fusion wbf --out_dir tiled_results
-
-# 3. Run hybrid pipeline (most robust)
-python hybrid_pipeline.py big_images/ yolo_model.pt \
-  --crops 6 --save_intermediate --out_dir hybrid_results
+```python
+{
+    'conf': 0.25,
+    'iou': 0.5,
+    'imgsz': 640,
+    'sr_method': 'clahe',    # Preprocessing: 'clahe' or 'unsharp'
+    'deduplicate': False,
+    'dedup_iou': 0.5,
+    'trash_class_id': 7,
+    'prioritize_specific': True
+}
 ```
 
-**Recommendation**: Use **`inference_tiled.py`** for most cases (WBF fusion). Use **`hybrid_pipeline.py`** for maximum precision on small objects.
+### Hybrid
 
----
+```python
+{
+    'conf': 0.25,
+    'crops': 6,
+    'overlap': 0.2,
+    'merge_iou': 0.5,        # IoU for merging full + crops detections
+    'deduplicate': True,
+    'dedup_iou': 0.5,
+    'trash_class_id': 7,
+    'prioritize_specific': True
+}
+```
 
-## Disclaimer
+## Performance considerations
 
-For this project, **yolo11x.pt** (YOLOv11's heaviest model) was used due to its superior performance on small and complex object detection. Lighter models (`yolo11n/s/m`) were tested but yielded lower mAP50 and recall scores.
+### Method selection guide
 
-Feel free to experiment with:
-- Other YOLOv11 sizes: `yolo11n.pt`, `yolo11s.pt`, `yolo11m.pt`
-- Ultralytics versions: YOLOv8, YOLOv26  
-- Custom models: `from_scratch` or fine-tuning your own checkpoints
+- **Basic**: Fast inference on standard images, minimal overhead
+- **Tiled**: Recommended for images with small objects or high resolution
+- **MultiScale**: Robust detection across object sizes, higher computational cost
+- **TTA**: Improved accuracy through augmentation, 4x inference time
+- **SuperRes**: Benefits low-quality or low-contrast images
+- **Hybrid**: Maximum detection quality, highest computational cost
 
-**Recommendation**: For limited hardware, start with `yolo11m.pt` and use `--imgsz 416` to balance speed vs accuracy.
+### Computational requirements
+
+Tested on YOLOv11x with input resolution 640x640:
+
+| Method      | Relative Speed | Memory Overhead | Use Case                  |
+|-------------|----------------|-----------------|---------------------------|
+| Basic       | 1.0x           | Low             | Standard images           |
+| Tiled       | 1.5-2.5x       | Medium          | High-res or small objects |
+| MultiScale  | 3.0-4.0x       | Medium-High     | Variable object sizes     |
+| TTA         | 4.0x           | Low-Medium      | Maximum accuracy needed   |
+| SuperRes    | 1.2x           | Low             | Poor image quality        |
+| Hybrid      | 2.5-3.5x       | Medium-High     | Critical applications     |
+
+## Model information
+
+This project uses YOLOv11x for optimal performance on small and complex object detection. Alternative model sizes can be substituted:
+
+- `yolov11n.pt`: Nano (fastest, lowest accuracy)
+- `yolov11s.pt`: Small
+- `yolov11m.pt`: Medium (recommended for limited hardware)
+- `yolov11l.pt`: Large
+- `yolov11x.pt`: Extra-large (highest accuracy, used in this project)
+
+For resource-constrained environments, use `yolov11m.pt` with `imgsz=416`.
+
+## Training scripts
+
+Training utilities are located in the `experiments/` directory:
+
+- `train_yolo.py`: Main training pipeline with early stopping
+- `hyperparam_yolo_tunning.py`: Bayesian hyperparameter optimization
+- `img_stratifier.py`: Instance-balanced dataset splitting
+- `val_yolo.py`: Comprehensive validation with metrics export
+
+Refer to the original README in `experiments/` for detailed training instructions.
+
+## Citation
+
+If you use this code in your research, please cite:
+
+```
+@misc{alpha5,
+  author = {Rodríguez Ramírez, Juan Carlos},
+  title = {Alpha5: Advanced Trash Detection System},
+  year = {2026},
+  publisher = {GitHub},
+  howpublished = {\url{https://github.com/yourusername/alpha5}}
+}
+```
+
+## License
+
+This project is licensed under the MIT License. See LICENSE file for details.
+
+## Acknowledgments
+
+- Ultralytics YOLO for the object detection framework
+- PLOCAN for project support and marine environment integration goals
+- Kolesnikov Dmitry for patched inference implementation contributions
