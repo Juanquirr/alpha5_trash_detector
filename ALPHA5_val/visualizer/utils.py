@@ -1,5 +1,5 @@
 """
-Utilidades: Crops uniformes, WBF y NMS
+Utilidades: Crops uniformes, WBF, NMS y Deduplicación con priorización de clases
 """
 import numpy as np
 import math
@@ -54,6 +54,7 @@ class UniformCrops:
 
 # ============= WBF & NMS =============
 def compute_iou(a, b):
+    """Calcula IoU entre dos bounding boxes en formato xyxy"""
     ax1, ay1, ax2, ay2 = a
     bx1, by1, bx2, by2 = b
     x1, y1 = max(ax1, bx1), max(ay1, by1)
@@ -65,6 +66,7 @@ def compute_iou(a, b):
     return inter / union if union > 0 else 0.0
 
 def weighted_boxes_fusion(boxes, scores, classes, iou_thres=0.5, skip_box_thr=0.0):
+    """Weighted Boxes Fusion con clustering BFS"""
     if len(boxes) == 0:
         return boxes, scores, classes
 
@@ -125,6 +127,7 @@ def weighted_boxes_fusion(boxes, scores, classes, iou_thres=0.5, skip_box_thr=0.
     )
 
 def greedy_nms(boxes, scores, classes, iou_thres=0.5):
+    """NMS por clase (Non-Maximum Suppression)"""
     keep = []
     for cls_id in sorted(set(classes)):
         idxs = [i for i, c in enumerate(classes) if c == cls_id]
@@ -143,3 +146,83 @@ def greedy_nms(boxes, scores, classes, iou_thres=0.5):
 
     keep.sort(key=lambda i: scores[i], reverse=True)
     return keep
+
+# ============= DEDUPLICACIÓN CON PRIORIZACIÓN =============
+def deduplicate_detections(boxes, scores, classes,
+                          iou_threshold=0.5,
+                          trash_class_id=7,
+                          prioritize_specific=True):
+    """
+    Elimina detecciones duplicadas con lógica de priorización de clases.
+
+    Si prioritize_specific=True:
+        - Las clases específicas se priorizan sobre la clase genérica "trash"
+        - Útil para sistemas de detección de residuos donde hay una clase
+          genérica "trash" y clases específicas (plástico, papel, metal, etc.)
+
+    Args:
+        boxes: Array [N, 4] en formato xyxy
+        scores: Array [N] confianzas
+        classes: Array [N] IDs de clase
+        iou_threshold: IoU >= esto → considerar duplicados
+        trash_class_id: ID de la clase genérica (default: 7)
+        prioritize_specific: Si True, priorizar clases específicas sobre trash
+
+    Returns:
+        (boxes, scores, classes) filtrados sin duplicados
+
+    Ejemplo:
+        Si hay dos detecciones solapadas:
+        - Detección A: clase=7 (trash), conf=0.8
+        - Detección B: clase=2 (plastic), conf=0.6
+
+        Con prioritize_specific=True → se queda con B (clase específica)
+        Con prioritize_specific=False → se queda con A (mayor confianza)
+    """
+    if len(boxes) == 0:
+        return boxes, scores, classes
+
+    n = len(boxes)
+    keep_mask = np.ones(n, dtype=bool)
+
+    # Ordenar por confianza descendente
+    sorted_indices = np.argsort(-scores)
+
+    for i in range(n):
+        if not keep_mask[sorted_indices[i]]:
+            continue
+
+        idx_i = sorted_indices[i]
+        box_i = boxes[idx_i]
+        cls_i = classes[idx_i]
+
+        # Buscar detecciones solapadas
+        for j in range(i + 1, n):
+            idx_j = sorted_indices[j]
+            if not keep_mask[idx_j]:
+                continue
+
+            box_j = boxes[idx_j]
+            cls_j = classes[idx_j]
+
+            iou = compute_iou(box_i, box_j)
+
+            if iou >= iou_threshold:
+                # Detecciones solapadas encontradas
+                if prioritize_specific:
+                    # Lógica especial: trash pierde ante cualquier clase específica
+                    if cls_i == trash_class_id and cls_j != trash_class_id:
+                        # Mantener j (clase específica), descartar i (trash)
+                        keep_mask[idx_i] = False
+                        break  # i descartado, pasar al siguiente
+                    elif cls_i != trash_class_id and cls_j == trash_class_id:
+                        # Mantener i (clase específica), descartar j (trash)
+                        keep_mask[idx_j] = False
+                    else:
+                        # Ambos misma prioridad: mantener mayor confianza (i)
+                        keep_mask[idx_j] = False
+                else:
+                    # Estándar: mantener mayor confianza (siempre i por estar ordenado)
+                    keep_mask[idx_j] = False
+
+    return boxes[keep_mask], scores[keep_mask], classes[keep_mask]

@@ -1,18 +1,26 @@
 """
-Métodos de inferencia Alpha5 - Todos en un solo archivo
+Métodos de inferencia Alpha5 con soporte de deduplicación y priorización de clases
 """
 import time
 import cv2
 import numpy as np
 from ultralytics.utils.plotting import Annotator, colors
 from alpha5_base import InferenceMethod, InferenceResult
-from utils import UniformCrops, weighted_boxes_fusion, greedy_nms
+from utils import UniformCrops, weighted_boxes_fusion, greedy_nms, deduplicate_detections
 
 # ============= BASIC =============
 class BasicInference(InferenceMethod):
     def __init__(self):
         super().__init__("Basic", "Inferencia YOLO básica")
-        self.default_params = {"conf": 0.25, "iou": 0.45, "imgsz": 640}
+        self.default_params = {
+            "conf": 0.25,
+            "iou": 0.45,
+            "imgsz": 640,
+            "deduplicate": False,
+            "dedup_iou": 0.5,
+            "trash_class_id": 7,
+            "prioritize_specific": True
+        }
 
     def run(self, image, model, params):
         t0 = time.time()
@@ -22,9 +30,19 @@ class BasicInference(InferenceMethod):
                                imgsz=params.get("imgsz", 640),
                                verbose=False)
         r = results[0]
-        boxes = r.boxes.xyxy.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else []
-        scores = r.boxes.conf.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else []
-        classes = r.boxes.cls.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else []
+        boxes = r.boxes.xyxy.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else np.array([])
+        scores = r.boxes.conf.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else np.array([])
+        classes = r.boxes.cls.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else np.array([])
+
+        # Deduplicación opcional
+        if params.get("deduplicate", False) and len(boxes) > 0:
+            boxes, scores, classes = deduplicate_detections(
+                boxes, scores, classes,
+                iou_threshold=params.get("dedup_iou", 0.5),
+                trash_class_id=params.get("trash_class_id", 7),
+                prioritize_specific=params.get("prioritize_specific", True)
+            )
+
         img_out = r.plot()
         elapsed = time.time() - t0
         return InferenceResult(img_out, boxes, scores, classes, self.name, params, elapsed, len(boxes))
@@ -33,7 +51,17 @@ class BasicInference(InferenceMethod):
 class TiledInference(InferenceMethod):
     def __init__(self):
         super().__init__("Tiled", "Inferencia con crops y fusión")
-        self.default_params = {"conf": 0.25, "iou": 0.5, "crops": 4, "overlap": 0.2, "fusion": "wbf"}
+        self.default_params = {
+            "conf": 0.25,
+            "iou": 0.5,
+            "crops": 4,
+            "overlap": 0.2,
+            "fusion": "wbf",
+            "deduplicate": True,  # Activado por defecto en Tiled
+            "dedup_iou": 0.5,
+            "trash_class_id": 7,
+            "prioritize_specific": True
+        }
 
     def run(self, image, model, params):
         t0 = time.time()
@@ -66,6 +94,15 @@ class TiledInference(InferenceMethod):
             else:
                 keep = greedy_nms(boxes, scores, classes, iou_thres=params.get("iou", 0.5))
                 boxes, scores, classes = boxes[keep], scores[keep], classes[keep]
+
+            # Deduplicación post-fusión
+            if params.get("deduplicate", True):
+                boxes, scores, classes = deduplicate_detections(
+                    boxes, scores, classes,
+                    iou_threshold=params.get("dedup_iou", 0.5),
+                    trash_class_id=params.get("trash_class_id", 7),
+                    prioritize_specific=params.get("prioritize_specific", True)
+                )
         else:
             boxes, scores, classes = np.array([]), np.array([]), np.array([])
 
@@ -84,7 +121,16 @@ class TiledInference(InferenceMethod):
 class MultiScaleInference(InferenceMethod):
     def __init__(self):
         super().__init__("MultiScale", "Ensemble multi-escala")
-        self.default_params = {"conf": 0.25, "iou": 0.5, "scales": [640, 960, 1280], "nms_thresh": 0.5}
+        self.default_params = {
+            "conf": 0.25,
+            "iou": 0.5,
+            "scales": [640, 960, 1280],
+            "nms_thresh": 0.5,
+            "deduplicate": True,
+            "dedup_iou": 0.5,
+            "trash_class_id": 7,
+            "prioritize_specific": True
+        }
 
     def run(self, image, model, params):
         t0 = time.time()
@@ -108,6 +154,15 @@ class MultiScaleInference(InferenceMethod):
             classes = np.concatenate(all_classes, axis=0)
             keep = greedy_nms(boxes, scores, classes, iou_thres=params.get("nms_thresh", 0.5))
             boxes, scores, classes = boxes[keep], scores[keep], classes[keep]
+
+            # Deduplicación
+            if params.get("deduplicate", True):
+                boxes, scores, classes = deduplicate_detections(
+                    boxes, scores, classes,
+                    iou_threshold=params.get("dedup_iou", 0.5),
+                    trash_class_id=params.get("trash_class_id", 7),
+                    prioritize_specific=params.get("prioritize_specific", True)
+                )
         else:
             boxes, scores, classes = np.array([]), np.array([]), np.array([])
 
@@ -127,7 +182,16 @@ class MultiScaleInference(InferenceMethod):
 class TTAInference(InferenceMethod):
     def __init__(self):
         super().__init__("TTA", "Test-Time Augmentation")
-        self.default_params = {"conf": 0.25, "iou": 0.5, "tta_iou": 0.5, "imgsz": 640}
+        self.default_params = {
+            "conf": 0.25,
+            "iou": 0.5,
+            "tta_iou": 0.5,
+            "imgsz": 640,
+            "deduplicate": True,
+            "dedup_iou": 0.5,
+            "trash_class_id": 7,
+            "prioritize_specific": True
+        }
 
     def run(self, image, model, params):
         t0 = time.time()
@@ -169,6 +233,15 @@ class TTAInference(InferenceMethod):
             classes = np.concatenate(all_classes, axis=0)
             keep = greedy_nms(boxes, scores, classes, iou_thres=params.get("tta_iou", 0.5))
             boxes, scores, classes = boxes[keep], scores[keep], classes[keep]
+
+            # Deduplicación
+            if params.get("deduplicate", True):
+                boxes, scores, classes = deduplicate_detections(
+                    boxes, scores, classes,
+                    iou_threshold=params.get("dedup_iou", 0.5),
+                    trash_class_id=params.get("trash_class_id", 7),
+                    prioritize_specific=params.get("prioritize_specific", True)
+                )
         else:
             boxes, scores, classes = np.array([]), np.array([]), np.array([])
 
@@ -188,7 +261,16 @@ class TTAInference(InferenceMethod):
 class SuperResInference(InferenceMethod):
     def __init__(self):
         super().__init__("SuperRes", "Preprocesado CLAHE/Unsharp")
-        self.default_params = {"conf": 0.25, "iou": 0.5, "imgsz": 640, "sr_method": "clahe"}
+        self.default_params = {
+            "conf": 0.25,
+            "iou": 0.5,
+            "imgsz": 640,
+            "sr_method": "clahe",
+            "deduplicate": False,
+            "dedup_iou": 0.5,
+            "trash_class_id": 7,
+            "prioritize_specific": True
+        }
 
     def run(self, image, model, params):
         t0 = time.time()
@@ -212,9 +294,19 @@ class SuperResInference(InferenceMethod):
                                imgsz=params.get("imgsz", 640),
                                verbose=False)
         r = results[0]
-        boxes = r.boxes.xyxy.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else []
-        scores = r.boxes.conf.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else []
-        classes = r.boxes.cls.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else []
+        boxes = r.boxes.xyxy.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else np.array([])
+        scores = r.boxes.conf.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else np.array([])
+        classes = r.boxes.cls.cpu().numpy() if r.boxes is not None and len(r.boxes) > 0 else np.array([])
+
+        # Deduplicación
+        if params.get("deduplicate", False) and len(boxes) > 0:
+            boxes, scores, classes = deduplicate_detections(
+                boxes, scores, classes,
+                iou_threshold=params.get("dedup_iou", 0.5),
+                trash_class_id=params.get("trash_class_id", 7),
+                prioritize_specific=params.get("prioritize_specific", True)
+            )
+
         img_out = r.plot()
         elapsed = time.time() - t0
         return InferenceResult(img_out, boxes, scores, classes, self.name, params, elapsed, len(boxes))
@@ -223,7 +315,16 @@ class SuperResInference(InferenceMethod):
 class HybridInference(InferenceMethod):
     def __init__(self):
         super().__init__("Hybrid", "Imagen completa + crops")
-        self.default_params = {"conf": 0.25, "crops": 6, "overlap": 0.2, "merge_iou": 0.5}
+        self.default_params = {
+            "conf": 0.25,
+            "crops": 6,
+            "overlap": 0.2,
+            "merge_iou": 0.5,
+            "deduplicate": True,  # Activado por defecto
+            "dedup_iou": 0.5,
+            "trash_class_id": 7,
+            "prioritize_specific": True
+        }
 
     def run(self, image, model, params):
         t0 = time.time()
@@ -271,6 +372,15 @@ class HybridInference(InferenceMethod):
         if len(boxes) > 0:
             boxes, scores, classes = weighted_boxes_fusion(boxes, scores, classes, 
                                                           iou_thres=params.get("merge_iou", 0.5))
+
+            # Deduplicación post-merge
+            if params.get("deduplicate", True):
+                boxes, scores, classes = deduplicate_detections(
+                    boxes, scores, classes,
+                    iou_threshold=params.get("dedup_iou", 0.5),
+                    trash_class_id=params.get("trash_class_id", 7),
+                    prioritize_specific=params.get("prioritize_specific", True)
+                )
 
         img_out = image.copy()
         if len(boxes) > 0:
