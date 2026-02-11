@@ -1,0 +1,145 @@
+"""
+Utilidades: Crops uniformes, WBF y NMS
+"""
+import numpy as np
+import math
+import cv2
+
+# ============= CROP UTILS =============
+class UniformCrops:
+    def __init__(self, overlap_ratio=0.2):
+        if not (0 <= overlap_ratio < 1):
+            raise ValueError("overlap_ratio debe estar en [0, 1)")
+        self.overlap_ratio = overlap_ratio
+
+    def crop(self, frame, crops_number=4):
+        if (crops_number % 2 != 0) or (crops_number <= 0):
+            raise ValueError("crops_number debe ser par y positivo")
+
+        height, width = frame.shape[:2]
+        is_vertical = height > width
+
+        base_rows = int(math.sqrt(crops_number))
+        base_cols = math.ceil(crops_number / base_rows)
+
+        if is_vertical:
+            grid_rows, grid_cols = base_cols, base_rows
+        else:
+            grid_rows, grid_cols = base_rows, base_cols
+
+        cell_w = width / (grid_cols - (grid_cols - 1) * self.overlap_ratio)
+        cell_h = height / (grid_rows - (grid_rows - 1) * self.overlap_ratio)
+        stride_w = cell_w * (1 - self.overlap_ratio)
+        stride_h = cell_h * (1 - self.overlap_ratio)
+
+        crops, coords = [], []
+        count = 0
+        for r in range(grid_rows):
+            for c in range(grid_cols):
+                if count >= crops_number:
+                    break
+                x_min = max(0.0, c * stride_w)
+                y_min = max(0.0, r * stride_h)
+                x_max = min(float(width), x_min + cell_w)
+                y_max = min(float(height), y_min + cell_h)
+
+                x1, y1 = int(round(x_min)), int(round(y_min))
+                x2, y2 = int(round(x_max)), int(round(y_max))
+
+                crops.append(frame[y1:y2, x1:x2])
+                coords.append((x_min, y_min, x_max, y_max))
+                count += 1
+
+        return crops, coords
+
+# ============= WBF & NMS =============
+def compute_iou(a, b):
+    ax1, ay1, ax2, ay2 = a
+    bx1, by1, bx2, by2 = b
+    x1, y1 = max(ax1, bx1), max(ay1, by1)
+    x2, y2 = min(ax2, bx2), min(ay2, by2)
+    inter = max(0.0, x2 - x1) * max(0.0, y2 - y1)
+    area_a = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
+    area_b = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
+    union = area_a + area_b - inter
+    return inter / union if union > 0 else 0.0
+
+def weighted_boxes_fusion(boxes, scores, classes, iou_thres=0.5, skip_box_thr=0.0):
+    if len(boxes) == 0:
+        return boxes, scores, classes
+
+    fused_boxes, fused_scores, fused_classes = [], [], []
+
+    for cls_id in sorted(set(classes)):
+        cls_mask = classes == cls_id
+        cls_boxes = boxes[cls_mask].copy()
+        cls_scores = scores[cls_mask].copy()
+
+        valid_mask = cls_scores >= skip_box_thr
+        cls_boxes = cls_boxes[valid_mask]
+        cls_scores = cls_scores[valid_mask]
+
+        if len(cls_boxes) == 0:
+            continue
+
+        n = len(cls_boxes)
+        visited = np.zeros(n, dtype=bool)
+
+        for i in range(n):
+            if visited[i]:
+                continue
+
+            cluster = [i]
+            queue = [i]
+            visited[i] = True
+
+            while queue:
+                current = queue.pop(0)
+                for j in range(n):
+                    if not visited[j] and compute_iou(cls_boxes[current], cls_boxes[j]) >= iou_thres:
+                        visited[j] = True
+                        cluster.append(j)
+                        queue.append(j)
+
+            cluster_boxes = cls_boxes[cluster]
+            cluster_scores = cls_scores[cluster]
+            weights = cluster_scores / cluster_scores.sum()
+
+            fused_box = [
+                np.sum(cluster_boxes[:, 0] * weights),
+                np.sum(cluster_boxes[:, 1] * weights),
+                np.sum(cluster_boxes[:, 2] * weights),
+                np.sum(cluster_boxes[:, 3] * weights)
+            ]
+            fused_boxes.append(fused_box)
+            fused_scores.append(np.max(cluster_scores))
+            fused_classes.append(cls_id)
+
+    if len(fused_boxes) == 0:
+        return np.array([]), np.array([]), np.array([])
+
+    return (
+        np.array(fused_boxes, dtype=np.float32),
+        np.array(fused_scores, dtype=np.float32),
+        np.array(fused_classes, dtype=np.int32)
+    )
+
+def greedy_nms(boxes, scores, classes, iou_thres=0.5):
+    keep = []
+    for cls_id in sorted(set(classes)):
+        idxs = [i for i, c in enumerate(classes) if c == cls_id]
+        idxs.sort(key=lambda i: scores[i], reverse=True)
+
+        picked = []
+        for i in idxs:
+            ok = True
+            for j in picked:
+                if compute_iou(boxes[i], boxes[j]) > iou_thres:
+                    ok = False
+                    break
+            if ok:
+                picked.append(i)
+        keep.extend(picked)
+
+    keep.sort(key=lambda i: scores[i], reverse=True)
+    return keep
