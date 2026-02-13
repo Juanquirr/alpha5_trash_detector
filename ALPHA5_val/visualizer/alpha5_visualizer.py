@@ -1,7 +1,10 @@
 """
-Alpha5 Visualizer - Enhanced GUI for comparing inference methods
+Alpha5 Visualizer - Enhanced GUI with zoom and collapsible panels
 
-Enhanced version with advanced controls and improved appearance
+Enhanced version with:
+- Collapsible panels for more image space
+- Double-click zoom window with pan and zoom controls
+- Interactive image inspection
 """
 
 import tkinter as tk
@@ -13,6 +16,237 @@ from pathlib import Path
 from ultralytics import YOLO
 import threading
 from inference_methods import get_available_methods, get_method
+
+
+class ZoomWindow:
+    """Interactive zoom window for detailed image inspection"""
+
+    def __init__(self, parent, image, method_name, result_info):
+        self.window = tk.Toplevel(parent)
+        self.window.title(f"Zoom View - {method_name}")
+        self.window.geometry("900x700")
+
+        # Store image
+        self.original_image = image.copy()
+        self.method_name = method_name
+        self.result_info = result_info
+
+        # Zoom parameters
+        self.zoom_level = 1.0
+        self.pan_x = 0
+        self.pan_y = 0
+        self.drag_start_x = 0
+        self.drag_start_y = 0
+
+        self.setup_ui()
+        self.display_image()
+
+    def setup_ui(self):
+        # Top toolbar
+        toolbar = tk.Frame(self.window, bg='#2d2d2d', height=50)
+        toolbar.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+
+        # Title
+        title = tk.Label(toolbar, text=f"{self.method_name}", 
+                        font=('Segoe UI', 12, 'bold'),
+                        bg='#2d2d2d', fg='#00ff88')
+        title.pack(side=tk.LEFT, padx=10)
+
+        # Zoom controls
+        controls_frame = tk.Frame(toolbar, bg='#2d2d2d')
+        controls_frame.pack(side=tk.RIGHT, padx=10)
+
+        tk.Button(controls_frame, text="🔍+", width=4, 
+                 command=lambda: self.adjust_zoom(1.2),
+                 bg='#3d3d3d', fg='#e0e0e0', font=('Segoe UI', 10, 'bold'),
+                 relief=tk.RAISED, bd=2).pack(side=tk.LEFT, padx=2)
+
+        tk.Button(controls_frame, text="🔍-", width=4,
+                 command=lambda: self.adjust_zoom(0.8),
+                 bg='#3d3d3d', fg='#e0e0e0', font=('Segoe UI', 10, 'bold'),
+                 relief=tk.RAISED, bd=2).pack(side=tk.LEFT, padx=2)
+
+        tk.Button(controls_frame, text="↺ Reset", width=8,
+                 command=self.reset_view,
+                 bg='#3d3d3d', fg='#e0e0e0', font=('Segoe UI', 10, 'bold'),
+                 relief=tk.RAISED, bd=2).pack(side=tk.LEFT, padx=2)
+
+        tk.Button(controls_frame, text="💾 Save", width=8,
+                 command=self.save_image,
+                 bg='#00aaff', fg='white', font=('Segoe UI', 10, 'bold'),
+                 relief=tk.RAISED, bd=2).pack(side=tk.LEFT, padx=2)
+
+        # Canvas for image
+        canvas_frame = tk.Frame(self.window, bg='#1e1e1e')
+        canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        self.canvas = tk.Canvas(canvas_frame, bg='#3d3d3d', 
+                               highlightthickness=0, cursor="hand2")
+        self.canvas.pack(fill=tk.BOTH, expand=True)
+
+        # Bind events
+        self.canvas.bind("<MouseWheel>", self.on_mousewheel)
+        self.canvas.bind("<Button-1>", self.on_drag_start)
+        self.canvas.bind("<B1-Motion>", self.on_drag_motion)
+        self.window.bind("<Escape>", lambda e: self.window.destroy())
+
+        # Status bar
+        status_frame = tk.Frame(self.window, bg='#2d2d2d', relief=tk.SUNKEN, bd=1)
+        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.zoom_label = tk.Label(status_frame, text="Zoom: 100%",
+                                   bg='#2d2d2d', fg='#e0e0e0',
+                                   font=('Segoe UI', 9), anchor=tk.W, padx=10)
+        self.zoom_label.pack(side=tk.LEFT)
+
+        info_label = tk.Label(status_frame, text=self.result_info,
+                             bg='#2d2d2d', fg='#00ff88',
+                             font=('Segoe UI', 9), anchor=tk.E, padx=10)
+        info_label.pack(side=tk.RIGHT)
+
+    def display_image(self):
+        """Display image with current zoom and pan"""
+        h, w = self.original_image.shape[:2]
+
+        # Calculate zoomed size
+        new_w = int(w * self.zoom_level)
+        new_h = int(h * self.zoom_level)
+
+        # Resize image
+        if self.zoom_level != 1.0:
+            resized = cv2.resize(self.original_image, (new_w, new_h), 
+                               interpolation=cv2.INTER_LINEAR if self.zoom_level > 1 else cv2.INTER_AREA)
+        else:
+            resized = self.original_image.copy()
+
+        # Convert to PIL
+        img_rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
+        pil_image = Image.fromarray(img_rgb)
+
+        # Get canvas size
+        canvas_w = self.canvas.winfo_width()
+        canvas_h = self.canvas.winfo_height()
+
+        if canvas_w <= 1:  # Not yet rendered
+            self.window.after(100, self.display_image)
+            return
+
+        # Apply pan limits
+        max_pan_x = max(0, (new_w - canvas_w) / 2)
+        max_pan_y = max(0, (new_h - canvas_h) / 2)
+        self.pan_x = max(-max_pan_x, min(max_pan_x, self.pan_x))
+        self.pan_y = max(-max_pan_y, min(max_pan_y, self.pan_y))
+
+        # Create PhotoImage
+        self.photo = ImageTk.PhotoImage(pil_image)
+
+        # Display on canvas
+        self.canvas.delete("all")
+        x = canvas_w / 2 + self.pan_x
+        y = canvas_h / 2 + self.pan_y
+        self.canvas.create_image(x, y, image=self.photo, anchor=tk.CENTER)
+
+        # Update zoom label
+        self.zoom_label.config(text=f"Zoom: {int(self.zoom_level * 100)}%")
+
+    def adjust_zoom(self, factor):
+        """Adjust zoom level"""
+        new_zoom = self.zoom_level * factor
+        if 0.1 <= new_zoom <= 10.0:
+            self.zoom_level = new_zoom
+            self.display_image()
+
+    def reset_view(self):
+        """Reset zoom and pan"""
+        self.zoom_level = 1.0
+        self.pan_x = 0
+        self.pan_y = 0
+        self.display_image()
+
+    def on_mousewheel(self, event):
+        """Zoom with mouse wheel"""
+        if event.delta > 0:
+            self.adjust_zoom(1.1)
+        else:
+            self.adjust_zoom(0.9)
+
+    def on_drag_start(self, event):
+        """Start dragging"""
+        self.drag_start_x = event.x
+        self.drag_start_y = event.y
+
+    def on_drag_motion(self, event):
+        """Handle dragging"""
+        dx = event.x - self.drag_start_x
+        dy = event.y - self.drag_start_y
+        self.pan_x += dx
+        self.pan_y += dy
+        self.drag_start_x = event.x
+        self.drag_start_y = event.y
+        self.display_image()
+
+    def save_image(self):
+        """Save current image"""
+        filepath = filedialog.asksaveasfilename(
+            defaultextension=".jpg",
+            filetypes=[("JPEG", "*.jpg"), ("PNG", "*.png"), ("All files", "*.*")],
+            initialfile=f"{self.method_name}_zoom.jpg"
+        )
+
+        if filepath:
+            cv2.imwrite(filepath, self.original_image)
+            messagebox.showinfo("Success", f"Image saved to:\n{filepath}")
+
+
+class CollapsibleFrame(ttk.Frame):
+    """A frame that can be collapsed/expanded"""
+
+    def __init__(self, parent, text, *args, **kwargs):
+        ttk.Frame.__init__(self, parent, *args, **kwargs)
+
+        self.show = tk.BooleanVar(value=True)
+
+        # Header with toggle button
+        self.header_frame = tk.Frame(self, bg='#2d2d2d', relief=tk.RAISED, bd=1)
+        self.header_frame.pack(fill=tk.X, padx=2, pady=2)
+
+        self.toggle_button = tk.Label(
+            self.header_frame,
+            text="▼",
+            bg='#2d2d2d',
+            fg='#00ff88',
+            font=('Segoe UI', 10, 'bold'),
+            cursor="hand2",
+            width=2
+        )
+        self.toggle_button.pack(side=tk.LEFT, padx=5)
+        self.toggle_button.bind("<Button-1>", self.toggle)
+
+        self.title_label = tk.Label(
+            self.header_frame,
+            text=text,
+            bg='#2d2d2d',
+            fg='#00ff88',
+            font=('Segoe UI', 11, 'bold'),
+            anchor=tk.W
+        )
+        self.title_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5, pady=5)
+        self.title_label.bind("<Button-1>", self.toggle)
+
+        # Content frame
+        self.content_frame = ttk.Frame(self)
+        self.content_frame.pack(fill=tk.BOTH, expand=True)
+
+    def toggle(self, event=None):
+        """Toggle frame visibility"""
+        if self.show.get():
+            self.content_frame.pack_forget()
+            self.toggle_button.config(text="▶")
+            self.show.set(False)
+        else:
+            self.content_frame.pack(fill=tk.BOTH, expand=True)
+            self.toggle_button.config(text="▼")
+            self.show.set(True)
 
 
 class Alpha5Visualizer:
@@ -79,16 +313,29 @@ class Alpha5Visualizer:
 
     def setup_ui(self):
         # ============= HEADER =============
-        header_frame = ttk.Frame(self.root, padding="15")
+        header_frame = ttk.Frame(self.root, padding="10")
         header_frame.pack(side=tk.TOP, fill=tk.X)
 
         title_label = ttk.Label(header_frame, text="Alpha5 Visualizer",
                                style='Title.TLabel')
-        title_label.pack(side=tk.TOP, pady=(0, 10))
+        title_label.pack(side=tk.LEFT, pady=(0, 5))
 
-        # ============= TOP CONTROLS =============
-        controls_frame = ttk.Frame(self.root, padding="10")
-        controls_frame.pack(side=tk.TOP, fill=tk.X)
+        # Hint label
+        hint_label = ttk.Label(header_frame, 
+                              text="💡 Tip: Double-click on images to zoom | Collapse panels for more space",
+                              foreground=self.colors['fg_highlight'])
+        hint_label.pack(side=tk.RIGHT, pady=(0, 5))
+
+        # ============= TOP CONTROLS (Collapsible) =============
+        controls_container = ttk.Frame(self.root)
+        controls_container.pack(side=tk.TOP, fill=tk.X, padx=10)
+
+        # Model and Image in collapsible frame
+        model_image_collapse = CollapsibleFrame(controls_container, "Model & Image")
+        model_image_collapse.pack(fill=tk.X, pady=2)
+
+        controls_frame = ttk.Frame(model_image_collapse.content_frame, padding="5")
+        controls_frame.pack(fill=tk.X)
 
         # Model
         model_frame = ttk.LabelFrame(controls_frame, text="Model", padding="10")
@@ -112,18 +359,21 @@ class Alpha5Visualizer:
         ttk.Button(image_frame, text="Load Image",
                   command=self.load_image).pack(side=tk.TOP, fill=tk.X, pady=5)
 
-        # ============= MIDDLE: METHODS AND PARAMETERS =============
-        middle_frame = ttk.Frame(self.root, padding="10")
-        middle_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=False)
+        # ============= MIDDLE: METHODS AND PARAMETERS (Collapsible) =============
+        middle_container = ttk.Frame(self.root)
+        middle_container.pack(side=tk.TOP, fill=tk.X, padx=10)
 
-        # Methods
-        methods_frame = ttk.LabelFrame(middle_frame, text="Inference Methods", padding="10")
-        methods_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
+        # Methods collapsible
+        methods_collapse = CollapsibleFrame(middle_container, "Inference Methods")
+        methods_collapse.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        methods_inner = ttk.Frame(methods_collapse.content_frame, padding="5")
+        methods_inner.pack(fill=tk.BOTH, expand=True)
 
         # Scroll for methods
-        methods_canvas = tk.Canvas(methods_frame, bg=self.colors['bg_dark'],
-                                  highlightthickness=0, height=200)
-        methods_scrollbar = ttk.Scrollbar(methods_frame, orient="vertical",
+        methods_canvas = tk.Canvas(methods_inner, bg=self.colors['bg_dark'],
+                                  highlightthickness=0, height=150)
+        methods_scrollbar = ttk.Scrollbar(methods_inner, orient="vertical",
                                          command=methods_canvas.yview)
         methods_scrollable = ttk.Frame(methods_canvas)
 
@@ -172,7 +422,7 @@ class Alpha5Visualizer:
         methods_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Control buttons
-        control_buttons = ttk.Frame(methods_frame)
+        control_buttons = ttk.Frame(methods_inner)
         control_buttons.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
 
         ttk.Button(control_buttons, text="Run Selected",
@@ -182,12 +432,15 @@ class Alpha5Visualizer:
         ttk.Button(control_buttons, text="Clear Results",
                   command=self.clear_results).pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
 
-        # Global parameters
-        params_frame = ttk.LabelFrame(middle_frame, text="Global Parameters", padding="10")
-        params_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
+        # Global parameters collapsible
+        params_collapse = CollapsibleFrame(middle_container, "Global Parameters")
+        params_collapse.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        params_inner = ttk.Frame(params_collapse.content_frame, padding="10")
+        params_inner.pack(fill=tk.BOTH, expand=True)
 
         # Confidence with entry and slider
-        conf_container = ttk.Frame(params_frame)
+        conf_container = ttk.Frame(params_inner)
         conf_container.pack(fill=tk.X, pady=5)
 
         ttk.Label(conf_container, text="Confidence:").pack(side=tk.LEFT, padx=5)
@@ -205,7 +458,7 @@ class Alpha5Visualizer:
         self.conf_display.pack(side=tk.LEFT, padx=5)
 
         # IoU with entry and slider
-        iou_container = ttk.Frame(params_frame)
+        iou_container = ttk.Frame(params_inner)
         iou_container.pack(fill=tk.X, pady=5)
 
         ttk.Label(iou_container, text="IoU:").pack(side=tk.LEFT, padx=5)
@@ -223,16 +476,16 @@ class Alpha5Visualizer:
         self.iou_display.pack(side=tk.LEFT, padx=5)
 
         # Apply to all
-        ttk.Button(params_frame, text="Apply to All Methods",
+        ttk.Button(params_inner, text="Apply to All Methods",
                   command=self.apply_global_params).pack(fill=tk.X, pady=10)
 
-        info_label = ttk.Label(params_frame,
+        info_label = ttk.Label(params_inner,
                               text="Use ⚙️ for method-specific parameters",
                               foreground=self.colors['fg_highlight'])
         info_label.pack(pady=5)
 
         # ============= DISPLAY =============
-        display_frame = ttk.LabelFrame(self.root, text="Comparative Visualization", padding="10")
+        display_frame = ttk.LabelFrame(self.root, text="Comparative Visualization (Double-click to zoom)", padding="10")
         display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         # Method selectors
@@ -281,8 +534,12 @@ class Alpha5Visualizer:
             self.canvas_labels.append(label)
 
             canvas = tk.Canvas(frame, bg=self.colors['bg_light'],
-                             highlightthickness=0)
+                             highlightthickness=0, cursor="hand2")
             canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+            # Bind double-click for zoom
+            canvas.bind("<Double-Button-1>", lambda e, idx=i: self.open_zoom_window(idx))
+
             self.canvases.append(canvas)
 
             stats = tk.Label(frame, text="", font=('Segoe UI', 9),
@@ -302,6 +559,29 @@ class Alpha5Visualizer:
                               fg=self.colors['fg_normal'], font=('Segoe UI', 10),
                               padx=10, pady=5)
         status_label.pack(fill=tk.X)
+
+    def open_zoom_window(self, canvas_idx):
+        """Open zoom window for detailed inspection"""
+        selector = self.method_selectors[canvas_idx]
+
+        if not selector.get():
+            messagebox.showinfo("Info", "No image to zoom")
+            return
+
+        method_name = selector.get().split(" (")[0]
+
+        if method_name not in self.results:
+            messagebox.showwarning("Warning", "Image not found")
+            return
+
+        result = self.results[method_name]
+        params = self.method_params[method_name]
+
+        # Create info string
+        info = f"{result.num_detections} detections | {result.elapsed_time:.2f}s | Conf: {params.get('conf', 0.25):.2f}"
+
+        # Open zoom window
+        ZoomWindow(self.root, result.image, method_name, info)
 
     def update_conf_display(self, value):
         """Update confidence display with 2 decimals"""
@@ -387,7 +667,6 @@ class Alpha5Visualizer:
                 try:
                     value = var.get()
                     if param_type == list:
-                        # Convert string to list
                         import ast
                         new_params[param_name] = ast.literal_eval(value)
                     elif param_type == bool:
@@ -457,7 +736,7 @@ class Alpha5Visualizer:
             messagebox.showwarning("Warning", "No image to save")
             return
 
-        method_name = selector.get().split(" (")[0]  # Remove parameters from name
+        method_name = selector.get().split(" (")[0]
 
         if method_name not in self.results:
             messagebox.showwarning("Warning", "Image not found")
