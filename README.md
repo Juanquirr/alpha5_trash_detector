@@ -6,7 +6,7 @@ Trash detection system using YOLOv11 with multiple inference strategies and an i
 
 - Juan Carlos Rodríguez Ramírez
 
-## Project overview
+## Project Overview
 
 The objective of this project is to develop a robust object detection model capable of identifying different types of waste in various environments. The system is designed with potential integration into PLOCAN camera streams for automated marine waste detection.
 
@@ -40,7 +40,7 @@ Class 7 (trash) serves as a generic fallback category when specific classificati
 
 This repository includes standalone scripts to prepare datasets, train Ultralytics YOLO models, and run hyperparameter tuning.
 
-### Dataset preparation
+### Dataset Preparation
 
 #### 1) Instance-stratified split (by object instances)
 Use `img_stratifier.py` to split a mixed folder (images and YOLO `.txt` labels in the same directory) into `train/`, `val/`, and `test/` so that the *number of labeled instances per class* is balanced across splits.
@@ -70,7 +70,7 @@ python create_empty_labels.py /path/to/split_dir
 
 The expected split structure is `/path/to/split_dir/images` and `/path/to/split_dir/labels`.
 
-### Train a YOLO model
+### Train a YOLO Model
 
 Use `train_yolo.py` to run Ultralytics training with configurable epochs, image size, workers, optimizer, and optional hyperparameter overrides from a YAML file.
 
@@ -101,7 +101,7 @@ python train_yolo.py /path/to/data.yaml yolo11x.pt \
 
 If `close_mosaic` is present in that YAML, the script casts it to an integer before calling `model.train()`.
 
-### Hyperparameter tuning
+### Hyperparameter Tuning
 
 Use `hyperparam_yolo_tunning.py` to run Ultralytics `model.tune()` with a fixed number of epochs per iteration and a specified number of iterations.
 
@@ -124,8 +124,7 @@ python hyperparam_yolo_tunning.py /path/to/data.yaml yolo11x.pt 30 25 \
 
 If `close_mosaic` is provided in `--tune_kwargs`, the script casts it to an integer before calling `model.tune()`.
 
-
-## Validating a model
+## Validation and Inference
 
 ```
 ALPHA5_val/visualizer/
@@ -137,13 +136,13 @@ ALPHA5_val/visualizer/
 └── test_methods.py         # CLI tool for batch processing
 ```
 
-### Inference methods
+### Inference Methods
 
 1. **Basic**: Standard YOLO inference with configurable confidence and IoU thresholds
 2. **Tiled**: Uniform grid cropping with Weighted Boxes Fusion (WBF) or Non-Maximum Suppression (NMS)
 3. **MultiScale**: Ensemble inference across multiple image resolutions
-4. **TTA**: Test-Time Augmentation with horizontal, vertical, and combined flips
-5. **SuperRes**: Preprocessing with CLAHE or unsharp masking before inference
+4. **TTA**: Test-Time Augmentation with flips and optional brightness variations
+5. **SuperRes**: Enhanced preprocessing with CLAHE, Unsharp Mask, or both
 6. **Hybrid**: Two-stage pipeline combining full image and cropped detections
 
 ## Installation
@@ -158,7 +157,7 @@ ALPHA5_val/visualizer/
 - Pillow
 - Tkinter (for GUI)
 
-### Docker environment
+### Docker Environment
 
 Build the Docker image:
 
@@ -186,25 +185,23 @@ python run_visualizer.py
 Features:
 - Load YOLO model (.pt files)
 - Load test images
-- Configure method-specific parameters
+- Configure method-specific parameters via GUI
 - Execute multiple methods simultaneously
 - Compare results side-by-side
 - Export annotated images
 - Adjustable confidence and IoU thresholds with real-time updates
 
-### Command-Line interface
+### Command-Line Interface
 
 Run inference methods from terminal:
 
 ```bash
-python test_methods.py image.jpg model.pt \
-  --methods basic tiled tta \
-  --output results/ \
-  --conf 0.25 \
-  --iou 0.45
+python test_methods.py image.jpg model.pt --output results/
 ```
 
-### Programmatic usage
+The script will run all available methods and save results to the output directory.
+
+### Programmatic Usage
 
 ```python
 from inference_methods import get_method
@@ -240,11 +237,11 @@ print(f"Elapsed time: {result.elapsed_time:.2f}s")
 cv2.imwrite('output.jpg', result.image)
 ```
 
-### Deduplication system
+## Deduplication System
 
 The deduplication module eliminates redundant detections while optionally prioritizing specific classes over generic ones.
 
-#### Parameters
+### Parameters
 
 - `deduplicate`: Enable/disable deduplication (bool)
 - `dedup_iou`: IoU threshold for considering detections as duplicates (float, 0.0-1.0)
@@ -261,10 +258,10 @@ When `prioritize_specific=True`:
 When `prioritize_specific=False`:
 - Highest confidence detection always wins regardless of class
 
-### Method-specific defaults
+### Method-Specific Defaults
 
 | Method      | deduplicate | Rationale                          |
-|-------------|-------------|------------------------------------|
+|-------------|-------------|-------------------------------------|
 | Basic       | False       | Single-pass inference, minimal overlap |
 | Tiled       | True        | Crops generate overlapping detections |
 | MultiScale  | True        | Multiple resolutions cause duplicates |
@@ -272,9 +269,9 @@ When `prioritize_specific=False`:
 | SuperRes    | False       | Single preprocessing step |
 | Hybrid      | True        | Full + crops strategy requires merging |
 
-### Method parameters
+## Method Parameters
 
-#### Basic
+### Basic
 
 ```python
 {
@@ -288,7 +285,7 @@ When `prioritize_specific=False`:
 }
 ```
 
-#### Tiled
+### Tiled
 
 ```python
 {
@@ -304,14 +301,14 @@ When `prioritize_specific=False`:
 }
 ```
 
-#### MultiScale
+### MultiScale
 
 ```python
 {
     'conf': 0.25,
     'iou': 0.5,
-    'scales': ,  # Image sizes for multi-scale inference
-    'nms_thresh': 0.5,            # Final NMS threshold
+    'scales': [640, 960, 1280],  # Image sizes for multi-scale inference
+    'nms_thresh': 0.5,           # Final NMS threshold
     'deduplicate': True,
     'dedup_iou': 0.5,
     'trash_class_id': 7,
@@ -319,7 +316,7 @@ When `prioritize_specific=False`:
 }
 ```
 
-#### TTA
+### TTA (Enhanced)
 
 ```python
 {
@@ -327,6 +324,8 @@ When `prioritize_specific=False`:
     'iou': 0.5,
     'tta_iou': 0.5,          # IoU threshold for TTA fusion
     'imgsz': 640,
+    'use_flips': True,       # Enable horizontal/vertical flips
+    'use_brightness': False, # Enable brightness augmentation (optional)
     'deduplicate': True,
     'dedup_iou': 0.5,
     'trash_class_id': 7,
@@ -334,14 +333,26 @@ When `prioritize_specific=False`:
 }
 ```
 
-#### SuperRes
+**TTA Augmentations:**
+- Original image
+- Horizontal flip
+- Vertical flip
+- Combined (horizontal + vertical) flip
+- Brighter version (if `use_brightness=True`)
+- Darker version (if `use_brightness=True`)
+
+### SuperRes (Enhanced)
 
 ```python
 {
     'conf': 0.25,
     'iou': 0.5,
     'imgsz': 640,
-    'sr_method': 'clahe',    # Preprocessing: 'clahe' or 'unsharp'
+    'sr_method': 'clahe',    # Preprocessing: 'clahe', 'unsharp', or 'both'
+    'clahe_clip': 3.0,       # CLAHE contrast limit
+    'clahe_tile': 8,         # CLAHE tile grid size (8x8)
+    'unsharp_sigma': 1.0,    # Gaussian blur sigma for unsharp mask
+    'unsharp_strength': 1.5, # Sharpening intensity
     'deduplicate': False,
     'dedup_iou': 0.5,
     'trash_class_id': 7,
@@ -349,7 +360,12 @@ When `prioritize_specific=False`:
 }
 ```
 
-#### Hybrid
+**SuperRes Methods:**
+- `'clahe'`: Apply CLAHE (Contrast Limited Adaptive Histogram Equalization) on LAB color space L channel
+- `'unsharp'`: Apply Unsharp Mask sharpening to enhance edges
+- `'both'`: Apply CLAHE first, then Unsharp Mask for maximum enhancement
+
+### Hybrid
 
 ```python
 {
@@ -364,18 +380,18 @@ When `prioritize_specific=False`:
 }
 ```
 
-### Performance considerations
+## Performance Considerations
 
-#### Method selection guide
+### Method Selection Guide
 
 - **Basic**: Fast inference on standard images, minimal overhead
 - **Tiled**: Recommended for images with small objects or high resolution
 - **MultiScale**: Robust detection across object sizes, higher computational cost
-- **TTA**: Improved accuracy through augmentation, 4x inference time
+- **TTA**: Improved accuracy through augmentation, 4-6x inference time (depending on augmentations)
 - **SuperRes**: Benefits low-quality or low-contrast images
 - **Hybrid**: Maximum detection quality, highest computational cost
 
-#### Computational requirements
+### Computational Requirements
 
 Tested on YOLOv11x with input resolution 640x640:
 
@@ -384,11 +400,13 @@ Tested on YOLOv11x with input resolution 640x640:
 | Basic       | 1.0x           | Low             | Standard images           |
 | Tiled       | 1.5-2.5x       | Medium          | High-res or small objects |
 | MultiScale  | 3.0-4.0x       | Medium-High     | Variable object sizes     |
-| TTA         | 4.0x           | Low-Medium      | Maximum accuracy needed   |
-| SuperRes    | 1.2x           | Low             | Poor image quality        |
+| TTA         | 4.0-6.0x       | Low-Medium      | Maximum accuracy needed   |
+| SuperRes    | 1.1-1.3x       | Low             | Poor image quality        |
 | Hybrid      | 2.5-3.5x       | Medium-High     | Critical applications     |
 
-## Model information
+*Note: TTA speed varies based on enabled augmentations (flips only: ~4x, with brightness: ~6x)*
+
+## Model Information
 
 This project uses YOLOv11x for optimal performance on small and complex object detection. Alternative model sizes can be substituted:
 
@@ -404,7 +422,7 @@ For resource-constrained environments, use `yolov11m.pt` with `imgsz=416`.
 
 If you use this code in your research, please cite:
 
-```
+```bibtex
 @misc{alpha5,
   author = {Rodríguez Ramírez, Juan Carlos},
   title = {Alpha5: Trash Detection System},

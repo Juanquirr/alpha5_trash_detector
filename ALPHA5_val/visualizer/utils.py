@@ -1,20 +1,23 @@
 """
-Utilidades: Crops uniformes, WBF, NMS y Deduplicación con priorización de clases
+Utilities: Uniform Crops, WBF, NMS and Deduplication with class prioritization
 """
+
 import numpy as np
 import math
 import cv2
 
+
 # ============= CROP UTILS =============
+
 class UniformCrops:
     def __init__(self, overlap_ratio=0.2):
         if not (0 <= overlap_ratio < 1):
-            raise ValueError("overlap_ratio debe estar en [0, 1)")
+            raise ValueError("overlap_ratio must be in [0, 1)")
         self.overlap_ratio = overlap_ratio
 
     def crop(self, frame, crops_number=4):
         if (crops_number % 2 != 0) or (crops_number <= 0):
-            raise ValueError("crops_number debe ser par y positivo")
+            raise ValueError("crops_number must be even and positive")
 
         height, width = frame.shape[:2]
         is_vertical = height > width
@@ -34,10 +37,12 @@ class UniformCrops:
 
         crops, coords = [], []
         count = 0
+
         for r in range(grid_rows):
             for c in range(grid_cols):
                 if count >= crops_number:
                     break
+
                 x_min = max(0.0, c * stride_w)
                 y_min = max(0.0, r * stride_h)
                 x_max = min(float(width), x_min + cell_w)
@@ -52,21 +57,27 @@ class UniformCrops:
 
         return crops, coords
 
+
 # ============= WBF & NMS =============
+
 def compute_iou(a, b):
-    """Calcula IoU entre dos bounding boxes en formato xyxy"""
+    """Calculate IoU between two bounding boxes in xyxy format"""
     ax1, ay1, ax2, ay2 = a
     bx1, by1, bx2, by2 = b
+
     x1, y1 = max(ax1, bx1), max(ay1, by1)
     x2, y2 = min(ax2, bx2), min(ay2, by2)
+
     inter = max(0.0, x2 - x1) * max(0.0, y2 - y1)
     area_a = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
     area_b = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
     union = area_a + area_b - inter
+
     return inter / union if union > 0 else 0.0
 
+
 def weighted_boxes_fusion(boxes, scores, classes, iou_thres=0.5, skip_box_thr=0.0):
-    """Weighted Boxes Fusion con clustering BFS"""
+    """Weighted Boxes Fusion with BFS clustering"""
     if len(boxes) == 0:
         return boxes, scores, classes
 
@@ -113,6 +124,7 @@ def weighted_boxes_fusion(boxes, scores, classes, iou_thres=0.5, skip_box_thr=0.
                 np.sum(cluster_boxes[:, 2] * weights),
                 np.sum(cluster_boxes[:, 3] * weights)
             ]
+
             fused_boxes.append(fused_box)
             fused_scores.append(np.max(cluster_scores))
             fused_classes.append(cls_id)
@@ -126,9 +138,11 @@ def weighted_boxes_fusion(boxes, scores, classes, iou_thres=0.5, skip_box_thr=0.
         np.array(fused_classes, dtype=np.int32)
     )
 
+
 def greedy_nms(boxes, scores, classes, iou_thres=0.5):
-    """NMS por clase (Non-Maximum Suppression)"""
+    """Per-class NMS (Non-Maximum Suppression)"""
     keep = []
+
     for cls_id in sorted(set(classes)):
         idxs = [i for i, c in enumerate(classes) if c == cls_id]
         idxs.sort(key=lambda i: scores[i], reverse=True)
@@ -142,42 +156,44 @@ def greedy_nms(boxes, scores, classes, iou_thres=0.5):
                     break
             if ok:
                 picked.append(i)
+
         keep.extend(picked)
 
     keep.sort(key=lambda i: scores[i], reverse=True)
     return keep
 
-# ============= DEDUPLICACIÓN CON PRIORIZACIÓN =============
+
+# ============= DEDUPLICATION WITH PRIORITIZATION =============
+
 def deduplicate_detections(boxes, scores, classes,
                           iou_threshold=0.5,
                           trash_class_id=7,
                           prioritize_specific=True):
     """
-    Elimina detecciones duplicadas con lógica de priorización de clases.
+    Remove duplicate detections with class prioritization logic.
 
-    Si prioritize_specific=True:
-        - Las clases específicas se priorizan sobre la clase genérica "trash"
-        - Útil para sistemas de detección de residuos donde hay una clase
-          genérica "trash" y clases específicas (plástico, papel, metal, etc.)
+    If prioritize_specific=True:
+    - Specific classes are prioritized over the generic "trash" class
+    - Useful for waste detection systems with a generic "trash" class
+      and specific classes (plastic, paper, metal, etc.)
 
     Args:
-        boxes: Array [N, 4] en formato xyxy
-        scores: Array [N] confianzas
-        classes: Array [N] IDs de clase
-        iou_threshold: IoU >= esto → considerar duplicados
-        trash_class_id: ID de la clase genérica (default: 7)
-        prioritize_specific: Si True, priorizar clases específicas sobre trash
+        boxes: Array [N, 4] in xyxy format
+        scores: Array [N] confidences
+        classes: Array [N] class IDs
+        iou_threshold: IoU >= this → consider duplicates
+        trash_class_id: ID of the generic class (default: 7)
+        prioritize_specific: If True, prioritize specific classes over trash
 
     Returns:
-        (boxes, scores, classes) filtrados sin duplicados
+        (boxes, scores, classes) filtered without duplicates
 
-    Ejemplo:
-        Si hay dos detecciones solapadas:
-        - Detección A: clase=7 (trash), conf=0.8
-        - Detección B: clase=2 (plastic), conf=0.6
-
-        Con prioritize_specific=True → se queda con B (clase específica)
-        Con prioritize_specific=False → se queda con A (mayor confianza)
+    Example:
+        If there are two overlapping detections:
+        - Detection A: class=7 (trash), conf=0.8
+        - Detection B: class=2 (plastic), conf=0.6
+        With prioritize_specific=True → keeps B (specific class)
+        With prioritize_specific=False → keeps A (higher confidence)
     """
     if len(boxes) == 0:
         return boxes, scores, classes
@@ -185,7 +201,7 @@ def deduplicate_detections(boxes, scores, classes,
     n = len(boxes)
     keep_mask = np.ones(n, dtype=bool)
 
-    # Ordenar por confianza descendente
+    # Sort by confidence descending
     sorted_indices = np.argsort(-scores)
 
     for i in range(n):
@@ -196,9 +212,10 @@ def deduplicate_detections(boxes, scores, classes,
         box_i = boxes[idx_i]
         cls_i = classes[idx_i]
 
-        # Buscar detecciones solapadas
+        # Search for overlapping detections
         for j in range(i + 1, n):
             idx_j = sorted_indices[j]
+
             if not keep_mask[idx_j]:
                 continue
 
@@ -208,21 +225,21 @@ def deduplicate_detections(boxes, scores, classes,
             iou = compute_iou(box_i, box_j)
 
             if iou >= iou_threshold:
-                # Detecciones solapadas encontradas
+                # Overlapping detections found
                 if prioritize_specific:
-                    # Lógica especial: trash pierde ante cualquier clase específica
+                    # Special logic: trash loses against any specific class
                     if cls_i == trash_class_id and cls_j != trash_class_id:
-                        # Mantener j (clase específica), descartar i (trash)
+                        # Keep j (specific class), discard i (trash)
                         keep_mask[idx_i] = False
-                        break  # i descartado, pasar al siguiente
+                        break  # i discarded, move to next
                     elif cls_i != trash_class_id and cls_j == trash_class_id:
-                        # Mantener i (clase específica), descartar j (trash)
+                        # Keep i (specific class), discard j (trash)
                         keep_mask[idx_j] = False
                     else:
-                        # Ambos misma prioridad: mantener mayor confianza (i)
+                        # Both same priority: keep higher confidence (i)
                         keep_mask[idx_j] = False
                 else:
-                    # Estándar: mantener mayor confianza (siempre i por estar ordenado)
+                    # Standard: keep higher confidence (always i due to sorting)
                     keep_mask[idx_j] = False
 
     return boxes[keep_mask], scores[keep_mask], classes[keep_mask]

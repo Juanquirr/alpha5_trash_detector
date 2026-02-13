@@ -1,5 +1,5 @@
 """
-Clases base para Alpha5 - Sistema de inferencia
+Base classes for Alpha5 - Inference System
 """
 
 class InferenceResult:
@@ -12,6 +12,7 @@ class InferenceResult:
         self.params = params
         self.elapsed_time = elapsed_time
         self.num_detections = num_detections
+
 
 class InferenceMethod:
     def __init__(self, name, description):
