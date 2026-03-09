@@ -1,9 +1,7 @@
 FROM ultralytics/ultralytics:latest
 
-RUN apt update
-RUN apt upgrade -y
-RUN apt install tree -y
-RUN pip install pandas sahi patched-yolo-infer
+RUN pip install pandas sahi
+
 RUN mkdir -p /ultralytics/USER
 
 WORKDIR /ultralytics/USER
