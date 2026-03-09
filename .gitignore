@@ -6,3 +6,4 @@ ALPHA5_train/**/*.txt
 ALPHA5_train/alpha5_*
 *.pt
 *.pth
+.yaml
