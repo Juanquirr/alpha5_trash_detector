@@ -1,4 +1,11 @@
-ALPHA5_train/**/*.jpg
-ALPHA5_train/**/*.jpeg
-ALPHA5_train/**/*.png
-ALPHA5_train/**/*.txt
+*.jpg
+*.jpeg
+*.JPG
+*.png
+*.txt
+alpha5_*
+*.pt
+*.pth
+*.yaml
+*.zip
+*.json
