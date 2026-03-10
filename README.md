@@ -1,6 +1,6 @@
 # Alpha5 - Trash Detection System
 
-Trash detection system using YOLOv11 with multiple inference strategies and an interactive visualization interface. This repository provides a comprehensive toolkit for object detection with emphasis on waste classification across diverse environmental conditions.
+Trash detection system using YOLO arquitecture with multiple inference strategies and an interactive visualization interface. This repository provides a comprehensive toolkit for object detection with emphasis on waste classification across diverse environmental conditions.
 
 ## Author
 
@@ -106,7 +106,7 @@ If `close_mosaic` is present in that YAML, the script casts it to an integer bef
 Use `hyperparam_yolo_tunning.py` to run Ultralytics `model.tune()` with a fixed number of epochs per iteration and a specified number of iterations.
 
 ```bash
-python hyperparam_yolo_tunning.py /path/to/data.yaml yolo11x.pt 50 20 \
+python hyperparam_yolo_tunning.py /path/to/data.yaml yolo.pt 50 20 \
   --batch -1 \
   --imgsz 640 \
   --patience 15 \
@@ -118,7 +118,7 @@ python hyperparam_yolo_tunning.py /path/to/data.yaml yolo11x.pt 50 20 \
 You can provide additional initial tuning kwargs through `--tune_kwargs` as a YAML file; the script filters out reserved keys such as `data`, `model`, `epochs`, `iterations`, `batch`, `imgsz`, `patience`, `device`, `name`, `project`, and `resume`.
 
 ```bash
-python hyperparam_yolo_tunning.py /path/to/data.yaml yolo11x.pt 30 25 \
+python hyperparam_yolo_tunning.py /path/to/data.yaml yolo.pt 30 25 \
   --tune_kwargs /path/to/tune_kwargs.yaml
 ```
 
@@ -1029,17 +1029,31 @@ When `prioritize_specific=False`:
 }
 ```
 
-## Model Information
+## Performance Considerations
 
-This project uses YOLOv11x for optimal performance on small and complex object detection. Alternative model sizes can be substituted:
+### Method Selection Guide
 
-- `yolov11n.pt`: Nano (fastest, lowest accuracy)
-- `yolov11s.pt`: Small
-- `yolov11m.pt`: Medium (recommended for limited hardware)
-- `yolov11l.pt`: Large
-- `yolov11x.pt`: Extra-large (highest accuracy, used in this project)
+- **Basic**: Fast inference on standard images, minimal overhead
+- **Tiled**: Recommended for images with small objects or high resolution
+- **MultiScale**: Robust detection across object sizes, higher computational cost
+- **TTA**: Improved accuracy through augmentation, 4-6x inference time (depending on augmentations)
+- **SuperRes**: Benefits low-quality or low-contrast images
+- **Hybrid**: Maximum detection quality, highest computational cost
 
-For resource-constrained environments, use `yolov11m.pt` with `imgsz=416`.
+### Computational Requirements
+
+Tested on YOLOv11x with input resolution 640x640:
+
+| Method      | Relative Speed | Memory Overhead | Use Case                  |
+|-------------|----------------|-----------------|---------------------------|
+| Basic       | 1.0x           | Low             | Standard images           |
+| Tiled       | 1.5-2.5x       | Medium          | High-res or small objects |
+| MultiScale  | 3.0-4.0x       | Medium-High     | Variable object sizes     |
+| TTA         | 4.0-6.0x       | Low-Medium      | Maximum accuracy needed   |
+| SuperRes    | 1.1-1.3x       | Low             | Poor image quality        |
+| Hybrid      | 2.5-3.5x       | Medium-High     | Critical applications     |
+
+*Note: TTA speed varies based on enabled augmentations (flips only: ~4x, with brightness: ~6x)*
 
 ## Citation
 
