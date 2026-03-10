@@ -3,13 +3,12 @@
 <div align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
-[![YOLOv11](https://img.shields.io/badge/Model-YOLOv11-purple)](https://github.com/ultralytics/ultralytics)
+[![YOLOv26](https://img.shields.io/badge/Model-YOLOv26-purple)](https://github.com/ultralytics/ultralytics)
 [![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker)](https://www.docker.com/)
 [![LICENSE](https://img.shields.io/badge/License-MIT-green)](LICENSE.md)
 
-**Alpha5** is a robust waste detection system built on the YOLOv11 architecture,
-featuring six configurable inference strategies, Bayesian hyperparameter optimization,
-and an interactive GUI for visual comparison of results.
+**Alpha5** is a robust waste detection system built on the YOLO26 architecture,
+featuring six configurable inference strategies and an interactive GUI for visual comparison of results.
 
 </div>
 
@@ -43,7 +42,7 @@ names:
 
 ## Key Features
 
-- **YOLO11** backbone trained with Bayesian hyperparameter optimization
+- **YOLO26** backbone trained with hyperparameter tuning.
 - **Six inference strategies** covering from real-time single-pass to high-accuracy
   hybrid approaches
 - **Deduplication system** with class-specific prioritization (specific classes over
@@ -53,7 +52,7 @@ names:
 - **CLI and programmatic API** for batch processing and integration
 - **Full Docker support** with GPU passthrough
 
-Note: This particular project used YOLO11. Nevertheless, the code supports any **Ultralytics** YOLO model.  
+Note: The code supports any **Ultralytics** YOLO model.  
 
 ---
 
@@ -136,7 +135,7 @@ a per-epoch `metrics/mAP50(B)` logging callback and a manual patience counter ba
 on mAP50 improvement.
 
 ```bash
-python train_yolo.py /path/to/data.yaml yolo11x.pt \
+python train_yolo.py /path/to/data.yaml yolo26x.pt \
   --epochs 300 \
   --batch -1 \
   --imgsz 640 \
@@ -144,14 +143,14 @@ python train_yolo.py /path/to/data.yaml yolo11x.pt \
   --patience 15 \
   --device cuda \
   --project /ultralytics/USER/runs/detect/train \
-  --name alpha5_yolo11 \
+  --name alpha5_yolo26 \
   --optimizer auto
 ```
 
 Hyperparameters can be overridden at runtime via a YAML file:
 
 ```bash
-python train_yolo.py /path/to/data.yaml yolo11x.pt \
+python train_yolo.py /path/to/data.yaml yolo26x.pt \
   --epochs 200 \
   --imgsz 640 \
   --hyperparams /path/to/hparams.yaml
@@ -168,7 +167,7 @@ python train_yolo.py /path/to/data.yaml yolo11x.pt \
 for a configurable number of iterations, each trained for a fixed number of epochs.
 
 ```bash
-python hyperparam_yolo_tunning.py /path/to/data.yaml yolo.pt 50 20 \
+python hyperparam_yolo_tunning.py /path/to/data.yaml yolo26x.pt 50 20 \
   --batch -1 \
   --imgsz 640 \
   --patience 15 \
@@ -333,7 +332,7 @@ from inference_methods import get_method
 from ultralytics import YOLO
 import cv2
 
-model = YOLO('yolo11x.pt')
+model = YOLO('yolo26x.pt')
 image = cv2.imread('test_image.jpg')
 
 hybrid = get_method('hybrid')
