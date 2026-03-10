@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
 [![YOLOv11](https://img.shields.io/badge/Model-YOLOv11-purple)](https://github.com/ultralytics/ultralytics)
 [![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker)](https://www.docker.com/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![LICENSE](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 **Alpha5** is a robust waste detection system built on the YOLOv11 architecture,
 featuring six configurable inference strategies, Bayesian hyperparameter optimization,
