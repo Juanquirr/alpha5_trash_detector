@@ -1,0 +1,8 @@
+{
+  "Datagen backend": "https://datagen-api.autoescuelaseco.cloud/",
+  "Diffusers service": "https://diffusers.autoescuelaseco.cloud/",
+  "Segmentators service": "http://0.0.0.0:8002/",
+  "Autodistill service": "http://0.0.0:8001/",
+  "ComfyUI": "https://comfyui.autoescuelaseco.cloud/",
+  "api_key": "8b5c1f64b7a4887c012b3786f7453461f02b1f6e"
+}
