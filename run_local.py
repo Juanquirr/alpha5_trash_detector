@@ -1,3 +1,4 @@
+import csv
 import os
 import random
 import math
@@ -6,289 +7,349 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 import cv2
 
-from core.dependencies.ai.generative_ai.image_inpainters.flux_local_image_inpainter import FluxLocalImageInpainter
+from core.dependencies.ai.generative_ai.image_inpainters.flux_local_image_inpainter import (
+    FluxLocalImageInpainter,
+)
 
-# ──────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════
 # CONFIGURACIÓN
-# ──────────────────────────────────────────────
-CLASSES = {
-    0: "plastic bottle",
-    1: "glass bottle",
-    2: "can",
-    3: "plastic bag",
-    4: "metal scrap",
-    5: "plastic wrapper",
-    6: "trash pile",
-    7: "trash",
+# ═══════════════════════════════════════════════════════════════
+
+INPUT_DIR   = "inputs"
+OUTPUT_DIR  = "outputs"
+PROMPTS_CSV = "config/prompts.csv"
+
+MAX_SIDE    = 1024      # Lado mayor tras resize (mantiene aspect ratio)
+DIVISOR     = 16        # FLUX requiere dimensiones múltiplo de 16
+
+MIN_OBJECTS = 2
+MAX_OBJECTS = 3
+MIN_DIST_PX = 180       # Separación mínima entre objetos (Poisson disk)
+EDGE_MARGIN = 80        # Margen mínimo desde el borde de la imagen
+WATER_CHECK_MARGIN = 30 # Margen extra para verificar que toda la zona es agua
+
+# Tamaños en píxeles (para imagen con lado mayor ~1024px)
+# (min_w, max_w, min_h, max_h) — lo suficientemente grandes para ser detectables
+OBJECT_SIZES = {
+    0: (100, 180,  50,  90),   # plastic bottle — alargada horizontal
+    1: (100, 180,  50,  90),   # glass bottle   — similar
+    2: ( 80, 140,  70, 130),   # can            — más cuadrada
+    3: (150, 280, 120, 240),   # plastic bag    — grande, se extiende en agua
+    4: (100, 200,  80, 160),   # metal scrap    — irregular
+    5: (120, 220,  80, 160),   # plastic wrapper — rectangular
+    6: (220, 380, 180, 320),   # trash pile     — grande, cluster
+    7: ( 90, 180,  70, 150),   # trash          — genérico
 }
-
-# Rango de tamaños (w, h) en px para imagen 1024x1024
-# Calibrados para cámara cenital a 10-30m
-OBJECT_SIZE_RANGES = {
-    0: {"w": (30, 55),  "h": (15, 30)},   # plastic bottle: alargada
-    1: {"w": (30, 55),  "h": (15, 30)},   # glass bottle: similar
-    2: {"w": (20, 40),  "h": (20, 40)},   # can: cuadradita
-    3: {"w": (50, 100), "h": (40, 90)},   # plastic bag: irregular, más grande
-    4: {"w": (25, 60),  "h": (20, 50)},   # metal scrap: variable
-    5: {"w": (40, 80),  "h": (30, 60)},   # plastic wrapper: rectangular
-    6: {"w": (80, 160), "h": (60, 130)},  # trash pile: grande
-    7: {"w": (20, 60),  "h": (20, 50)},   # trash: genérico
-}
-
-PROMPT_TEMPLATES = [
-"{detail} floating on ocean surface, seen from elevated coastal viewpoint, "
-    "natural lighting, photorealistic",
-
-    "{detail} drifting on dark blue sea water, oblique aerial perspective, "
-    "partially submerged, photorealistic, high resolution",
-    
-    "overhead drone view, {detail} drifting on sea water, "
-    "partially submerged, natural lighting, photorealistic",
-
-    "bird's eye view, {detail} on ocean surface with gentle ripples, "
-    "realistic scale, high resolution drone photography",
-
-    "zenithal drone capture, {detail} floating among small waves, "
-    "midday sun, ultra realistic, ocean background",
-]
-
-CLASS_DETAILS = {
-    0: ["crushed plastic water bottle", "deformed PET bottle", "floating plastic bottle"],
-    1: ["green glass bottle", "clear glass bottle partially submerged", "beer glass bottle"],
-    2: ["aluminum can", "crushed soda can", "rusted metal can"],
-    3: ["white plastic bag spread on water", "translucent plastic bag partially underwater",
-        "crumpled plastic bag floating"],
-    4: ["rusty metal fragment", "small metal scrap piece", "bent metal debris"],
-    5: ["candy wrapper floating", "crumpled plastic wrapper", "food packaging wrapper"],
-    6: ["cluster of mixed floating debris", "small pile of trash on water surface",
-        "accumulated floating garbage"],
-    7: ["small piece of floating trash", "unidentified debris on water", "floating garbage"],
-}
-
-MIN_OBJECTS     = 1
-MAX_OBJECTS     = 3
-MIN_DIST_PX     = 100   # separación mínima entre objetos (Poisson disk)
-MARGIN_PX       = 60    # margen desde el borde de imagen
-FEATHER_RADIUS  = 10    # blur para suavizar máscara
-
-INPUT_DIR       = "inputs"
-OUTPUT_DIR      = "outputs"
-IMG_SIZE        = 1024
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
-# ──────────────────────────────────────────────
-# FUNCIONES AUXILIARES
-# ──────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════
+# CARGA DE PROMPTS
+# ═══════════════════════════════════════════════════════════════
 
-def is_water_region(image_np_rgb: np.ndarray, cx: int, cy: int,
-                    check_radius: int = 50) -> bool:
+def load_prompts(csv_path: str) -> dict:
     """
-    Comprueba si la zona alrededor de (cx, cy) es agua.
-    Criterios HSV más estrictos + verificación de uniformidad.
+    Carga prompts.csv y devuelve un dict {class_id: [lista de prompts]}.
     """
-    h, w = image_np_rgb.shape[:2]
-    x0 = max(0, cx - check_radius)
-    y0 = max(0, cy - check_radius)
-    x1 = min(w, cx + check_radius)
-    y1 = min(h, cy + check_radius)
+    prompts_by_class = {}
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            cid = int(row["class_id"])
+            prompt = row["prompt"].strip().strip('"')
+            if cid not in prompts_by_class:
+                prompts_by_class[cid] = []
+            prompts_by_class[cid].append(prompt)
+    return prompts_by_class
 
-    crop = image_np_rgb[y0:y1, x0:x1]
+
+# ═══════════════════════════════════════════════════════════════
+# PREPARACIÓN DE IMAGEN (aspect ratio preservado)
+# ═══════════════════════════════════════════════════════════════
+
+def prepare_image(image: Image.Image, max_side: int = 1024, divisor: int = 16):
+    """
+    Redimensiona manteniendo aspect ratio. Redondea a múltiplos de `divisor`.
+    Devuelve (imagen_redimensionada, escala_aplicada).
+    """
+    w, h = image.size
+    scale = min(max_side / max(w, h), 1.0)  # no agrandar
+    new_w = max(divisor, round(w * scale / divisor) * divisor)
+    new_h = max(divisor, round(h * scale / divisor) * divisor)
+    resized = image.resize((new_w, new_h), Image.LANCZOS)
+    return resized, scale
+
+
+# ═══════════════════════════════════════════════════════════════
+# DETECCIÓN DE AGUA (filtro robusto)
+# ═══════════════════════════════════════════════════════════════
+
+def is_water_region(image_np: np.ndarray, cx: int, cy: int,
+                    half_w: int, half_h: int, margin: int = 30) -> bool:
+    """
+    Verifica que TODA la zona (objeto + margen) sea agua.
+    Usa: hue azul-verde, saturación, brillo moderado, textura suave, pocas aristas.
+    """
+    img_h, img_w = image_np.shape[:2]
+
+    # Región a comprobar = tamaño del objeto + margen de seguridad
+    x0 = cx - half_w - margin
+    y0 = cy - half_h - margin
+    x1 = cx + half_w + margin
+    y1 = cy + half_h + margin
+
+    # ¿Cabe en la imagen?
+    if x0 < 0 or y0 < 0 or x1 >= img_w or y1 >= img_h:
+        return False
+
+    crop = image_np[y0:y1, x0:x1]
     hsv = cv2.cvtColor(crop, cv2.COLOR_RGB2HSV)
 
-    avg_h = hsv[:, :, 0].mean()
-    avg_s = hsv[:, :, 1].mean()
-    avg_v = hsv[:, :, 2].mean()
-    std_v = hsv[:, :, 2].std()
+    avg_h = hsv[:, :, 0].mean()   # Hue (0-180 en OpenCV)
+    avg_s = hsv[:, :, 1].mean()   # Saturación
+    avg_v = hsv[:, :, 2].mean()   # Brillo
+    std_v = hsv[:, :, 2].std()    # Uniformidad de textura
 
-    # Agua oceánica: hue azulado (80-140), saturación moderada, brillo no extremo
-    # std_v bajo = zona uniforme (agua), alto = textura compleja (edificio, costa)
-    is_blue_hue = 80 <= avg_h <= 140
-    has_saturation = avg_s > 20
-    not_too_bright = avg_v < 170
-    not_too_dark = avg_v > 30
-    is_uniform = std_v < 45  # agua tiene textura suave
+    # Densidad de aristas — alto = estructuras, bajo = agua
+    gray = cv2.cvtColor(crop, cv2.COLOR_RGB2GRAY)
+    edges = cv2.Canny(gray, 50, 150)
+    edge_density = edges.mean() / 255.0
 
-    return is_blue_hue and has_saturation and not_too_bright and not_too_dark and is_uniform
+    # Criterios: agua oceánica/costera
+    is_water_hue     = 70 <= avg_h <= 145     # Azul-verde-teal
+    has_saturation   = avg_s > 15
+    moderate_bright  = 30 < avg_v < 210
+    is_smooth        = std_v < 45             # Agua = textura suave
+    few_edges        = edge_density < 0.08    # Sin estructuras
+
+    return all([is_water_hue, has_saturation, moderate_bright, is_smooth, few_edges])
 
 
-def poisson_disk_sampling(width: int, height: int, min_dist: int,
-                          n_points: int, margin: int = 60,
-                          max_attempts: int = 30) -> list:
+# ═══════════════════════════════════════════════════════════════
+# DISTRIBUCIÓN ESPACIAL (Poisson Disk)
+# ═══════════════════════════════════════════════════════════════
+
+def poisson_disk_sampling(
+    width: int, height: int,
+    min_dist: int, n_points: int,
+    margin: int = 80, max_attempts: int = 200,
+) -> list:
     """
     Genera posiciones aleatorias con separación mínima garantizada.
-    Mucho más natural que una cuadrícula.
+    Más natural que una cuadrícula.
     """
     points = []
-
     for _ in range(n_points * max_attempts):
         if len(points) >= n_points:
             break
-
         x = random.randint(margin, width - margin)
         y = random.randint(margin, height - margin)
-
-        # Verificar distancia mínima con todos los puntos existentes
-        too_close = False
-        for px, py in points:
-            if math.sqrt((x - px)**2 + (y - py)**2) < min_dist:
-                too_close = True
-                break
-
-        if not too_close:
+        if all(math.hypot(x - px, y - py) >= min_dist for px, py in points):
             points.append((x, y))
-
     return points
 
 
+# ═══════════════════════════════════════════════════════════════
+# TAMAÑO Y MÁSCARA DEL OBJETO
+# ═══════════════════════════════════════════════════════════════
+
 def get_object_size(class_id: int) -> tuple:
-    """Tamaño aleatorio dentro del rango de la clase, con variación de aspecto."""
-    ranges = OBJECT_SIZE_RANGES[class_id]
-    w = random.randint(*ranges["w"])
-    h = random.randint(*ranges["h"])
-    # Pequeña rotación implícita: a veces intercambiar w/h
+    """Tamaño aleatorio dentro del rango de la clase."""
+    min_w, max_w, min_h, max_h = OBJECT_SIZES[class_id]
+    w = random.randint(min_w, max_w)
+    h = random.randint(min_h, max_h)
+    # Ocasionalmente intercambiar ejes (rotación 90°)
     if random.random() < 0.3:
         w, h = h, w
     return w, h
 
 
-def make_feathered_mask(img_w: int, img_h: int,
-                        cx: int, cy: int,
-                        obj_w: int, obj_h: int,
-                        blur_radius: int = 10) -> Image.Image:
+def create_mask(img_w: int, img_h: int,
+                cx: int, cy: int,
+                obj_w: int, obj_h: int,
+                blur_radius: int = 5) -> Image.Image:
     """
-    Crea una máscara elíptica con bordes difuminados,
-    centrada en (cx, cy) sobre un canvas del tamaño de la imagen.
+    Máscara elíptica binaria con ligero suavizado de bordes.
+    FLUX Fill espera máscara casi binaria; un blur leve ayuda en el blend.
     """
     mask = Image.new("L", (img_w, img_h), 0)
     draw = ImageDraw.Draw(mask)
-
-    # Elipse con ligera perturbación angular
-    angle_variation = random.uniform(-15, 15)  # no usamos rotación real,
-    # pero variamos la relación de aspecto ligeramente
-    aspect_noise = random.uniform(0.85, 1.15)
-    ow = int(obj_w * aspect_noise)
-    oh = int(obj_h / aspect_noise)
-
     draw.ellipse(
-        [cx - ow // 2, cy - oh // 2, cx + ow // 2, cy + oh // 2],
-        fill=255
+        [cx - obj_w // 2, cy - obj_h // 2,
+         cx + obj_w // 2, cy + obj_h // 2],
+        fill=255,
     )
-
-    # Suavizar bordes
-    mask = mask.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+    if blur_radius > 0:
+        mask = mask.filter(ImageFilter.GaussianBlur(radius=blur_radius))
     return mask
 
 
-def build_prompt(class_id: int) -> str:
-    """Prompt variado y específico por clase."""
-    template = random.choice(PROMPT_TEMPLATES)
-    detail = random.choice(CLASS_DETAILS[class_id])
-    return template.format(detail=detail)
+# ═══════════════════════════════════════════════════════════════
+# BOUNDING BOX DESDE MÁSCARA → YOLO
+# ═══════════════════════════════════════════════════════════════
 
-
-def compute_bbox_from_mask(mask: Image.Image, img_w: int, img_h: int) -> tuple:
+def compute_yolo_bbox(mask: Image.Image) -> tuple:
     """
-    Calcula el bounding box real a partir de la máscara (umbral > 127).
-    Devuelve (x_center, y_center, w, h) normalizados.
+    Calcula bbox YOLO normalizado desde la máscara (umbral > 127).
+    Retorna (x_center, y_center, width, height) normalizados, o None.
     """
     mask_np = np.array(mask)
     ys, xs = np.where(mask_np > 127)
-
     if len(xs) == 0:
         return None
 
+    img_w, img_h = mask.size  # PIL: (w, h)
     x_min, x_max = xs.min(), xs.max()
     y_min, y_max = ys.min(), ys.max()
 
-    x_c = ((x_min + x_max) / 2) / img_w
-    y_c = ((y_min + y_max) / 2) / img_h
-    w = (x_max - x_min) / img_w
-    h = (y_max - y_min) / img_h
+    x_c = ((x_min + x_max) / 2.0) / img_w
+    y_c = ((y_min + y_max) / 2.0) / img_h
+    w   = (x_max - x_min) / img_w
+    h   = (y_max - y_min) / img_h
 
     return x_c, y_c, w, h
 
 
-# ──────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════
+# VISUALIZACIÓN DE DEBUG (opcional)
+# ═══════════════════════════════════════════════════════════════
+
+def save_debug_image(image: Image.Image, annotations: list, path: str):
+    """Guarda copia con bounding boxes dibujados para inspección visual."""
+    debug = image.copy()
+    draw = ImageDraw.Draw(debug)
+    iw, ih = debug.size
+    colors = ["red", "blue", "green", "yellow", "cyan", "magenta", "orange", "white"]
+
+    for ann in annotations:
+        parts = ann.split()
+        cid = int(parts[0])
+        xc, yc, w, h = [float(x) for x in parts[1:]]
+        x0 = int((xc - w / 2) * iw)
+        y0 = int((yc - h / 2) * ih)
+        x1 = int((xc + w / 2) * iw)
+        y1 = int((yc + h / 2) * ih)
+        color = colors[cid % len(colors)]
+        draw.rectangle([x0, y0, x1, y1], outline=color, width=3)
+        draw.text((x0 + 4, y0 + 4), f"cls={cid}", fill=color)
+    debug.save(path)
+
+
+# ═══════════════════════════════════════════════════════════════
 # PIPELINE PRINCIPAL
-# ──────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════
 
-print("Cargando FLUX Fill...")
-inpainter = FluxLocalImageInpainter()
+def main():
+    # 1. Cargar prompts
+    print("Cargando prompts desde CSV...")
+    prompts_by_class = load_prompts(PROMPTS_CSV)
+    class_ids = list(prompts_by_class.keys())
+    print(f"  Clases disponibles: {len(class_ids)}")
 
-image_paths = (
-    list(Path(INPUT_DIR).glob("*.jpg")) +
-    list(Path(INPUT_DIR).glob("*.jpeg")) +
-    list(Path(INPUT_DIR).glob("*.png"))
-)
-print(f"Imágenes encontradas: {len(image_paths)}")
+    # 2. Cargar modelo
+    print("Cargando FLUX Fill (puede tardar ~30s)...")
+    inpainter = FluxLocalImageInpainter()
+    print("  ✓ Modelo cargado")
 
-for img_path in image_paths:
-    print(f"\n{'='*60}")
-    print(f"Procesando {img_path.name}...")
-    image = Image.open(img_path).convert("RGB").resize((IMG_SIZE, IMG_SIZE))
-    image_np = np.array(image)
-
-    # 1. Generar posiciones candidatas con Poisson disk
-    n_objects = random.randint(MIN_OBJECTS, MAX_OBJECTS)
-    candidates = poisson_disk_sampling(
-        IMG_SIZE, IMG_SIZE,
-        min_dist=MIN_DIST_PX,
-        n_points=n_objects * 3,  # generar más de los necesarios
-        margin=MARGIN_PX,
+    # 3. Listar imágenes de entrada
+    image_paths = sorted(
+        p for p in Path(INPUT_DIR).iterdir()
+        if p.suffix.lower() in (".jpg", ".jpeg", ".png")
     )
+    print(f"Imágenes de entrada: {len(image_paths)}")
 
-    # 2. Filtrar: solo posiciones que sean agua
-    water_positions = [
-        (cx, cy) for cx, cy in candidates
-        if is_water_region(image_np, cx, cy, check_radius=50)
-    ]
-    print(f"  Candidatos: {len(candidates)} | Agua válida: {len(water_positions)}")
+    # 4. Procesar cada imagen
+    for img_idx, img_path in enumerate(image_paths):
+        print(f"\n{'═' * 60}")
+        print(f"[{img_idx + 1}/{len(image_paths)}] {img_path.name}")
 
-    if not water_positions:
-        print(f"  ⚠️  Sin posiciones válidas de agua, saltando.")
-        continue
+        image = Image.open(img_path).convert("RGB")
+        print(f"  Original: {image.size[0]}×{image.size[1]}")
 
-    # Tomar hasta n_objects posiciones
-    chosen_positions = water_positions[:n_objects]
-    print(f"  Objetos a insertar: {len(chosen_positions)}")
+        # 4a. Redimensionar conservando aspect ratio
+        image, scale = prepare_image(image, max_side=MAX_SIDE, divisor=DIVISOR)
+        img_w, img_h = image.size
+        print(f"  Redimensionada: {img_w}×{img_h} (scale={scale:.3f})")
 
-    # 3. Insertar objetos uno a uno
-    annotations = []
-    for cx, cy in chosen_positions:
-        class_id = random.choice(list(CLASSES.keys()))
-        class_name = CLASSES[class_id]
-        obj_w, obj_h = get_object_size(class_id)
-        prompt = build_prompt(class_id)
+        image_np = np.array(image)
 
-        print(f"  → '{class_name}' en ({cx},{cy}), tamaño {obj_w}x{obj_h}px")
-        print(f"    Prompt: {prompt[:80]}...")
-
-        # Crear máscara feathered
-        mask = make_feathered_mask(
-            IMG_SIZE, IMG_SIZE, cx, cy,
-            obj_w, obj_h,
-            blur_radius=FEATHER_RADIUS
+        # 4b. Generar posiciones candidatas
+        n_objects = random.randint(MIN_OBJECTS, MAX_OBJECTS)
+        candidates = poisson_disk_sampling(
+            img_w, img_h,
+            min_dist=MIN_DIST_PX,
+            n_points=n_objects * 4,  # generar de más, luego filtrar
+            margin=EDGE_MARGIN,
         )
+        print(f"  Candidatos generados: {len(candidates)}")
 
-        # Inpaint
-        image = inpainter.inpaint(image, mask, prompt)
+        # 4c. Filtrar: solo posiciones sobre agua
+        valid_positions = []
+        for cx, cy in candidates:
+            # Pre-calcular tamaño para verificar que quepa
+            test_class = random.choice(class_ids)
+            test_w, test_h = get_object_size(test_class)
+            if is_water_region(image_np, cx, cy, test_w // 2, test_h // 2,
+                               margin=WATER_CHECK_MARGIN):
+                valid_positions.append((cx, cy))
 
-        # Calcular bbox desde la máscara real
-        bbox = compute_bbox_from_mask(mask, IMG_SIZE, IMG_SIZE)
-        if bbox:
-            x_c, y_c, w, h = bbox
-            annotations.append(f"{class_id} {x_c:.6f} {y_c:.6f} {w:.6f} {h:.6f}")
+            if len(valid_positions) >= n_objects:
+                break
 
-    # 4. Guardar
-    stem = img_path.stem
-    out_img = f"{OUTPUT_DIR}/{stem}_synth.png"
-    out_txt = f"{OUTPUT_DIR}/{stem}_synth.txt"
-    image.save(out_img)
-    with open(out_txt, "w") as f:
-        f.write("\n".join(annotations))
-    print(f"  ✓ Guardado: {out_img} ({len(annotations)} anotaciones)")
+        print(f"  Posiciones válidas (agua): {len(valid_positions)}")
 
-print(f"\n{'='*60}")
-print("Generación completada.")
+        if not valid_positions:
+            print(f"  ⚠️  Sin posiciones de agua válidas, saltando imagen.")
+            continue
+
+        # 4d. Insertar objetos
+        annotations = []
+        for pos_idx, (cx, cy) in enumerate(valid_positions):
+            class_id = random.choice(class_ids)
+            class_name = prompts_by_class[class_id]  # lista de prompts
+            prompt = random.choice(prompts_by_class[class_id])
+            obj_w, obj_h = get_object_size(class_id)
+
+            print(f"  [{pos_idx + 1}/{len(valid_positions)}] "
+                  f"clase={class_id} ({OBJECT_SIZES[class_id][:2][0]}-{OBJECT_SIZES[class_id][1]}px) "
+                  f"en ({cx},{cy}), tamaño={obj_w}×{obj_h}px")
+
+            # Crear máscara
+            mask = create_mask(img_w, img_h, cx, cy, obj_w, obj_h, blur_radius=4)
+
+            # Inpaint
+            image = inpainter.inpaint(image, mask, prompt)
+
+            # Actualizar numpy para siguientes verificaciones de agua
+            image_np = np.array(image)
+
+            # Calcular bbox YOLO
+            bbox = compute_yolo_bbox(mask)
+            if bbox:
+                xc, yc, w, h = bbox
+                annotations.append(f"{class_id} {xc:.6f} {yc:.6f} {w:.6f} {h:.6f}")
+                print(f"    → bbox: center=({xc:.3f},{yc:.3f}) size=({w:.3f},{h:.3f})")
+
+        # 4e. Guardar resultados
+        stem = img_path.stem
+        out_img_path = f"{OUTPUT_DIR}/{stem}_synth.png"
+        out_txt_path = f"{OUTPUT_DIR}/{stem}_synth.txt"
+        out_dbg_path = f"{OUTPUT_DIR}/{stem}_debug.png"
+
+        image.save(out_img_path)
+        with open(out_txt_path, "w") as f:
+            f.write("\n".join(annotations))
+
+        # Debug: imagen con bboxes dibujados
+        save_debug_image(image, annotations, out_dbg_path)
+
+        print(f"  ✓ {out_img_path} ({len(annotations)} objetos)")
+        print(f"  ✓ {out_dbg_path} (visualización de debug)")
+
+    print(f"\n{'═' * 60}")
+    print("Generación completada.")
+
+
+if __name__ == "__main__":
+    main()

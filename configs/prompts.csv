@@ -1,0 +1,33 @@
+prompt,class_name,class_id
+"a crushed plastic water bottle floating on water surface, seen from above, photorealistic",plastic bottle,0
+"a deformed PET bottle drifting on sea water, overhead view, natural sunlight",plastic bottle,0
+"a transparent plastic bottle partially submerged in ocean, aerial perspective",plastic bottle,0
+"a small plastic bottle floating among gentle waves, top-down view",plastic bottle,0
+"a green glass beer bottle floating on water surface, seen from above, photorealistic",glass bottle,1
+"a clear glass bottle drifting on ocean water, overhead view, natural lighting",glass bottle,1
+"a brown glass bottle partially submerged in sea, aerial perspective, realistic",glass bottle,1
+"a glass bottle floating on calm water, top-down view, sunlight reflections",glass bottle,1
+"an aluminum soda can floating on water surface, seen from above, photorealistic",can,2
+"a crushed metal can drifting on sea water, overhead view, natural lighting",can,2
+"a rusted can partially submerged in ocean, aerial perspective, realistic",can,2
+"a beverage can floating among small waves, top-down view, photorealistic",can,2
+"a white plastic bag spread on water surface, seen from above, photorealistic",plastic bag,3
+"a translucent plastic bag partially underwater, overhead view, natural lighting",plastic bag,3
+"a crumpled plastic bag floating on sea surface, aerial perspective, realistic",plastic bag,3
+"a plastic shopping bag drifting on ocean water, top-down view, sunlight",plastic bag,3
+"a dark plastic bag spread flat on water, seen from above, photorealistic",plastic bag,3
+"a rusty metal fragment floating on water surface, seen from above, photorealistic",metal scrap,4
+"a small piece of corroded metal drifting on sea, overhead view, realistic",metal scrap,4
+"a bent metal debris partially submerged in water, aerial perspective, natural lighting",metal scrap,4
+"a food packaging wrapper floating on water surface, seen from above, photorealistic",plastic wrapper,5
+"a crumpled plastic wrapper drifting on sea water, overhead view, realistic",plastic wrapper,5
+"a candy wrapper floating on ocean surface, aerial perspective, natural lighting",plastic wrapper,5
+"a shiny foil wrapper partially submerged in water, top-down view, photorealistic",plastic wrapper,5
+"a cluster of mixed floating debris on water surface, seen from above, photorealistic",trash pile,6
+"a small pile of accumulated garbage floating on sea, overhead view, realistic",trash pile,6
+"a group of mixed trash items drifting together on water, aerial perspective",trash pile,6
+"an accumulation of floating marine debris, top-down view, natural lighting, photorealistic",trash pile,6
+"a small piece of floating garbage on water surface, seen from above, photorealistic",trash,7
+"unidentified debris drifting on sea water, overhead view, natural lighting",trash,7
+"a piece of floating trash partially submerged in ocean, aerial perspective, realistic",trash,7
+"small floating waste on water surface, top-down view, photorealistic",trash,7

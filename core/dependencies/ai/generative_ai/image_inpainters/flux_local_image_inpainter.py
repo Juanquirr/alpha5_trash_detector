@@ -6,23 +6,32 @@ from core.dependencies.ai.generative_ai.image_inpainters.image_inpainter import 
 
 
 class FluxLocalImageInpainter(ImageInpainter, BaseModel):
+    """FLUX Fill local inpainter con parámetros oficiales del modelo."""
+
     model_config = {"arbitrary_types_allowed": True}
     _pipe: FluxFillPipeline = None
 
     def model_post_init(self, __context):
         self._pipe = FluxFillPipeline.from_pretrained(
             "black-forest-labs/FLUX.1-Fill-dev",
-            torch_dtype=torch.bfloat16
+            torch_dtype=torch.bfloat16,
         ).to("cuda")
 
-    def inpaint(self, image: Image.Image, mask: Image.Image, prompt: str) -> Image.Image:
-        result = self._pipe(
+    def inpaint(
+        self,
+        image: Image.Image,
+        mask: Image.Image,
+        prompt: str,
+        num_inference_steps: int = 50,
+        guidance_scale: float = 30.0,
+    ) -> Image.Image:
+        return self._pipe(
             prompt=prompt,
             image=image,
             mask_image=mask,
             height=image.height,
             width=image.width,
-            num_inference_steps=28,
-            guidance_scale=7.0,
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+            max_sequence_length=512,
         ).images[0]
-        return result
