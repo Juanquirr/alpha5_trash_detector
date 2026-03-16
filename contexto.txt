@@ -1,0 +1,646 @@
+Contexto del proyecto — Generación de dataset sintético con inpainting
+Objetivo
+
+Generar un dataset sintético auto-etiquetado de residuos flotantes en el mar, vistos desde cámara cenital (dron), para entrenar un detector de objetos YOLO. El proyecto se llama Alpha5 y las clases son:
+ID	Clase
+0	plastic bottle
+1	glass bottle
+2	can
+3	plastic bag
+4	metal scrap
+5	plastic wrapper
+6	trash pile
+7	trash
+Base de código
+
+Se parte del TFT de José R. Peña Seco (ULPGC, 2025), repositorio: https://github.com/DatasetGen/datagen_orchestrator. El TFT desarrolla una plataforma llamada Datagen para generación de datasets sintéticos con modelos de difusión, originalmente para detección de embarcaciones marítimas. Se reutiliza su arquitectura de pipelines y utilidades, pero se adapta para el caso de residuos y se elimina toda la parte de microservicios externos y plataforma web.
+
+El pipeline relevante es FreeInpaintingPipeline, que:
+
+    Toma una imagen de fondo
+    Segmenta una región válida
+    Divide en cuadrícula y filtra celdas
+    Inserta objetos con inpainting en celdas seleccionadas
+    Refina bounding boxes y guarda en formato Ultralytics
+
+Infraestructura
+
+    Máquina: RTX 5000 Ada Generation, 32GB VRAM
+    Entorno: Docker, imagen base pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
+    Modelos usados:
+        black-forest-labs/FLUX.1-Fill-dev (inpainting, ~8GB en bf16) — sustituye al SDXL del TFT original
+        GroundedSAM descartado para este caso de uso (mar cenital = toda la imagen es región válida)
+    Modelos descargados en models/hub/ en el host, montados como volumen en /root/.cache/huggingface
+    El código del repo está montado como volumen (-v "${PWD}:/app"), por lo que los cambios en VS Code del host se reflejan inmediatamente dentro del contenedor
+
+Arranque del contenedor
+
+powershell
+
+docker run --gpus all -d --name sinteticas_alpha5_run `
+  -v "${PWD}:/app" `
+  -v "${PWD}/models:/root/.cache/huggingface" `
+  datagen_alpha5:latest sleep infinity
+
+docker exec -it sinteticas_alpha5_run bash
+
+Archivos creados/modificados respecto al repo original
+core/dependencies/ai/generative_ai/image_inpainters/flux_local_image_inpainter.py
+
+Implementa ImageInpainter usando FluxFillPipeline local en lugar del servicio externo de José:
+
+python
+
+from diffusers import FluxFillPipeline
+from PIL import Image
+from pydantic import BaseModel
+import torch
+from core.dependencies.ai.generative_ai.image_inpainters.image_inpainter import ImageInpainter
+
+class FluxLocalImageInpainter(ImageInpainter, BaseModel):
+    model_config = {"arbitrary_types_allowed": True}
+    _pipe: FluxFillPipeline = None
+
+    def model_post_init(self, __context):
+        self._pipe = FluxFillPipeline.from_pretrained(
+            "black-forest-labs/FLUX.1-Fill-dev",
+            torch_dtype=torch.bfloat16
+        ).to("cuda")
+
+    def inpaint(self, image: Image.Image, mask: Image.Image, prompt: str) -> Image.Image:
+        return self._pipe(
+            prompt=prompt,
+            image=image,
+            mask_image=mask,
+            height=image.height,
+            width=image.width,
+            num_inference_steps=28,
+            guidance_scale=30.0,
+        ).images[0]
+
+run_local.py (punto de entrada, en raíz del repo)
+
+Versión actual funcional. El flujo es:
+
+    Carga FluxLocalImageInpainter
+    Lee imágenes de inputs/
+    Divide en cuadrícula 3×3 con divide_images_with_masks_and_bboxes
+    Filtra celdas que sean agua (por color HSV: saturación > 30, brillo < 160) para evitar insertar en el cielo
+    Crea una máscara pequeña elíptica centrada en la celda (MASK_SIZE=80px) en lugar de usar la celda completa como máscara
+    Inserta el objeto con FLUX Fill usando el prompt: "aerial view from drone, {class_name} floating on sea surface, small object, photorealistic, ocean water background"
+    Guarda imagen y .txt en formato Ultralytics en outputs/
+
+requirements.txt actual
+
+text
+
+fastapi~=0.115.12
+fastapi[standard]
+uvicorn
+python-dotenv~=1.1.0
+opencv-python~=4.11.0.86
+numpy~=2.0.2
+pillow~=11.2.1
+autodistill~=0.1.29
+autodistill-grounded-sam
+scikit-learn
+roboflow
+matplotlib~=3.9.4
+pydantic~=2.11.3
+websocket-client~=1.8.0
+requests~=2.32.3
+scipy~=1.13.1
+transformers~=4.51.3
+pandas~=2.2.3
+torchmetrics~=1.7.1
+diffusers>=0.30.0
+tornado~=6.4.2
+accelerate>=0.33.0
+huggingface_hub>=0.24.0
+sentencepiece
+questionary~=2.0.1
+rich
+pyfiglet
+attention_map_diffusers
+seaborn
+openai
+lpips
+pytest
+
+Estado actual
+
+El pipeline ejecuta y genera imágenes. El último resultado mostró que los objetos se generan con buena calidad visual pero aparecían en zonas incorrectas (cielo). Se implementó el filtro HSV para excluir celdas de cielo. La última versión del run_local.py con is_water_cell() y make_small_mask() está pendiente de validar visualmente con nuevas imágenes generadas.
+Siguiente paso pendiente
+
+Validar visualmente el resultado del run_local.py corregido con el filtro de agua y máscara pequeña. Si los objetos siguen mal ubicados o el tamaño no es realista, el siguiente ajuste sería calibrar MASK_SIZE en función de la altura real del dron y revisar los umbrales HSV del filtro is_water_cell.
+
+Lo que quiero a partir de ahora es mejorar el código que ya tiene Pepe o preparlo mejor para mi problema. Las imágenes obtenidas tras la generación son malas en su mayoría, y hacen que la basura se superponga sin sentido sobre objetos, o no quede bien integrada con el fondo marino. Propón opciones que probar. Si necesitas ver algo de código o especificaciones sobre mi proyecto más a fondo, comentamelo. No obstante, tengo este repo: https://github.com/DatasetGen/datagen_orchestrator montado, cambiando los requisitos para usarlo en local con FLux 1 Fill y Flux Dev. Dispongo de 32 GB de VRAM en una RTX Ada 5000
+# Prompt de contexto — Proyecto Alpha5
+
+---
+
+## Descripción general
+
+Proyecto **Alpha5**: generación de un dataset sintético auto-etiquetado de **residuos flotantes en el mar**, vistos desde cámara elevada/costera (no cenital pura), para entrenar un detector de objetos **YOLOv8/v11**. Se usa **inpainting con FLUX Fill** para insertar objetos sobre imágenes reales de mar.
+
+---
+
+## Clases del dataset
+
+| ID | Clase |
+|---|---|
+| 0 | plastic bottle |
+| 1 | glass bottle |
+| 2 | can |
+| 3 | plastic bag |
+| 4 | metal scrap |
+| 5 | plastic wrapper |
+| 6 | trash pile |
+| 7 | trash |
+
+---
+
+## Infraestructura
+
+- **GPU**: NVIDIA RTX 5000 Ada Generation, 32 GB VRAM
+- **Entorno**: Docker, imagen base `pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime`
+- **Modelo de inpainting**: `black-forest-labs/FLUX.1-Fill-dev` (~8 GB en bf16)
+- **Parámetros oficiales de FLUX Fill**: `guidance_scale=30.0`, `num_inference_steps=50`
+- **Modelos descargados** en `models/hub/` en el host, montados en `/root/.cache/huggingface`
+- El código está montado como volumen Docker (`-v "${PWD}:/app"`)
+
+### Arranque del contenedor
+```powershell
+docker run --gpus all -d --name sinteticas_alpha5_run `
+  -v "${PWD}:/app" `
+  -v "${PWD}/models:/root/.cache/huggingface" `
+  datagen_alpha5:latest sleep infinity
+
+docker exec -it sinteticas_alpha5_run bash
+```
+
+---
+
+## Base de código original
+
+Se partió del TFT de **José R. Peña Seco** (ULPGC, 2025), repositorio: `https://github.com/DatasetGen/datagen_orchestrator`. El TFT desarrolla una plataforma llamada **Datagen** para generación de datasets sintéticos con modelos de difusión, originalmente para detección de embarcaciones marítimas.
+
+### Ya se ha limpiado el repo. Se eliminaron:
+- `apps/` (CLI interactiva con questionary/rich/pyfiglet + FastAPI skeleton)
+- `core/dependencies/api/` (clientes HTTP a microservicios externos: SAM, MMSeg, diffusers remoto)
+- `core/experiments/` (experimentos del TFT: dataset_quality, model_comparison, multicategorical, types_of_border)
+- `core/pipelines/` (todos: free_inpainting, grounded_diffusion, cross_attention_clustering)
+- `core/generators/` y `core/inpainters/` (wrappers duplicados)
+- `datagen_sdk/` (SDK de la plataforma web Datagen)
+- `example_csv/` (datos de ejemplo para la CLI original)
+- `core/dependencies/ai/discriminative_ai/` (GroundedSAM, background removers, point extractors)
+- `core/dependencies/ai/quality_evaluators/` (NIMA, FID, LPIPS, CLIP evaluators)
+- `core/dependencies/ai/utils/` (dataset_savers)
+- `core/dependencies/utils/` (image editors, mask generators, loggers)
+- Todos los inpainters excepto el de FLUX local (comfy, dalle2, diffusers, mock, stable_diffusion)
+- Todo `generative_ai/` excepto `image_inpainters/` (diffusion, image_control, image_generators, image_harmonizers, object_stitchers)
+- Ficheros raíz: `main.py`, `run_1.py`, `condif.old.json`, `config.json`
+- `outputs_1/`, `outputs_2/` (movidos a `archive/`)
+
+---
+
+## Estructura actual del repo (limpio)
+
+```
+/app
+├── config/
+│   └── prompts.csv                          ← Prompts por clase
+├── core/
+│   ├── dependencies/ai/generative_ai/
+│   │   └── image_inpainters/
+│   │       ├── __init__.py
+│   │       ├── image_inpainter.py           ← Clase abstracta (ABC)
+│   │       └── flux_local_image_inpainter.py ← Implementación FLUX Fill local
+│   ├── __init__.py
+│   └── utils.py                             ← Funciones de debug visual
+├── inputs/                                  ← Imágenes fuente (fotos reales de mar)
+├── outputs/                                 ← Imágenes generadas + anotaciones YOLO
+├── run_local.py                             ← Punto de entrada principal
+├── requirements.txt
+├── Dockerfile
+└── README.md
+```
+
+---
+
+## Código actual
+
+### `core/dependencies/ai/generative_ai/image_inpainters/image_inpainter.py`
+Clase abstracta base:
+```python
+from abc import ABC, abstractmethod
+from PIL import Image
+
+class ImageInpainter(ABC):
+    @abstractmethod
+    def inpaint(self, image: Image.Image, mask: Image.Image, prompt: str) -> Image.Image:
+        pass
+```
+
+### `core/dependencies/ai/generative_ai/image_inpainters/flux_local_image_inpainter.py`
+```python
+from diffusers import FluxFillPipeline
+from PIL import Image
+from pydantic import BaseModel
+import torch
+from core.dependencies.ai.generative_ai.image_inpainters.image_inpainter import ImageInpainter
+
+class FluxLocalImageInpainter(ImageInpainter, BaseModel):
+    model_config = {"arbitrary_types_allowed": True}
+    _pipe: FluxFillPipeline = None
+
+    def model_post_init(self, __context):
+        self._pipe = FluxFillPipeline.from_pretrained(
+            "black-forest-labs/FLUX.1-Fill-dev",
+            torch_dtype=torch.bfloat16,
+        ).to("cuda")
+
+    def inpaint(
+        self,
+        image: Image.Image,
+        mask: Image.Image,
+        prompt: str,
+        num_inference_steps: int = 50,
+        guidance_scale: float = 30.0,
+    ) -> Image.Image:
+        return self._pipe(
+            prompt=prompt,
+            image=image,
+            mask_image=mask,
+            height=image.height,
+            width=image.width,
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+            max_sequence_length=512,
+        ).images[0]
+```
+
+### `config/prompts.csv`
+```csv
+prompt,class_name,class_id
+"a crushed plastic water bottle floating on water surface, seen from above, photorealistic",plastic bottle,0
+"a deformed PET bottle drifting on sea water, overhead view, natural sunlight",plastic bottle,0
+"a transparent plastic bottle partially submerged in ocean, aerial perspective",plastic bottle,0
+"a small plastic bottle floating among gentle waves, top-down view",plastic bottle,0
+"a green glass beer bottle floating on water surface, seen from above, photorealistic",glass bottle,1
+"a clear glass bottle drifting on ocean water, overhead view, natural lighting",glass bottle,1
+"a brown glass bottle partially submerged in sea, aerial perspective, realistic",glass bottle,1
+"a glass bottle floating on calm water, top-down view, sunlight reflections",glass bottle,1
+"an aluminum soda can floating on water surface, seen from above, photorealistic",can,2
+"a crushed metal can drifting on sea water, overhead view, natural lighting",can,2
+"a rusted can partially submerged in ocean, aerial perspective, realistic",can,2
+"a beverage can floating among small waves, top-down view, photorealistic",can,2
+"a white plastic bag spread on water surface, seen from above, photorealistic",plastic bag,3
+"a translucent plastic bag partially underwater, overhead view, natural lighting",plastic bag,3
+"a crumpled plastic bag floating on sea surface, aerial perspective, realistic",plastic bag,3
+"a plastic shopping bag drifting on ocean water, top-down view, sunlight",plastic bag,3
+"a dark plastic bag spread flat on water, seen from above, photorealistic",plastic bag,3
+"a rusty metal fragment floating on water surface, seen from above, photorealistic",metal scrap,4
+"a small piece of corroded metal drifting on sea, overhead view, realistic",metal scrap,4
+"a bent metal debris partially submerged in water, aerial perspective, natural lighting",metal scrap,4
+"a food packaging wrapper floating on water surface, seen from above, photorealistic",plastic wrapper,5
+"a crumpled plastic wrapper drifting on sea water, overhead view, realistic",plastic wrapper,5
+"a candy wrapper floating on ocean surface, aerial perspective, natural lighting",plastic wrapper,5
+"a shiny foil wrapper partially submerged in water, top-down view, photorealistic",plastic wrapper,5
+"a cluster of mixed floating debris on water surface, seen from above, photorealistic",trash pile,6
+"a small pile of accumulated garbage floating on sea, overhead view, realistic",trash pile,6
+"a group of mixed trash items drifting together on water, aerial perspective",trash pile,6
+"an accumulation of floating marine debris, top-down view, natural lighting, photorealistic",trash pile,6
+"a small piece of floating garbage on water surface, seen from above, photorealistic",trash,7
+"unidentified debris drifting on sea water, overhead view, natural lighting",trash,7
+"a piece of floating trash partially submerged in ocean, aerial perspective, realistic",trash,7
+"small floating waste on water surface, top-down view, photorealistic",trash,7
+```
+
+### `run_local.py`
+```python
+"""
+Alpha5 — Generador de dataset sintético de residuos marinos flotantes
+Inserta objetos con FLUX Fill inpainting sobre imágenes reales de mar,
+generando anotaciones en formato YOLO (Ultralytics).
+"""
+
+import csv
+import os
+import random
+import math
+import numpy as np
+from pathlib import Path
+from PIL import Image, ImageDraw, ImageFilter
+import cv2
+
+from core.dependencies.ai.generative_ai.image_inpainters.flux_local_image_inpainter import (
+    FluxLocalImageInpainter,
+)
+
+# ═══════════════════════════════════════════════════════════════
+# CONFIGURACIÓN
+# ═══════════════════════════════════════════════════════════════
+
+INPUT_DIR   = "inputs"
+OUTPUT_DIR  = "outputs"
+PROMPTS_CSV = "config/prompts.csv"
+
+MAX_SIDE    = 1024
+DIVISOR     = 16
+
+MIN_OBJECTS = 2
+MAX_OBJECTS = 5
+MIN_DIST_PX = 180
+EDGE_MARGIN = 80
+WATER_CHECK_MARGIN = 30
+
+OBJECT_SIZES = {
+    0: (100, 180,  50,  90),   # plastic bottle
+    1: (100, 180,  50,  90),   # glass bottle
+    2: ( 80, 140,  70, 130),   # can
+    3: (150, 280, 120, 240),   # plastic bag
+    4: (100, 200,  80, 160),   # metal scrap
+    5: (120, 220,  80, 160),   # plastic wrapper
+    6: (220, 380, 180, 320),   # trash pile
+    7: ( 90, 180,  70, 150),   # trash
+}
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+
+def load_prompts(csv_path: str) -> dict:
+    prompts_by_class = {}
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            cid = int(row["class_id"])
+            prompt = row["prompt"].strip().strip('"')
+            if cid not in prompts_by_class:
+                prompts_by_class[cid] = []
+            prompts_by_class[cid].append(prompt)
+    return prompts_by_class
+
+
+def prepare_image(image: Image.Image, max_side: int = 1024, divisor: int = 16):
+    w, h = image.size
+    scale = min(max_side / max(w, h), 1.0)
+    new_w = max(divisor, round(w * scale / divisor) * divisor)
+    new_h = max(divisor, round(h * scale / divisor) * divisor)
+    resized = image.resize((new_w, new_h), Image.LANCZOS)
+    return resized, scale
+
+
+def is_water_region(image_np: np.ndarray, cx: int, cy: int,
+                    half_w: int, half_h: int, margin: int = 30) -> bool:
+    img_h, img_w = image_np.shape[:2]
+    x0 = cx - half_w - margin
+    y0 = cy - half_h - margin
+    x1 = cx + half_w + margin
+    y1 = cy + half_h + margin
+    if x0 < 0 or y0 < 0 or x1 >= img_w or y1 >= img_h:
+        return False
+    crop = image_np[y0:y1, x0:x1]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_RGB2HSV)
+    avg_h = hsv[:, :, 0].mean()
+    avg_s = hsv[:, :, 1].mean()
+    avg_v = hsv[:, :, 2].mean()
+    std_v = hsv[:, :, 2].std()
+    gray = cv2.cvtColor(crop, cv2.COLOR_RGB2GRAY)
+    edges = cv2.Canny(gray, 50, 150)
+    edge_density = edges.mean() / 255.0
+    is_water_hue = 70 <= avg_h <= 145
+    has_saturation = avg_s > 15
+    moderate_bright = 30 < avg_v < 210
+    is_smooth = std_v < 45
+    few_edges = edge_density < 0.08
+    return all([is_water_hue, has_saturation, moderate_bright, is_smooth, few_edges])
+
+
+def poisson_disk_sampling(width, height, min_dist, n_points, margin=80, max_attempts=200):
+    points = []
+    for _ in range(n_points * max_attempts):
+        if len(points) >= n_points:
+            break
+        x = random.randint(margin, width - margin)
+        y = random.randint(margin, height - margin)
+        if all(math.hypot(x - px, y - py) >= min_dist for px, py in points):
+            points.append((x, y))
+    return points
+
+
+def get_object_size(class_id: int) -> tuple:
+    min_w, max_w, min_h, max_h = OBJECT_SIZES[class_id]
+    w = random.randint(min_w, max_w)
+    h = random.randint(min_h, max_h)
+    if random.random() < 0.3:
+        w, h = h, w
+    return w, h
+
+
+def create_mask(img_w, img_h, cx, cy, obj_w, obj_h, blur_radius=5):
+    mask = Image.new("L", (img_w, img_h), 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse(
+        [cx - obj_w // 2, cy - obj_h // 2,
+         cx + obj_w // 2, cy + obj_h // 2],
+        fill=255,
+    )
+    if blur_radius > 0:
+        mask = mask.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+    return mask
+
+
+def compute_yolo_bbox(mask: Image.Image) -> tuple:
+    mask_np = np.array(mask)
+    ys, xs = np.where(mask_np > 127)
+    if len(xs) == 0:
+        return None
+    img_w, img_h = mask.size
+    x_min, x_max = xs.min(), xs.max()
+    y_min, y_max = ys.min(), ys.max()
+    x_c = ((x_min + x_max) / 2.0) / img_w
+    y_c = ((y_min + y_max) / 2.0) / img_h
+    w = (x_max - x_min) / img_w
+    h = (y_max - y_min) / img_h
+    return x_c, y_c, w, h
+
+
+def save_debug_image(image, annotations, path):
+    debug = image.copy()
+    draw = ImageDraw.Draw(debug)
+    iw, ih = debug.size
+    colors = ["red", "blue", "green", "yellow", "cyan", "magenta", "orange", "white"]
+    for ann in annotations:
+        parts = ann.split()
+        cid = int(parts[0])
+        xc, yc, w, h = [float(x) for x in parts[1:]]
+        x0 = int((xc - w / 2) * iw)
+        y0 = int((yc - h / 2) * ih)
+        x1 = int((xc + w / 2) * iw)
+        y1 = int((yc + h / 2) * ih)
+        color = colors[cid % len(colors)]
+        draw.rectangle([x0, y0, x1, y1], outline=color, width=3)
+        draw.text((x0 + 4, y0 + 4), f"cls={cid}", fill=color)
+    debug.save(path)
+
+
+def main():
+    print("Cargando prompts desde CSV...")
+    prompts_by_class = load_prompts(PROMPTS_CSV)
+    class_ids = list(prompts_by_class.keys())
+    print(f"  Clases disponibles: {len(class_ids)}")
+
+    print("Cargando FLUX Fill...")
+    inpainter = FluxLocalImageInpainter()
+    print("  ✓ Modelo cargado")
+
+    image_paths = sorted(
+        p for p in Path(INPUT_DIR).iterdir()
+        if p.suffix.lower() in (".jpg", ".jpeg", ".png")
+    )
+    print(f"Imágenes de entrada: {len(image_paths)}")
+
+    for img_idx, img_path in enumerate(image_paths):
+        print(f"\n{'═' * 60}")
+        print(f"[{img_idx + 1}/{len(image_paths)}] {img_path.name}")
+
+        image = Image.open(img_path).convert("RGB")
+        print(f"  Original: {image.size[0]}×{image.size[1]}")
+
+        image, scale = prepare_image(image, max_side=MAX_SIDE, divisor=DIVISOR)
+        img_w, img_h = image.size
+        print(f"  Redimensionada: {img_w}×{img_h} (scale={scale:.3f})")
+
+        image_np = np.array(image)
+
+        n_objects = random.randint(MIN_OBJECTS, MAX_OBJECTS)
+        candidates = poisson_disk_sampling(
+            img_w, img_h,
+            min_dist=MIN_DIST_PX,
+            n_points=n_objects * 4,
+            margin=EDGE_MARGIN,
+        )
+        print(f"  Candidatos generados: {len(candidates)}")
+
+        valid_positions = []
+        for cx, cy in candidates:
+            test_class = random.choice(class_ids)
+            test_w, test_h = get_object_size(test_class)
+            if is_water_region(image_np, cx, cy, test_w // 2, test_h // 2,
+                               margin=WATER_CHECK_MARGIN):
+                valid_positions.append((cx, cy))
+            if len(valid_positions) >= n_objects:
+                break
+
+        print(f"  Posiciones válidas (agua): {len(valid_positions)}")
+
+        if not valid_positions:
+            print(f"  ⚠️  Sin posiciones de agua válidas, saltando imagen.")
+            continue
+
+        annotations = []
+        for pos_idx, (cx, cy) in enumerate(valid_positions):
+            class_id = random.choice(class_ids)
+            prompt = random.choice(prompts_by_class[class_id])
+            obj_w, obj_h = get_object_size(class_id)
+
+            print(f"  [{pos_idx + 1}/{len(valid_positions)}] "
+                  f"clase={class_id} en ({cx},{cy}), tamaño={obj_w}×{obj_h}px")
+
+            mask = create_mask(img_w, img_h, cx, cy, obj_w, obj_h, blur_radius=4)
+            image = inpainter.inpaint(image, mask, prompt)
+            image_np = np.array(image)
+
+            bbox = compute_yolo_bbox(mask)
+            if bbox:
+                xc, yc, w, h = bbox
+                annotations.append(f"{class_id} {xc:.6f} {yc:.6f} {w:.6f} {h:.6f}")
+                print(f"    → bbox: center=({xc:.3f},{yc:.3f}) size=({w:.3f},{h:.3f})")
+
+        stem = img_path.stem
+        out_img = f"{OUTPUT_DIR}/{stem}_synth.png"
+        out_txt = f"{OUTPUT_DIR}/{stem}_synth.txt"
+        out_dbg = f"{OUTPUT_DIR}/{stem}_debug.png"
+
+        image.save(out_img)
+        with open(out_txt, "w") as f:
+            f.write("\n".join(annotations))
+        save_debug_image(image, annotations, out_dbg)
+
+        print(f"  ✓ {out_img} ({len(annotations)} objetos)")
+
+    print(f"\n{'═' * 60}")
+    print("Generación completada.")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### `requirements.txt` (limpio)
+```text
+torch>=2.0
+diffusers>=0.30.0
+transformers>=4.40.0
+accelerate>=0.33.0
+huggingface_hub>=0.24.0
+sentencepiece
+pillow>=10.0
+opencv-python>=4.8
+numpy>=1.24
+scipy>=1.10
+pydantic>=2.0
+python-dotenv>=1.0
+matplotlib>=3.7
+```
+
+---
+
+## Imágenes de input
+
+Las imágenes son capturas costeras reales, perspectiva **oblicua** (no cenital pura), desde miradores y ubicaciones elevadas en **Gran Canaria** (Anfi del Mar, Radisson Patalavaca, mirador de Plocan, Cabo Torres). Muestran:
+- Agua de mar con barcos, boyas, cadenas de boyas
+- Puertos con veleros y embarcaciones
+- Edificaciones costeras, escolleras, playas
+- Horizonte visible en algunas
+- Tonos de agua variados: turquesa claro a azul oscuro profundo
+
+**Punto clave**: las imágenes NO son cenitales. Son oblicuas con ángulos variados. Los prompts deben ser coherentes con esta perspectiva.
+
+---
+
+## Problemas identificados y resueltos
+
+1. **`guidance_scale` erróneamente bajado a 6**: FLUX Fill usa `guidance_scale=30` como default oficial. Los valores bajos (3-7) son para FLUX Dev txt2img. Se ha restaurado a 30.
+
+2. **`num_inference_steps=28` insuficiente**: FLUX Fill recomienda 50 pasos. Se ha subido.
+
+3. **Objetos invisibles (30-80px)**: Con MASK_SIZE=80px fijo, las bboxes YOLO resultaban de ~5% de la imagen. Se ha aumentado a rangos de 80-380px según clase.
+
+4. **Resize a 1024×1024 aplastaba imágenes**: Se distorsionaba el aspect ratio. Ahora se preserva el aspect ratio, redimensionando el lado mayor a 1024 y redondeando dimensiones a múltiplos de 16.
+
+5. **Filtro de agua insuficiente**: Solo verificaba saturación y brillo. Ahora usa hue azul-verde (70-145), saturación, brillo, uniformidad (std), Y densidad de aristas (Canny). Además verifica toda la zona del objeto + margen, no solo el centro.
+
+6. **Grid 3×3 rígido**: Reemplazado por Poisson Disk Sampling para distribución natural.
+
+7. **Basura sobre tierra/edificios**: El nuevo filtro con Canny edges rechaza zonas con estructuras.
+
+8. **Prompts hardcoded**: Separados a CSV externo con múltiples variantes por clase.
+
+---
+
+## Qué falta por validar / siguiente paso
+
+- **Ejecutar el `run_local.py` refactorizado** con los nuevos tamaños, filtros y parámetros, y verificar visualmente los resultados (se genera `_debug.png` con bboxes dibujados).
+- Si los objetos siguen sin integrarse bien, considerar:
+  - Pipeline de dos pasadas (inpaint + refine con img2img a strength baja)
+  - Post-procesado de color harmonization (Reinhard transfer en espacio LAB)
+  - Buscar/añadir imágenes de input más limpias (solo agua, sin demasiadas estructuras)
+- Escalar la generación a cientos de imágenes para tener un dataset significativo.
+- Entrenar YOLOv8/v11 con el dataset sintético y medir mAP.
+
+
+---
+
+Ese documento contiene **todo** lo que necesitas para que cualquier modelo (o tú mismo en el futuro) retome el proyecto exactamente donde lo dejamos: la estructura limpia del repo, todo el código actual, la configuración, los problemas ya resueltos, y lo que queda pendiente. Cópialo tal cual al inicio de un nuevo chat.

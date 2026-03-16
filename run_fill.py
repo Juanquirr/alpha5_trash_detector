@@ -18,6 +18,14 @@ from core.dependencies.ai.generative_ai.image_inpainters.flux_local_image_inpain
 INPUT_DIR   = "inputs"
 OUTPUT_DIR  = "outputs"
 PROMPTS_CSV = "config/prompts.csv"
+LOG_CSV     = f"{OUTPUT_DIR}/generation_log.csv"
+
+LOG_FIELDS  = [
+    "image_out", "source_image",
+    "class_id", "class_name", "prompt",
+    "cx", "cy", "obj_w", "obj_h",
+    "bbox_xc", "bbox_yc", "bbox_w", "bbox_h",
+]
 
 MAX_SIDE    = 1024      # Lado mayor tras resize (mantiene aspect ratio)
 DIVISOR     = 16        # FLUX requiere dimensiones múltiplo de 16
@@ -62,6 +70,20 @@ def load_prompts(csv_path: str) -> dict:
                 prompts_by_class[cid] = []
             prompts_by_class[cid].append(prompt)
     return prompts_by_class
+
+
+def load_class_names(csv_path: str) -> dict:
+    """
+    Carga prompts.csv y devuelve un dict {class_id: class_name}.
+    """
+    class_names = {}
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            cid = int(row["class_id"])
+            if cid not in class_names:
+                class_names[cid] = row["class_name"].strip()
+    return class_names
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -241,9 +263,10 @@ def save_debug_image(image: Image.Image, annotations: list, path: str):
 # ═══════════════════════════════════════════════════════════════
 
 def main():
-    # 1. Cargar prompts
+    # 1. Cargar prompts y nombres de clase
     print("Cargando prompts desde CSV...")
     prompts_by_class = load_prompts(PROMPTS_CSV)
+    class_names = load_class_names(PROMPTS_CSV)
     class_ids = list(prompts_by_class.keys())
     print(f"  Clases disponibles: {len(class_ids)}")
 
@@ -252,14 +275,21 @@ def main():
     inpainter = FluxLocalImageInpainter()
     print("  ✓ Modelo cargado")
 
-    # 3. Listar imágenes de entrada
+    # 3. Abrir log CSV (append; cabecera solo si es nuevo)
+    log_exists = Path(LOG_CSV).exists()
+    log_file = open(LOG_CSV, "a", newline="", encoding="utf-8")
+    log_writer = csv.DictWriter(log_file, fieldnames=LOG_FIELDS)
+    if not log_exists:
+        log_writer.writeheader()
+
+    # 4. Listar imágenes de entrada
     image_paths = sorted(
         p for p in Path(INPUT_DIR).iterdir()
         if p.suffix.lower() in (".jpg", ".jpeg", ".png")
     )
     print(f"Imágenes de entrada: {len(image_paths)}")
 
-    # 4. Procesar cada imagen
+    # 5. Procesar cada imagen
     for img_idx, img_path in enumerate(image_paths):
         print(f"\n{'═' * 60}")
         print(f"[{img_idx + 1}/{len(image_paths)}] {img_path.name}")
@@ -303,11 +333,10 @@ def main():
             print(f"  ⚠️  Sin posiciones de agua válidas, saltando imagen.")
             continue
 
-        # 4d. Insertar objetos
+        # 5d. Insertar objetos
         annotations = []
         for pos_idx, (cx, cy) in enumerate(valid_positions):
             class_id = random.choice(class_ids)
-            class_name = prompts_by_class[class_id]  # lista de prompts
             prompt = random.choice(prompts_by_class[class_id])
             obj_w, obj_h = get_object_size(class_id)
 
@@ -330,8 +359,23 @@ def main():
                 xc, yc, w, h = bbox
                 annotations.append(f"{class_id} {xc:.6f} {yc:.6f} {w:.6f} {h:.6f}")
                 print(f"    → bbox: center=({xc:.3f},{yc:.3f}) size=({w:.3f},{h:.3f})")
+                log_writer.writerow({
+                    "image_out":   f"{OUTPUT_DIR}/{img_path.stem}_synth.png",
+                    "source_image": img_path.name,
+                    "class_id":    class_id,
+                    "class_name":  class_names.get(class_id, ""),
+                    "prompt":      prompt,
+                    "cx":          cx,
+                    "cy":          cy,
+                    "obj_w":       obj_w,
+                    "obj_h":       obj_h,
+                    "bbox_xc":     f"{xc:.6f}",
+                    "bbox_yc":     f"{yc:.6f}",
+                    "bbox_w":      f"{w:.6f}",
+                    "bbox_h":      f"{h:.6f}",
+                })
 
-        # 4e. Guardar resultados
+        # 5e. Guardar resultados
         stem = img_path.stem
         out_img_path = f"{OUTPUT_DIR}/{stem}_synth.png"
         out_txt_path = f"{OUTPUT_DIR}/{stem}_synth.txt"
@@ -347,8 +391,9 @@ def main():
         print(f"  ✓ {out_img_path} ({len(annotations)} objetos)")
         print(f"  ✓ {out_dbg_path} (visualización de debug)")
 
+    log_file.close()
     print(f"\n{'═' * 60}")
-    print("Generación completada.")
+    print(f"Generación completada. Log: {LOG_CSV}")
 
 
 if __name__ == "__main__":
