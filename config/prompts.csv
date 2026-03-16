@@ -1,4 +1,4 @@
-prompt,class_name,class_id
+prompt,class_name,class_id,input_img,canny_output_img,redux_output_img
 "a crushed plastic water bottle floating on water surface, seen from above, photorealistic",plastic bottle,0
 "a deformed PET bottle drifting on sea water, overhead view, natural sunlight",plastic bottle,0
 "a transparent plastic bottle partially submerged in ocean, aerial perspective",plastic bottle,0
