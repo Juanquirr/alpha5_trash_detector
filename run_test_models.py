@@ -300,7 +300,7 @@ def main():
     parser.add_argument(
         "--max-images",
         type=int,
-        default=2,
+        default=5,
         help="Número máximo de imágenes a procesar por modelo",
     )
     args = parser.parse_args()
