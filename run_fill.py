@@ -1,3 +1,4 @@
+import argparse
 import csv
 import os
 import random
@@ -263,6 +264,15 @@ def save_debug_image(image: Image.Image, annotations: list, path: str):
 # ═══════════════════════════════════════════════════════════════
 
 def main():
+    parser = argparse.ArgumentParser(description="Generador de imágenes sintéticas con FLUX Fill")
+    parser.add_argument(
+        "--num-instances",
+        type=int,
+        default=None,
+        help="Número exacto de instancias por imagen (por defecto: aleatorio 2-3)",
+    )
+    args = parser.parse_args()
+
     # 1. Cargar prompts y nombres de clase
     print("Cargando prompts desde CSV...")
     prompts_by_class = load_prompts(PROMPTS_CSV)
@@ -305,7 +315,7 @@ def main():
         image_np = np.array(image)
 
         # 4b. Generar posiciones candidatas
-        n_objects = random.randint(MIN_OBJECTS, MAX_OBJECTS)
+        n_objects = args.num_instances if args.num_instances is not None else random.randint(MIN_OBJECTS, MAX_OBJECTS)
         candidates = poisson_disk_sampling(
             img_w, img_h,
             min_dist=MIN_DIST_PX,

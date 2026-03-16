@@ -36,9 +36,7 @@ MAX_SIDE     = 1024
 DIVISOR      = 16
 EDGE_MARGIN  = 80
 WATER_CHECK_MARGIN = 30
-
-# Un solo objeto por imagen en el test para comparar limpiamente
-TEST_CLASS_ID = 0   # plastic bottle (cambiar para probar otras clases)
+MIN_DIST_PX  = 180   # Separación mínima entre objetos (Poisson disk)
 
 OBJECT_SIZES = {
     0: (100, 180,  50,  90),
@@ -129,6 +127,27 @@ def find_water_position(image_np, class_id, margin=80, max_tries=200):
     return None
 
 
+def poisson_disk_sampling(width, height, min_dist, n_points, margin=80, max_attempts=200):
+    points = []
+    for _ in range(n_points * max_attempts):
+        if len(points) >= n_points:
+            break
+        x = random.randint(margin, width - margin)
+        y = random.randint(margin, height - margin)
+        if all(math.hypot(x - px, y - py) >= min_dist for px, py in points):
+            points.append((x, y))
+    return points
+
+
+def get_object_size(class_id):
+    min_w, max_w, min_h, max_h = OBJECT_SIZES[class_id]
+    w = random.randint(min_w, max_w)
+    h = random.randint(min_h, max_h)
+    if random.random() < 0.3:
+        w, h = h, w
+    return w, h
+
+
 def create_mask(img_w, img_h, cx, cy, obj_w, obj_h, blur_radius=4):
     mask = Image.new("L", (img_w, img_h), 0)
     draw = ImageDraw.Draw(mask)
@@ -205,7 +224,7 @@ def run_inpaint(model_name, model, image, mask, prompt, class_id):
 # MAIN
 # ═══════════════════════════════════════════════════════════════
 
-def test_model(model_name: str, image_paths: list, prompts_by_class: dict, class_names: dict):
+def test_model(model_name: str, image_paths: list, prompts_by_class: dict, class_names: dict, num_instances: int = 1):
     out_dir = Path(OUTPUT_DIR) / model_name
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -221,6 +240,8 @@ def test_model(model_name: str, image_paths: list, prompts_by_class: dict, class
     model = load_model(model_name)
     print(f"  ✓ Listo")
 
+    class_ids = list(prompts_by_class.keys())
+
     for img_path in image_paths:
         print(f"\n  [{img_path.name}]")
         image = Image.open(img_path).convert("RGB")
@@ -228,57 +249,74 @@ def test_model(model_name: str, image_paths: list, prompts_by_class: dict, class
         img_w, img_h = image.size
         image_np = np.array(image)
 
-        pos = find_water_position(image_np, TEST_CLASS_ID)
-        if pos is None:
+        # Generar candidatos con Poisson disk y filtrar por zona de agua
+        candidates = poisson_disk_sampling(img_w, img_h, MIN_DIST_PX, num_instances * 4, EDGE_MARGIN)
+        valid_positions = []
+        for cx, cy in candidates:
+            class_id = random.choice(class_ids)
+            obj_w, obj_h = get_object_size(class_id)
+            if is_water_region(image_np, cx, cy, obj_w // 2, obj_h // 2, WATER_CHECK_MARGIN):
+                valid_positions.append((cx, cy, class_id, obj_w, obj_h))
+            if len(valid_positions) >= num_instances:
+                break
+
+        if not valid_positions:
             print(f"    ⚠️  No se encontró zona de agua, saltando.")
             continue
 
-        cx, cy, obj_w, obj_h = pos
-        prompt = random.choice(prompts_by_class[TEST_CLASS_ID])
-        mask = create_mask(img_w, img_h, cx, cy, obj_w, obj_h)
-
-        print(f"    Clase={TEST_CLASS_ID} en ({cx},{cy}) tamaño={obj_w}×{obj_h}px")
-        print(f"    Prompt: {prompt[:60]}...")
-
-        result, external_bbox = run_inpaint(model_name, model, image, mask, prompt, TEST_CLASS_ID)
-
-        # Bbox: prioridad al bbox externo (Kontext diff), si no, del mask
-        if external_bbox:
-            xc, yc, bw, bh = external_bbox
-        else:
-            mask_np = np.array(mask)
-            ys, xs = np.where(mask_np > 127)
-            xc = ((xs.min() + xs.max()) / 2.0) / img_w
-            yc = ((ys.min() + ys.max()) / 2.0) / img_h
-            bw = (xs.max() - xs.min()) / img_w
-            bh = (ys.max() - ys.min()) / img_h
-
-        ann = f"{TEST_CLASS_ID} {xc:.6f} {yc:.6f} {bw:.6f} {bh:.6f}"
         stem = img_path.stem
+        annotations = []
 
-        result.save(out_dir / f"{stem}_result.png")
-        save_debug_image(result, [ann], out_dir / f"{stem}_debug.png")
+        for pos_idx, (cx, cy, class_id, obj_w, obj_h) in enumerate(valid_positions):
+            prompt = random.choice(prompts_by_class[class_id])
+            mask = create_mask(img_w, img_h, cx, cy, obj_w, obj_h)
+
+            print(f"    [{pos_idx + 1}/{len(valid_positions)}] Clase={class_id} ({class_names.get(class_id, '')}) en ({cx},{cy}) tamaño={obj_w}×{obj_h}px")
+            print(f"    Prompt: {prompt[:60]}...")
+
+            result, external_bbox = run_inpaint(model_name, model, image, mask, prompt, class_id)
+
+            # Bbox: prioridad al bbox externo (Kontext diff), si no, del mask
+            if external_bbox:
+                xc, yc, bw, bh = external_bbox
+            else:
+                mask_np = np.array(mask)
+                ys, xs = np.where(mask_np > 127)
+                xc = ((xs.min() + xs.max()) / 2.0) / img_w
+                yc = ((ys.min() + ys.max()) / 2.0) / img_h
+                bw = (xs.max() - xs.min()) / img_w
+                bh = (ys.max() - ys.min()) / img_h
+
+            ann = f"{class_id} {xc:.6f} {yc:.6f} {bw:.6f} {bh:.6f}"
+            annotations.append(ann)
+
+            # Actualizar imagen para la siguiente instancia
+            image = result
+            image_np = np.array(image)
+
+            log_writer.writerow({
+                "image_out":    str(out_dir / f"{stem}_result.png"),
+                "source_image": img_path.name,
+                "class_id":     class_id,
+                "class_name":   class_names.get(class_id, ""),
+                "prompt":       prompt,
+                "model":        model_name,
+                "cx":           cx,
+                "cy":           cy,
+                "obj_w":        obj_w,
+                "obj_h":        obj_h,
+                "bbox_xc":      f"{xc:.6f}",
+                "bbox_yc":      f"{yc:.6f}",
+                "bbox_w":       f"{bw:.6f}",
+                "bbox_h":       f"{bh:.6f}",
+            })
+
+        image.save(out_dir / f"{stem}_result.png")
+        save_debug_image(image, annotations, out_dir / f"{stem}_debug.png")
         with open(out_dir / f"{stem}.txt", "w") as f:
-            f.write(ann)
+            f.write("\n".join(annotations))
 
-        log_writer.writerow({
-            "image_out":    str(out_dir / f"{stem}_result.png"),
-            "source_image": img_path.name,
-            "class_id":     TEST_CLASS_ID,
-            "class_name":   class_names.get(TEST_CLASS_ID, ""),
-            "prompt":       prompt,
-            "model":        model_name,
-            "cx":           cx,
-            "cy":           cy,
-            "obj_w":        obj_w,
-            "obj_h":        obj_h,
-            "bbox_xc":      f"{xc:.6f}",
-            "bbox_yc":      f"{yc:.6f}",
-            "bbox_w":       f"{bw:.6f}",
-            "bbox_h":       f"{bh:.6f}",
-        })
-
-        print(f"    ✓ Guardado en {out_dir / stem}_result.png")
+        print(f"    ✓ Guardado en {out_dir / stem}_result.png ({len(annotations)} objetos)")
 
     log_file.close()
     print(f"\n  ✓ Modelo {model_name} completado. Log: {log_path}")
@@ -303,6 +341,12 @@ def main():
         default=5,
         help="Número máximo de imágenes a procesar por modelo",
     )
+    parser.add_argument(
+        "--num-instances",
+        type=int,
+        default=1,
+        help="Número de instancias (objetos) a insertar por imagen (default: 1)",
+    )
     args = parser.parse_args()
 
     prompts_by_class = load_prompts(PROMPTS_CSV)
@@ -322,7 +366,7 @@ def main():
     models_to_test = MODELS if args.model == "all" else [args.model]
 
     for model_name in models_to_test:
-        test_model(model_name, image_paths, prompts_by_class, class_names)
+        test_model(model_name, image_paths, prompts_by_class, class_names, num_instances=args.num_instances)
 
     print(f"\n{'═' * 60}")
     print(f"Tests completados. Resultados en {OUTPUT_DIR}/")

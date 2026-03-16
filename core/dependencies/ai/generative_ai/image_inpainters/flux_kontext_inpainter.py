@@ -120,7 +120,7 @@ class FluxKontextInpainter(BaseModel):
         mask: Image.Image,          # Se usa solo para extraer cx, cy, w, h del objeto
         prompt: str,
         num_inference_steps: int = 28,
-        guidance_scale: float = 3.0,
+        guidance_scale: float = 3.5,
     ) -> Image.Image:
         """
         Edita la imagen añadiendo el objeto.

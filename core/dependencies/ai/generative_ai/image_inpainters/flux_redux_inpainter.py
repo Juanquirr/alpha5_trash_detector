@@ -101,7 +101,7 @@ class FluxReduxInpainter(BaseModel):
         mask: Image.Image,
         prompt: str,
         num_inference_steps: int = 50,
-        guidance_scale: float = 30.0,
+        guidance_scale: float = 7.0,
         class_id: int | None = None,
     ) -> Image.Image:
         reference = self._find_reference(class_id) if class_id is not None else None

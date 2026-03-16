@@ -76,8 +76,8 @@ class FluxCannyInpainter(BaseModel):
         image: Image.Image,
         mask: Image.Image,
         prompt: str,
-        num_inference_steps: int = 28,
-        guidance_scale: float = 30.0,
+        num_inference_steps: int = 50,
+        guidance_scale: float = 7.0,
     ) -> Image.Image:
         control_image = self._make_canny_control(image, mask)
 
