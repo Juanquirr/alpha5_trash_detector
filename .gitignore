@@ -3,7 +3,7 @@
 *.JPG
 *.png
 *.txt
-alpha5_*/
+alpha5_*
 *.pt
 *.pth
 *.yaml
