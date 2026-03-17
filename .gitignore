@@ -196,8 +196,8 @@ models
 models/*
 runs
 runs/*
-*.png
-
+*.jpg
+*.jpegº
 *.zip
 *.png
 *.txt
