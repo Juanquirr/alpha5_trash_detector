@@ -64,25 +64,25 @@
   # Dentro del contenedor Docker
 
   # 1. Test rápido de water detection (sin GPU, solo CPU)
-  python -c "
-  import cv2, numpy as np
-  from PIL import Image
-  from core.water_detector import create_water_mask, find_water_positions
+python -c "
+import cv2, numpy as np
+from PIL import Image
+from core.water_detector import create_water_mask, find_water_positions
 
-  SIZES = {0:(50,100,25,50), 1:(50,100,25,50), 2:(40,70,35,65), 3:(80,150,60,120),
+SIZES = {0:(50,100,25,50), 1:(50,100,25,50), 2:(40,70,35,65), 3:(80,150,60,120),
            4:(50,100,40,80), 5:(60,110,40,80), 6:(120,200,90,160), 7:(40,80,30,60)}
 
-  import glob
-  for p in sorted(glob.glob('inputs/*.jpeg') + glob.glob('inputs/*.jpg'))[:10]:
-      img = Image.open(p).convert('RGB')
-      w,h = img.size; s = min(1024/max(w,h),1.0)
-      img = img.resize((max(16,round(w*s/16)*16), max(16,round(h*s/16)*16)), Image.LANCZOS)
-      mask = create_water_mask(np.array(img))
-      pos = find_water_positions(mask, 3, SIZES)
-      print(f'{p.split(\"/\")[-1][:45]:45s} water={mask.mean()/255:.0%}  positions={len(pos)}')
-      # Save water mask for visual inspection
-      Image.fromarray(mask).save(f'outputs_test/{p.split(\"/\")[-1]}_water.png')
-  "
+import glob
+for p in sorted(glob.glob('inputs/*.jpeg') + glob.glob('inputs/*.jpg'))[:10]:
+    img = Image.open(p).convert('RGB')
+    w,h = img.size; s = min(1024/max(w,h),1.0)
+    img = img.resize((max(16,round(w*s/16)*16), max(16,round(h*s/16)*16)), Image.LANCZOS)
+    mask = create_water_mask(np.array(img))
+    pos = find_water_positions(mask, 3, SIZES)
+    print(f'{p.split(\"/\")[-1][:45]:45s} water={mask.mean()/255:.0%}  positions={len(pos)}')
+    # Save water mask for visual inspection
+    Image.fromarray(mask).save(f'outputs_test/{p.split(\"/\")[-1]}_water.png')
+"
 
   # 2. Test un modelo con crop (usa GPU)
   python run_test_models.py --model canny --max-images 3 --num-instances 2

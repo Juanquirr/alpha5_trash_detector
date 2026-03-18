@@ -186,8 +186,10 @@ env/
 *~
 
 # Git ignore for output folders
-output/
+outputs_*/*
 results/
+
+.claude/
 
 # Ignore hidden files
 .*.swp
