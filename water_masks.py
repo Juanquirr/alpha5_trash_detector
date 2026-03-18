@@ -3,15 +3,15 @@ import glob
 import os
 from datetime import datetime
 
-import cv2
 import numpy as np
 from PIL import Image
+from tqdm import tqdm
 
 METHODS = {
-    "hsv":   "core.water_detector",
-    "otsu":  "core.water_detector_otsu",
+    "hsv":    "core.water_detector",
+    "otsu":   "core.water_detector_otsu",
     "kmeans": "core.water_detector_kmeans",
-    "flood": "core.water_detector_flood",
+    "flood":  "core.water_detector_flood",
 }
 
 parser = argparse.ArgumentParser(description="Generate water masks using different detection methods.")
@@ -22,12 +22,10 @@ parser.add_argument(
 parser.add_argument("--limit", type=int, default=10, help="Max images to process (default: 10)")
 args = parser.parse_args()
 
-# Dynamic import of the selected method
 import importlib
 module = importlib.import_module(METHODS[args.method])
 create_water_mask = module.create_water_mask
 
-# Output folder: method + timestamp
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 out_dir = f"water_masks_{args.method}_{timestamp}"
 os.makedirs(out_dir, exist_ok=True)
@@ -35,10 +33,12 @@ os.makedirs(out_dir, exist_ok=True)
 images = sorted(glob.glob("inputs/*.jpeg") + glob.glob("inputs/*.jpg"))[:args.limit]
 print(f"Method: {args.method} | Output: {out_dir} | Images: {len(images)}")
 
-for p in images:
-    img = np.array(Image.open(p).convert("RGB"))
-    mask = create_water_mask(img)
-    pct = mask.mean() / 255
-    name = os.path.basename(p)
-    print(f"{name[:50]:50s} water={pct:.0%}")
-    Image.fromarray(mask).save(os.path.join(out_dir, f"{name}_water.png"))
+with tqdm(total=len(images), desc="Water masks", unit="img", position=0, leave=True) as pbar:
+    for p in images:
+        img = np.array(Image.open(p).convert("RGB"))
+        mask = create_water_mask(img)
+        pct = mask.mean() / 255
+        name = os.path.basename(p)
+        Image.fromarray(mask).save(os.path.join(out_dir, f"{name}_water.png"))
+        pbar.set_postfix({"last": name[:30], "water": f"{pct:.0%}"})
+        pbar.update(1)
