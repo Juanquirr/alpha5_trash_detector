@@ -1,20 +1,13 @@
 """
 Robust water region detection for oblique coastal/harbor images.
 
-Designed for webcam-style shots of harbors, marinas, and coastlines viewed
-from elevated positions. Handles various water colors including:
-- Turquoise/teal (clear harbor water)
-- Deep blue (open ocean)
-- Gray-blue (overcast/hazy conditions)
-- Desaturated gray-blue (rough sea or flat light)
-
-Key design decisions:
-- Uses ONLY vertical edges to exclude structures (masts, buildings).
-  Horizontal edges (wave crests) are intentionally preserved.
-- No local variance filter: wave surface naturally has higher variance than
-  what a structure-detection filter would expect.
-- Adaptive saturation threshold based on global image saturation.
-- Horizon detection to determine the sky exclusion zone dynamically.
+Design principles (lessons learned):
+- NO full Canny edge exclusion: wave crests create edges that kill the ocean.
+- NO local variance filter: waves naturally have high brightness variance.
+- NO unreliable horizon detection: horizon-based cutoff is too fragile.
+- YES: permissive HSV + RGB blue-dominance for desaturated water.
+- YES: position-aware brightness threshold to separate sky from water.
+- YES: simple morphological cleanup.
 """
 
 import cv2
@@ -22,37 +15,6 @@ import math
 import random
 
 import numpy as np
-
-
-def _find_horizon_row(gray: np.ndarray) -> int:
-    """
-    Estimate the horizon row as the location with the strongest horizontal
-    edge energy in the middle portion of the image.
-
-    Works by finding the row with maximum summed absolute vertical gradient
-    (Sobel Y), which corresponds to a strong sky-to-sea transition.
-
-    Args:
-        gray: Grayscale image (H, W), uint8.
-
-    Returns:
-        Row index of the estimated horizon.
-    """
-    img_h = gray.shape[0]
-    blurred = cv2.GaussianBlur(gray, (11, 11), 0)
-    sobel_y = np.abs(cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=5))
-    row_energy = sobel_y.sum(axis=1)
-
-    # Smooth with a box filter to reduce noise
-    k = max(3, img_h // 20)
-    row_energy = np.convolve(row_energy, np.ones(k) / k, mode="same")
-
-    # Horizon should be between 15% and 70% from the top
-    search_top = int(img_h * 0.15)
-    search_bot = int(img_h * 0.70)
-
-    best = search_top + int(np.argmax(row_energy[search_top:search_bot]))
-    return best
 
 
 def create_water_mask(
@@ -63,12 +25,12 @@ def create_water_mask(
     Create a binary mask identifying water regions in a coastal image.
 
     Pipeline:
-    1. Detect horizon to bound the sky exclusion zone.
-    2. Permissive HSV color filter for water pixels.
-    3. Exclude sky zone (above horizon).
-    4. Exclude warm/saturated non-water pixels (land, buildings).
-    5. Exclude VERTICAL edges only (structures, masts) — waves are horizontal.
-    6. Morphological cleanup + small region removal.
+    1. HSV color filter (broad blue-teal range) + RGB blue-dominance for gray water.
+    2. Hard sky exclusion (top 10%).
+    3. Sliding brightness threshold for the 10%-50% band
+       (sky is bright + high; water is darker or lower in the image).
+    4. Exclude warm-colored pixels (land, buildings).
+    5. Morphological cleanup + small region removal.
 
     Args:
         image_np: RGB image as numpy array, shape (H, W, 3).
@@ -78,76 +40,63 @@ def create_water_mask(
         Binary mask (H, W), uint8: 255 = water, 0 = non-water.
     """
     img_h, img_w = image_np.shape[:2]
-    gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
     hsv = cv2.cvtColor(image_np, cv2.COLOR_RGB2HSV)
-    h_ch = hsv[:, :, 0]  # Hue    0-180 (OpenCV)
-    s_ch = hsv[:, :, 1]  # Sat    0-255
-    v_ch = hsv[:, :, 2]  # Value  0-255
+    h_ch = hsv[:, :, 0]  # 0-180
+    s_ch = hsv[:, :, 1]  # 0-255
+    v_ch = hsv[:, :, 2]  # 0-255
 
-    # Determine if image is globally desaturated (overcast, hazy, dawn/dusk)
-    global_sat = float(s_ch.mean())
-    is_overcast = global_sat < 28
+    # ── 1. Color-based water detection ─────────────────────────────────
 
-    # ── 1. Horizon detection ──────────────────────────────────────────────
-    horizon_row = _find_horizon_row(gray)
-    # Sky cutoff = horizon minus a small safety margin
-    sky_cutoff = max(int(img_h * 0.12), horizon_row - 15)
-
-    # ── 2. Color-based water candidates (permissive) ──────────────────────
-    # Water hue: teal/blue range (H 70-150 in OpenCV 0-180 scale)
-    # In overcast conditions lower the saturation requirement significantly
-    sat_min = 3 if is_overcast else 8
-
-    water = (
-        (h_ch >= 65) & (h_ch <= 155)       # Blue-green-teal hue
-        & (s_ch >= sat_min)                 # Minimal saturation
-        & (v_ch >= 12) & (v_ch <= 242)      # Not pure black or blown-out
-    ).astype(np.uint8) * 255
-
-    # ── 3. Sky exclusion ─────────────────────────────────────────────────
-    water[:sky_cutoff, :] = 0
-
-    # ── 4. Warm/saturated non-water exclusion ────────────────────────────
-    # Orange, red, yellow, brown pixels = land, buildings, boat hulls
-    warm_sat_threshold = 15 if is_overcast else 25
-    warm_excl = (
-        ((h_ch < 30) | (h_ch > 155))       # Hue outside water range
-        & (s_ch > warm_sat_threshold)       # Saturated enough to be non-water
+    # A) HSV: water in the blue-teal hue range with some saturation
+    hsv_water = (
+        (h_ch >= 55) & (h_ch <= 165)  # Teal through blue to blue-violet
+        & (s_ch >= 5)                  # Very low saturation OK
+        & (v_ch >= 10) & (v_ch <= 245)
     )
+
+    # B) RGB blue-dominance: catches desaturated gray-blue water where
+    #    HSV hue becomes unreliable (S < 15 → hue is nearly arbitrary)
+    r = image_np[:, :, 0].astype(np.float32)
+    g = image_np[:, :, 1].astype(np.float32)
+    b = image_np[:, :, 2].astype(np.float32)
+    blue_gray_water = (
+        (s_ch < 15)                    # Very desaturated
+        & (b >= r - 5)                 # Blue >= red (small tolerance)
+        & (b >= g - 10)                # Blue ~>= green
+        & (v_ch >= 30) & (v_ch <= 200) # Moderate brightness
+    )
+
+    water = (hsv_water | blue_gray_water).astype(np.uint8) * 255
+
+    # ── 2. Sky rejection ──────────────────────────────────────────────
+
+    # Hard-exclude top 10% (timestamp overlays, definite sky)
+    water[: int(img_h * 0.10), :] = 0
+
+    # Sliding brightness threshold for the 10%-50% band.
+    # Rationale: sky is bright AND high in the image; water is darker.
+    # - At 10% from top → exclude pixels brighter than 140
+    # - At 50% from top → exclude pixels brighter than 220
+    # - Below 50% → no brightness-based exclusion (not sky)
+    row_idx = np.arange(img_h, dtype=np.float32).reshape(-1, 1)
+    t = np.clip((row_idx / img_h - 0.10) / 0.40, 0.0, 1.0)
+    brightness_ceil = 140.0 + t * 80.0  # 140 → 220
+
+    in_sky_band = row_idx < (img_h * 0.50)
+    too_bright = v_ch.astype(np.float32) > brightness_ceil
+    water[in_sky_band & too_bright] = 0
+
+    # ── 3. Warm-color exclusion (land, buildings, sunset reflections) ─
+    warm_excl = ((h_ch < 30) | (h_ch > 160)) & (s_ch > 20)
     water[warm_excl] = 0
 
-    # Very bright non-blue pixels = overexposed sky, white foam (keep if strongly blue)
-    bright_excl = (v_ch > 215) & ~(
-        (h_ch >= 90) & (h_ch <= 140) & (s_ch > 20)
-    )
-    water[bright_excl] = 0
-
-    # ── 5. Vertical edge exclusion (structures only, NOT waves) ──────────
-    # Wave crests = horizontal edges (large Sobel Y, small Sobel X)
-    # Masts/buildings = vertical edges (large Sobel X, small Sobel Y)
-    # We only exclude vertical-dominant edges to preserve wave-covered ocean.
-    gray_f = gray.astype(np.float32)
-    sobel_x = np.abs(cv2.Sobel(gray_f, cv2.CV_32F, 1, 0, ksize=5))
-    sobel_y = np.abs(cv2.Sobel(gray_f, cv2.CV_32F, 0, 1, ksize=5))
-
-    # A pixel is a "vertical structure edge" when its X-gradient dominates
-    vertical_structure = (
-        (sobel_x > 25) & (sobel_x > sobel_y * 1.5)
-    ).astype(np.uint8) * 255
-
-    v_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (18, 18))
-    v_exclusion = cv2.dilate(vertical_structure, v_kernel, iterations=2)
-    water[v_exclusion > 0] = 0
-
-    # ── 6. Morphological cleanup ─────────────────────────────────────────
-    # Close: fill small holes (e.g., boat wakes between water pixels)
-    # Open:  remove thin noise filaments
-    kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (27, 27))
-    kernel_open = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
+    # ── 4. Morphological cleanup ──────────────────────────────────────
+    kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (25, 25))
+    kernel_open = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
     water = cv2.morphologyEx(water, cv2.MORPH_CLOSE, kernel_close)
     water = cv2.morphologyEx(water, cv2.MORPH_OPEN, kernel_open)
 
-    # ── 7. Remove small isolated regions (noise) ─────────────────────────
+    # ── 5. Remove small isolated regions (noise) ─────────────────────
     min_area = int(img_h * img_w * min_region_ratio)
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(water)
     for i in range(1, num_labels):
@@ -204,11 +153,9 @@ def find_water_positions(
         if len(positions) >= n_positions:
             break
 
-        # Pick a random water pixel
         idx = random.randint(0, len(water_pixels) - 1)
         cy, cx = int(water_pixels[idx, 0]), int(water_pixels[idx, 1])
 
-        # Check minimum distance from existing positions
         too_close = any(
             math.hypot(cx - px, cy - py) < min_dist
             for px, py, *_ in positions
@@ -216,15 +163,13 @@ def find_water_positions(
         if too_close:
             continue
 
-        # Random class and size
         class_id = random.choice(class_ids)
         min_w, max_w, min_h, max_h = object_sizes[class_id]
         obj_w = random.randint(min_w, max_w)
         obj_h = random.randint(min_h, max_h)
         if random.random() < 0.3:
-            obj_w, obj_h = obj_h, obj_w  # Occasional 90-degree rotation
+            obj_w, obj_h = obj_h, obj_w
 
-        # Verify entire object footprint is within water
         oy0 = max(0, cy - obj_h // 2)
         oy1 = min(h, cy + obj_h // 2)
         ox0 = max(0, cx - obj_w // 2)
@@ -233,7 +178,7 @@ def find_water_positions(
             continue
 
         region = water_mask[oy0:oy1, ox0:ox1]
-        if region.mean() / 255.0 >= 0.85:  # At least 85% water coverage
+        if region.mean() / 255.0 >= 0.85:
             positions.append((cx, cy, class_id, obj_w, obj_h))
 
     return positions
@@ -248,15 +193,11 @@ def is_water_region(
     margin: int = 30,
 ) -> bool:
     """
-    Check whether a rectangular region around (cx, cy) is water.
-
-    Legacy point-check function kept for backwards compatibility.
+    Legacy point-check: is the region around (cx, cy) water?
     For batch operations, prefer create_water_mask() + find_water_positions().
     """
     img_h, img_w = image_np.shape[:2]
-
-    # Reject upper 20% of image (sky in oblique views)
-    if cy < img_h * 0.20:
+    if cy < img_h * 0.15:
         return False
 
     x0 = cx - half_w - margin
@@ -269,24 +210,15 @@ def is_water_region(
 
     crop = image_np[y0:y1, x0:x1]
     hsv = cv2.cvtColor(crop, cv2.COLOR_RGB2HSV)
-    gray = cv2.cvtColor(crop, cv2.COLOR_RGB2GRAY)
-
     avg_h = hsv[:, :, 0].mean()
     avg_s = hsv[:, :, 1].mean()
     avg_v = hsv[:, :, 2].mean()
 
-    gray_f = gray.astype(np.float32)
-    sx = np.abs(cv2.Sobel(gray_f, cv2.CV_32F, 1, 0, ksize=5))
-    sy = np.abs(cv2.Sobel(gray_f, cv2.CV_32F, 0, 1, ksize=5))
-    # Vertical edge dominance = structure, not water
-    vert_ratio = float(sx.mean()) / (float(sy.mean()) + 1e-6)
+    b_crop = crop[:, :, 2].astype(float)
+    r_crop = crop[:, :, 0].astype(float)
+    blue_dominant = b_crop.mean() >= r_crop.mean() - 5
 
-    global_sat = float(image_np[:, :, 1].mean())  # rough proxy
-    sat_min = 3 if global_sat < 28 else 8
-
-    return all([
-        65 <= avg_h <= 155,     # Blue-green-teal hue
-        avg_s >= sat_min,       # Minimal saturation
-        12 < avg_v < 242,       # Moderate brightness
-        vert_ratio < 1.5,       # Not dominated by vertical structure edges
-    ])
+    return (
+        ((55 <= avg_h <= 165 and avg_s >= 5) or (avg_s < 15 and blue_dominant))
+        and 10 < avg_v < 245
+    )
