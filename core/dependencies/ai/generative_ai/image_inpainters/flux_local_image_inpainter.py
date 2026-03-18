@@ -1,3 +1,11 @@
+"""
+FLUX Fill local inpainter.
+
+Uses FluxFillPipeline for text-conditioned mask-based inpainting.
+This is the baseline model that takes an image, a mask, and a text prompt
+to generate the object in the masked region.
+"""
+
 from diffusers import FluxFillPipeline
 from PIL import Image
 from pydantic import BaseModel
@@ -6,7 +14,7 @@ from core.dependencies.ai.generative_ai.image_inpainters.image_inpainter import 
 
 
 class FluxLocalImageInpainter(ImageInpainter, BaseModel):
-    """FLUX Fill local inpainter con parámetros oficiales del modelo."""
+    """FLUX Fill local inpainter with official model parameters."""
 
     model_config = {"arbitrary_types_allowed": True}
     _pipe: FluxFillPipeline = None

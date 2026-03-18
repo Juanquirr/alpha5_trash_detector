@@ -1,13 +1,14 @@
 """
-FLUX Canny inpainter para Alpha5.
+FLUX Canny inpainter.
 
-Estrategia:
-1. Extrae mapa de bordes Canny de la imagen completa.
-2. Borra los bordes en la región de la máscara (deja que el modelo "invente" el objeto).
-3. Genera con FluxControlPipeline (FLUX.1-Canny-dev).
-4. Compuesta: pega el resultado solo en la zona enmascarada sobre la imagen original.
+Strategy:
+1. Extract Canny edge map from the full image.
+2. Erase edges in the mask region (let the model freely generate the object).
+3. Generate with FluxControlPipeline (FLUX.1-Canny-dev).
+4. Composite: paste the generated result only in the masked area over the original.
 
-Ventaja: el modelo respeta la estructura del fondo (agua, orillas) al generar el objeto.
+Advantage: the model respects the background structure (water, shorelines)
+when generating the object.
 """
 
 import cv2
@@ -19,7 +20,7 @@ from diffusers import FluxControlPipeline
 
 
 class FluxCannyInpainter(BaseModel):
-    """Inpainting aproximado vía FLUX Canny con compositing."""
+    """Approximate inpainting via FLUX Canny with compositing."""
 
     model_config = {"arbitrary_types_allowed": True}
     _pipe: FluxControlPipeline = None
@@ -41,12 +42,12 @@ class FluxCannyInpainter(BaseModel):
         low_threshold: int = 100,
         high_threshold: int = 200,
     ) -> Image.Image:
-        """Mapa Canny de la imagen con la región de máscara borrada."""
+        """Canny edge map of the image with the mask region erased."""
         img_np = np.array(image.convert("RGB"))
         gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
         edges = cv2.Canny(gray, low_threshold, high_threshold)
 
-        # Borrar bordes en la zona a rellenar para que el modelo genere libremente
+        # Erase edges in the fill region so the model generates freely there
         mask_np = np.array(mask.convert("L"))
         edges[mask_np > 127] = 0
 
@@ -59,16 +60,25 @@ class FluxCannyInpainter(BaseModel):
         generated: Image.Image,
         mask: Image.Image,
     ) -> Image.Image:
-        """Combina generated (zona máscara) + original (resto)."""
+        """Blend generated (mask area) + original (rest)."""
         orig_np = np.array(original).astype(float)
-        gen_np = np.array(generated.resize(original.size, Image.LANCZOS)).astype(float)
-        alpha = np.array(mask.convert("L").resize(original.size, Image.LANCZOS)).astype(float) / 255.0
+        gen_np = np.array(
+            generated.resize(original.size, Image.LANCZOS)
+        ).astype(float)
+        alpha = (
+            np.array(
+                mask.convert("L").resize(original.size, Image.LANCZOS)
+            ).astype(float)
+            / 255.0
+        )
         alpha = alpha[:, :, np.newaxis]  # (H, W, 1)
-        result = (gen_np * alpha + orig_np * (1.0 - alpha)).clip(0, 255).astype(np.uint8)
+        result = (gen_np * alpha + orig_np * (1.0 - alpha)).clip(0, 255).astype(
+            np.uint8
+        )
         return Image.fromarray(result)
 
     # ------------------------------------------------------------------
-    # Interfaz pública
+    # Public interface
     # ------------------------------------------------------------------
 
     def inpaint(
@@ -81,7 +91,7 @@ class FluxCannyInpainter(BaseModel):
     ) -> Image.Image:
         control_image = self._make_canny_control(image, mask)
 
-        # FLUX Canny genera la imagen completa condicionada en bordes
+        # FLUX Canny generates the full image conditioned on edges
         generated = self._pipe(
             prompt=prompt,
             control_image=control_image,
@@ -91,5 +101,5 @@ class FluxCannyInpainter(BaseModel):
             guidance_scale=guidance_scale,
         ).images[0]
 
-        # Pegar solo la región de máscara sobre el original
+        # Paste only the mask region over the original
         return self._composite(image, generated, mask)

@@ -1,17 +1,18 @@
 """
-FLUX Kontext inpainter para Alpha5.
+FLUX Kontext inpainter.
 
-Estrategia:
-  FLUX Kontext edita imágenes directamente vía instrucción de texto, sin máscara.
-  Para dar control posicional se dibuja un marcador visual (elipse cian brillante)
-  en la posición objetivo y se pide al modelo que lo reemplace con el objeto.
+Strategy:
+  FLUX Kontext edits images directly via text instructions, without an
+  explicit mask. To provide positional control, a bright cyan ellipse marker
+  is drawn at the target location and the model is instructed to replace it
+  with the desired object.
 
-  Bbox para YOLO: diferencia de píxeles entre la imagen modificada y la original
-  (sin marcador) → región que cambió = bounding box del objeto insertado.
+  Bounding box for YOLO: computed from the pixel difference between the
+  original and modified images. The largest changed region = object bbox.
 
-Parámetros:
-  guidance_scale recomendado para Kontext: 2.5–4.0
-  num_inference_steps: 28 es suficiente
+Parameters:
+  guidance_scale recommended for Kontext: 2.5-4.0
+  num_inference_steps: 28 is sufficient
 """
 
 import cv2
@@ -22,15 +23,15 @@ import torch
 from diffusers import FluxKontextPipeline
 
 
-_MARKER_COLOR = (0, 255, 220)   # Cian brillante, fácilmente distinguible
-_MARKER_ALPHA = 200             # Semi-transparente sobre el fondo
+_MARKER_COLOR = (0, 255, 220)   # Bright cyan, easily distinguishable
+_MARKER_ALPHA = 200             # Semi-transparent over the background
 
 
 class FluxKontextInpainter(BaseModel):
-    """Edición in-context con FLUX Kontext. No necesita máscara explícita."""
+    """In-context editing with FLUX Kontext. No explicit mask needed."""
 
     model_config = {"arbitrary_types_allowed": True}
-    diff_threshold: int = 25    # Umbral de diferencia para detectar cambios
+    diff_threshold: int = 25    # Pixel difference threshold for change detection
 
     _pipe: FluxKontextPipeline = None
 
@@ -52,7 +53,7 @@ class FluxKontextInpainter(BaseModel):
         obj_w: int,
         obj_h: int,
     ) -> Image.Image:
-        """Dibuja una elipse cian en la posición objetivo."""
+        """Draw a cyan ellipse marker at the target position."""
         overlay = image.copy().convert("RGBA")
         draw = ImageDraw.Draw(overlay, "RGBA")
         draw.ellipse(
@@ -65,10 +66,11 @@ class FluxKontextInpainter(BaseModel):
         return overlay.convert("RGB")
 
     def _build_editing_prompt(self, prompt: str) -> str:
-        """Convierte un prompt descriptivo en instrucción de edición para Kontext."""
-        # Quita descripciones de perspectiva que Kontext no necesita y añade la instrucción
+        """Convert a descriptive prompt into a Kontext editing instruction."""
         editing_prompt = (
             f"Replace the bright cyan ellipse marker with {prompt.lower().rstrip('.')}. "
+            "The object should look naturally placed on the water surface, matching "
+            "the lighting and perspective of the surrounding scene. "
             "Keep the rest of the image exactly as it is."
         )
         return editing_prompt
@@ -78,18 +80,18 @@ class FluxKontextInpainter(BaseModel):
         original: np.ndarray,
         modified: np.ndarray,
     ) -> tuple | None:
-        """Calcula bbox YOLO del área que cambió entre original y modificado."""
+        """Compute YOLO bbox of the area that changed between original and modified."""
         diff = np.abs(original.astype(int) - modified.astype(int)).astype(np.uint8)
         diff_gray = diff.mean(axis=2)
 
         changed = (diff_gray > self.diff_threshold).astype(np.uint8)
 
-        # Operaciones morfológicas para limpiar ruido y conectar región principal
+        # Morphological cleanup to connect nearby changes and remove noise
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
         changed = cv2.morphologyEx(changed, cv2.MORPH_CLOSE, kernel)
         changed = cv2.morphologyEx(changed, cv2.MORPH_OPEN, kernel)
 
-        # Quedarse con el componente conectado más grande
+        # Keep only the largest connected component
         num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(changed)
         if num_labels <= 1:
             return None
@@ -106,29 +108,30 @@ class FluxKontextInpainter(BaseModel):
 
         x_c = (x_min + x_max) / 2.0 / w
         y_c = (y_min + y_max) / 2.0 / h
-        bw  = (x_max - x_min) / w
-        bh  = (y_max - y_min) / h
+        bw = (x_max - x_min) / w
+        bh = (y_max - y_min) / h
         return x_c, y_c, bw, bh
 
     # ------------------------------------------------------------------
-    # Interfaz pública
+    # Public interface
     # ------------------------------------------------------------------
 
     def inpaint(
         self,
         image: Image.Image,
-        mask: Image.Image,          # Se usa solo para extraer cx, cy, w, h del objeto
+        mask: Image.Image,          # Used only to extract cx, cy, w, h
         prompt: str,
         num_inference_steps: int = 28,
         guidance_scale: float = 3.5,
     ) -> Image.Image:
         """
-        Edita la imagen añadiendo el objeto.
-        La máscara se usa para calcular la posición/tamaño del marcador visual.
-        Devuelve (imagen_editada).
-        Para obtener la bbox usa compute_bbox() después.
+        Edit the image by adding the object at the marker position.
+
+        The mask is used to compute the position/size for the visual marker.
+        Returns the edited image.
+        Call compute_bbox() afterwards to obtain the bounding box.
         """
-        # Extraer centro y tamaño de la máscara
+        # Extract center and size from the mask
         mask_np = np.array(mask.convert("L"))
         ys, xs = np.where(mask_np > 127)
         if len(xs) == 0:
@@ -139,7 +142,7 @@ class FluxKontextInpainter(BaseModel):
         obj_w = int(xs.max() - xs.min())
         obj_h = int(ys.max() - ys.min())
 
-        # Dibujar marcador en la imagen
+        # Draw marker and build editing instruction
         marked_image = self._draw_marker(image, cx, cy, obj_w, obj_h)
         editing_prompt = self._build_editing_prompt(prompt)
 
@@ -160,8 +163,8 @@ class FluxKontextInpainter(BaseModel):
         modified: Image.Image,
     ) -> tuple | None:
         """
-        Calcula la bbox YOLO del objeto insertado a partir de la diferencia.
-        Llamar después de inpaint().
+        Compute the YOLO bbox of the inserted object from pixel differences.
+        Call after inpaint().
         """
         return self._compute_bbox_from_diff(
             np.array(original),

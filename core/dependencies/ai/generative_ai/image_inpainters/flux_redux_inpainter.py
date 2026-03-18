@@ -1,50 +1,51 @@
 """
-FLUX Redux + Fill inpainter para Alpha5.
+FLUX Redux + Fill inpainter.
 
-Estrategia (la más potente de las tres):
-  FluxPriorReduxPipeline convierte una imagen de referencia de basura real
-  en embeddings (prompt_embeds + pooled_prompt_embeds) en el mismo espacio
-  que usa FluxFillPipeline. Esos embeddings reemplazan el texto como
-  condicionamiento → inpainting guiado por apariencia de basura real.
+Strategy (most powerful of the three):
+  FluxPriorReduxPipeline converts a real reference image of trash
+  into embeddings (prompt_embeds + pooled_prompt_embeds) in the same space
+  used by FluxFillPipeline. These embeddings replace text as conditioning,
+  resulting in appearance-guided inpainting from real trash images.
 
-Estructura de referencias esperada:
-  references/
-    plastic bottle/  (o cualquier nombre que contenga la clase)
-      foto1.jpg
-      foto2.jpg
+Expected reference structure:
+  inputs/references/
+    plastic_bottle/
+      photo1.jpg
+      photo2.jpg
     can/
       ...
 
-Si no hay referencias para una clase, se cae a texto puro con FluxFill normal.
+If no references exist for a class, falls back to text-only FluxFill.
 """
 
 import random
 from pathlib import Path
 
-import numpy as np
 import torch
 from PIL import Image
 from pydantic import BaseModel
 from diffusers import FluxFillPipeline, FluxPriorReduxPipeline
 
 
-_CLASS_NAMES = {
-    0: "plastic bottle",
-    1: "glass bottle",
+# Explicit mapping from class_id to reference folder name.
+# This avoids fuzzy matching issues (space vs underscore, partial matches).
+_CLASS_FOLDER_MAP = {
+    0: "plastic_bottle",
+    1: "glass",
     2: "can",
-    3: "plastic bag",
-    4: "metal scrap",
-    5: "plastic wrapper",
-    6: "trash pile",
+    3: "plastic_bag",
+    4: "metal_scrap",
+    5: "plastic_wrapper",
+    6: "trash_pile",
     7: "trash",
 }
 
 
 class FluxReduxInpainter(BaseModel):
-    """Inpainting con guía visual de imágenes de referencia (Redux + Fill)."""
+    """Inpainting with visual guidance from reference images (Redux + Fill)."""
 
     model_config = {"arbitrary_types_allowed": True}
-    references_dir: str = "references"
+    references_dir: str = "inputs/references"
 
     _redux_pipe: FluxPriorReduxPipeline = None
     _fill_pipe: FluxFillPipeline = None
@@ -65,20 +66,20 @@ class FluxReduxInpainter(BaseModel):
     # ------------------------------------------------------------------
 
     def _find_reference(self, class_id: int) -> Image.Image | None:
-        """Busca una imagen de referencia aleatoria para la clase dada."""
-        class_name = _CLASS_NAMES.get(class_id, "trash")
-        ref_root = Path(self.references_dir)
-        if not ref_root.exists():
+        """Find a random reference image for the given class."""
+        folder_name = _CLASS_FOLDER_MAP.get(class_id)
+        if folder_name is None:
             return None
 
-        # Busca carpetas que contengan el nombre de la clase (case insensitive)
-        candidates: list[Path] = []
-        for folder in ref_root.iterdir():
-            if folder.is_dir() and class_name.lower() in folder.name.lower():
-                candidates.extend(
-                    p for p in folder.iterdir()
-                    if p.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")
-                )
+        ref_folder = Path(self.references_dir) / folder_name
+        if not ref_folder.exists() or not ref_folder.is_dir():
+            return None
+
+        candidates = [
+            p
+            for p in ref_folder.iterdir()
+            if p.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")
+        ]
 
         if not candidates:
             return None
@@ -87,12 +88,12 @@ class FluxReduxInpainter(BaseModel):
         return Image.open(chosen).convert("RGB")
 
     def _get_embeddings(self, reference: Image.Image):
-        """Extrae embeddings Redux de la imagen de referencia."""
+        """Extract Redux visual embeddings from the reference image."""
         prior_output = self._redux_pipe(reference)
         return prior_output.prompt_embeds, prior_output.pooled_prompt_embeds
 
     # ------------------------------------------------------------------
-    # Interfaz pública
+    # Public interface
     # ------------------------------------------------------------------
 
     def inpaint(
@@ -107,7 +108,7 @@ class FluxReduxInpainter(BaseModel):
         reference = self._find_reference(class_id) if class_id is not None else None
 
         if reference is not None:
-            print(f"    [Redux] Usando referencia visual para clase {class_id}")
+            print(f"    [Redux] Using visual reference for class {class_id}")
             prompt_embeds, pooled_prompt_embeds = self._get_embeddings(reference)
 
             return self._fill_pipe(
@@ -122,8 +123,8 @@ class FluxReduxInpainter(BaseModel):
                 max_sequence_length=512,
             ).images[0]
         else:
-            # Sin referencia: cae a Fill con texto puro
-            print(f"    [Redux] Sin referencia para clase {class_id}, usando texto")
+            # No reference available: fall back to text-based Fill
+            print(f"    [Redux] No reference for class {class_id}, using text prompt")
             return self._fill_pipe(
                 prompt=prompt,
                 image=image,
