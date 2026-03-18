@@ -189,7 +189,7 @@ env/
 outputs_*/*
 results/
 
-.claude/
+.claude/*.json
 
 # Ignore hidden files
 .*.swp
