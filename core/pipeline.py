@@ -23,7 +23,22 @@ from core.image_utils import (
     compute_crop_region, compute_yolo_bbox,
     create_mask, prepare_image, save_debug_image,
 )
-from core.water_detector import create_water_mask, find_water_positions
+from core.water_detector import find_water_positions
+import importlib
+
+_WATER_MODULES = {
+    "hsv":    "core.water_detector",
+    "otsu":   "core.water_detector_otsu",
+    "kmeans": "core.water_detector_kmeans",
+    "flood":  "core.water_detector_flood",
+    "sam":    "core.water_detector_sam",
+}
+
+def _get_water_detector(method: str):
+    module_name = _WATER_MODULES.get(method)
+    if module_name is None:
+        raise ValueError(f"Unknown water method '{method}'. Valid: {list(_WATER_MODULES)}")
+    return importlib.import_module(module_name).create_water_mask
 
 
 # ── Model factory ────────────────────────────────────────────────────────────
@@ -134,6 +149,7 @@ class ProcessConfig:
     min_objects: int = 2
     max_objects: int = 3
     log_fields: list = field(default_factory=list)
+    water_method: str = "hsv"             # hsv | otsu | kmeans | flood | sam
 
 
 def process_image(
@@ -164,6 +180,7 @@ def process_image(
     print(f"    {img_w}x{img_h}  (scale={scale:.3f})")
 
     # Water detection
+    create_water_mask = _get_water_detector(cfg.water_method)
     water_mask = create_water_mask(np.array(image))
     coverage = water_mask.mean() / 255.0
     print(f"    Water coverage: {coverage:.1%}")

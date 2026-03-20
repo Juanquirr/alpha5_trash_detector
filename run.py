@@ -90,6 +90,7 @@ def cmd_fill(args):
         use_crop=not args.no_crop,
         output_suffix="_synth",
         log_fields=_FILL_LOG_FIELDS,
+        water_method=args.water_method,
     )
 
     for i, img_path in enumerate(image_paths):
@@ -134,6 +135,7 @@ def cmd_test(args):
             use_crop=not args.no_crop,
             output_suffix="_result",
             log_fields=_TEST_LOG_FIELDS,
+            water_method=args.water_method,
         )
 
         for img_path in image_paths:
@@ -164,6 +166,9 @@ def main():
                         help="Objects per image (default: random 2–3)")
     p_fill.add_argument("--no-crop", action="store_true",
                         help="Use full-image inpainting instead of crop-based")
+    p_fill.add_argument("--water-method", default="hsv",
+                        choices=["hsv", "otsu", "kmeans", "flood", "sam"],
+                        help="Water detection method (default: hsv)")
 
     # ── test ──
     p_test = sub.add_parser("test", help="Compare models on a subset of images")
@@ -181,6 +186,9 @@ def main():
                         help="Use alphabetical order instead of random selection")
     p_test.add_argument("--no-crop", action="store_true",
                         help="Use full-image inpainting instead of crop-based")
+    p_test.add_argument("--water-method", default="hsv",
+                        choices=["hsv", "otsu", "kmeans", "flood", "sam"],
+                        help="Water detection method (default: hsv)")
 
     args = parser.parse_args()
 
