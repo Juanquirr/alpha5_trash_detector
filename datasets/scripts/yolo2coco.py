@@ -45,8 +45,11 @@ def convert_split(split_name, input_dir, output_dir, categories):
     for img_path in sorted(f for f in images_src.iterdir() if f.suffix.lower() in exts):
         shutil.copy2(img_path, images_dst / img_path.name)
 
-        with Image.open(img_path) as img:
-            img_w, img_h = img.size
+        try:
+            with Image.open(img_path) as img:
+                img_w, img_h = img.size
+        except Exception as e:
+            raise RuntimeError(f"Failed to open image '{img_path}': {e}") from e
 
         coco["images"].append({
             "id": image_id,
@@ -84,15 +87,23 @@ def convert_split(split_name, input_dir, output_dir, categories):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input",  "-i", required=True)
-    parser.add_argument("--output", "-o", default=None)
+    parser = argparse.ArgumentParser(
+        description="Convert a YOLO dataset to COCO format."
+    )
+    parser.add_argument("--input",  "-i", required=True,
+                        help="Path to the YOLO dataset root (must contain data.yaml and train/val/test splits).")
+    parser.add_argument("--output", "-o", default=None,
+                        help="Output directory. Defaults to <input>_coco next to the input folder.")
     args = parser.parse_args()
 
     input_dir  = Path(args.input).resolve()
     output_dir = Path(args.output).resolve() if args.output else input_dir.parent / (input_dir.name + "_coco")
 
-    with open(input_dir / "data.yaml") as f:
+    yaml_path = input_dir / "data.yaml"
+    if not yaml_path.exists():
+        raise SystemExit(f"data.yaml not found in '{input_dir}'. Make sure --input points to a YOLO dataset root.")
+
+    with open(yaml_path) as f:
         data_yaml = yaml.safe_load(f)
 
     names = data_yaml.get("names", [])
