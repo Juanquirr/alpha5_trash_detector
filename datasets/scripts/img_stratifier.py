@@ -1,6 +1,7 @@
 import os
 import random
 import shutil
+import argparse
 from collections import defaultdict
 
 random.seed(42)
@@ -10,44 +11,72 @@ EXT_IMGS = (".jpg", ".jpeg", ".png")
 def count_instances_yolo(annotation_path):
     counts = defaultdict(int)
     with open(annotation_path, "r", encoding="utf-8") as f:
-        for line in f:
+        for line_num, line in enumerate(f, start=1):
             if not line.strip():
                 continue
-            class_id = int(line.split()[0])
+            parts = line.split()
+            if not parts:
+                continue
+            try:
+                class_id = int(parts[0])
+            except ValueError:
+                raise ValueError(
+                    f"Invalid class ID on line {line_num} of '{annotation_path}': "
+                    f"expected an integer but got '{parts[0]}'"
+                )
             counts[class_id] += 1
     return counts
 
 
 def load_dataset(mixed_folder):
     """
-    Devuelve:
-      - image_details: [(img_name, ann_name, counts_por_clase), ...]
-      - class_to_images: {class_id: [indices de image_details que contienen esa clase]}
-      - total_counts: instancias totales por clase
+    Returns:
+      - image_details: [(img_name, ann_name, counts_per_class), ...]
+      - class_to_images: {class_id: [indices into image_details that contain that class]}
+      - total_counts: total instances per class
     """
-    images = [f for f in os.listdir(mixed_folder)
-              if f.lower().endswith(EXT_IMGS)]
+    if not os.path.isdir(mixed_folder):
+        raise FileNotFoundError(f"Input folder not found: '{mixed_folder}'")
+
+    images = [f for f in os.listdir(mixed_folder) if f.lower().endswith(EXT_IMGS)]
+    if not images:
+        raise ValueError(f"No images found in '{mixed_folder}' (expected {EXT_IMGS})")
 
     image_details = []
     class_to_images = defaultdict(list)
     total_counts = defaultdict(int)
+    skipped = []
 
     for idx, img in enumerate(images):
         base, _ = os.path.splitext(img)
         ann = base + ".txt"
         ann_path = os.path.join(mixed_folder, ann)
+
         if not os.path.exists(ann_path):
+            skipped.append((img, "no annotation file"))
             continue
 
         counts = count_instances_yolo(ann_path)
         if not counts:
+            skipped.append((img, "annotation file is empty"))
             continue
 
         image_details.append((img, ann, counts))
 
-        for c, n in counts.items():
+        for c, count in counts.items():
             class_to_images[c].append(idx)
-            total_counts[c] += n
+            total_counts[c] += count
+
+    if skipped:
+        print(f"[WARNING] Skipped {len(skipped)} image(s):")
+        for name, reason in skipped:
+            print(f"  - {name}: {reason}")
+
+    if not image_details:
+        raise ValueError(
+            f"No valid image-annotation pairs found in '{mixed_folder}'. "
+            f"Checked {len(images)} image(s), all were skipped."
+        )
 
     return image_details, class_to_images, total_counts
 
@@ -55,46 +84,42 @@ def load_dataset(mixed_folder):
 def stratified_instance_split(image_details, class_to_images, total_counts,
                               split_ratios=(0.7, 0.2, 0.1)):
     """
-    Intenta conseguir, para cada clase c:
-      instancias_train[c] ≈ 0.7 * total_counts[c]
-      instancias_val[c]   ≈ 0.2 * total_counts[c]
-      instancias_test[c]  ≈ 0.1 * total_counts[c]
-    usando asignación greedy de imágenes. 
+    Tries to achieve, for each class c:
+      train_instances[c] ≈ 0.7 * total_counts[c]
+      val_instances[c]   ≈ 0.2 * total_counts[c]
+      test_instances[c]  ≈ 0.1 * total_counts[c]
+    using greedy image assignment.
     """
-    # objetivos de instancias por clase y split
     target_train = {c: int(total_counts[c] * split_ratios[0]) for c in total_counts}
     target_val   = {c: int(total_counts[c] * split_ratios[1]) for c in total_counts}
     target_test  = {c: total_counts[c] - target_train[c] - target_val[c] for c in total_counts}
 
-    # contadores actuales
     used_train = defaultdict(int)
     used_val   = defaultdict(int)
     used_test  = defaultdict(int)
 
-    n = len(image_details)
-    indices = list(range(n))
+    num_images = len(image_details)
+    indices = list(range(num_images))
     random.shuffle(indices)
 
     split_assign = {"train": set(), "val": set(), "test": set()}
 
+    def is_assigned(idx):
+        return (idx in split_assign["train"]
+                or idx in split_assign["val"]
+                or idx in split_assign["test"])
+
     def can_add(idx, split):
-        img, ann, counts = image_details[idx]
+        _, _, counts = image_details[idx]
         if split == "train":
-            for c, n in counts.items():
-                if used_train[c] + n > target_train[c]:
-                    return False
+            return all(used_train[c] + n <= target_train[c] for c, n in counts.items())
         elif split == "val":
-            for c, n in counts.items():
-                if used_val[c] + n > target_val[c]:
-                    return False
-        else:  # test
-            for c, n in counts.items():
-                if used_test[c] + n > target_test[c]:
-                    return False
-        return True
+            return all(used_val[c] + n <= target_val[c] for c, n in counts.items())
+        else:
+            return all(used_test[c] + n <= target_test[c] for c, n in counts.items())
 
     def add(idx, split):
-        img, ann, counts = image_details[idx]
+        _, _, counts = image_details[idx]
         if split == "train":
             for c, n in counts.items():
                 used_train[c] += n
@@ -108,38 +133,37 @@ def stratified_instance_split(image_details, class_to_images, total_counts,
                 used_test[c] += n
             split_assign["test"].add(idx)
 
-    # estrategia simple: primera pasada para train, luego val, luego test
-    for split, target, used in [("train", target_train, used_train),
-                                ("val", target_val, used_val),
-                                ("test", target_test, used_test)]:
+    # First pass: fill train, then val, then test
+    for split in ("train", "val", "test"):
         for idx in indices:
-            if idx in split_assign["train"] or idx in split_assign["val"] or idx in split_assign["test"]:
+            if is_assigned(idx):
                 continue
             if can_add(idx, split):
                 add(idx, split)
 
-    # cualquier imagen no asignada aún va al split con mayor "hueco" global
+    # Second pass: assign any remaining images to the split furthest from its target
+    targets = {"train": target_train, "val": target_val, "test": target_test}
+    used    = {"train": used_train,   "val": used_val,   "test": used_test}
+
     for idx in indices:
-        if idx in split_assign["train"] or idx in split_assign["val"] or idx in split_assign["test"]:
+        if is_assigned(idx):
             continue
-        # elegir split con menos fracción de cumplimiento de objetivos
+
+        # Pick the split with the lowest average fulfillment ratio
         scores = {}
-        for split, target, used in [("train", target_train, used_train),
-                                    ("val", target_val, used_val),
-                                    ("test", target_test, used_test)]:
-            # suma de proporciones usadas/objetivo
-            s = 0.0
-            k = 0
-            for c in total_counts:
-                if target[c] > 0:
-                    s += min(1.0, used[c] / target[c])
-                    k += 1
-            scores[split] = s / max(1, k)
+        for split in ("train", "val", "test"):
+            ratios = [
+                min(1.0, used[split][c] / targets[split][c])
+                for c in total_counts
+                if targets[split][c] > 0
+            ]
+            scores[split] = sum(ratios) / max(1, len(ratios))
+
         best_split = min(scores, key=scores.get)
         if can_add(idx, best_split):
             add(idx, best_split)
         else:
-            # si no cabe en ninguno según objetivos, lo mandamos a train por defecto
+            # Overflow: assign to train as a fallback
             add(idx, "train")
 
     train_set = [image_details[i] for i in split_assign["train"]]
@@ -156,45 +180,70 @@ def copy_split(mixed_folder, output_folder, split_name, dataset):
     os.makedirs(lab_out, exist_ok=True)
 
     for img, ann, _ in dataset:
-        shutil.copy(os.path.join(mixed_folder, img),
-                    os.path.join(img_out, img))
-        shutil.copy(os.path.join(mixed_folder, ann),
-                    os.path.join(lab_out, ann))
+        shutil.copy(os.path.join(mixed_folder, img), os.path.join(img_out, img))
+        shutil.copy(os.path.join(mixed_folder, ann), os.path.join(lab_out, ann))
 
 
-def balance_by_instance_splits(mixed_folder, output_folder,
-                               split_ratios=(0.7, 0.2, 0.1)):
+def balance_by_instance_splits(mixed_folder, output_folder, split_ratios=(0.7, 0.2, 0.1)):
     image_details, class_to_images, total_counts = load_dataset(mixed_folder)
-    print("Instancias totales por clase:", dict(total_counts))
+    print("Total instances per class:", dict(total_counts))
 
     train_set, val_set, test_set, used_sets, target_sets = stratified_instance_split(
         image_details, class_to_images, total_counts, split_ratios
     )
 
-    # copiar archivos
     for name, ds in [("train", train_set), ("val", val_set), ("test", test_set)]:
         copy_split(mixed_folder, output_folder, name, ds)
 
-    # mostrar stats
     used_train, used_val, used_test = used_sets
     target_train, target_val, target_test = target_sets
-    print("Objetivos train:", target_train)
-    print("Usado   train:", dict(used_train))
-    print("Objetivos val:", target_val)
-    print("Usado   val:", dict(used_val))
-    print("Objetivos test:", target_test)
-    print("Usado   test:", dict(used_test))
+
+    print("Target train:", target_train, "| Used:", dict(used_train))
+    print("Target val:  ", target_val,   "| Used:", dict(used_val))
+    print("Target test: ", target_test,  "| Used:", dict(used_test))
 
     return {
         "train": dict(used_train),
-        "val": dict(used_val),
-        "test": dict(used_test),
+        "val":   dict(used_val),
+        "test":  dict(used_test),
     }
 
 
-if __name__ == "__main__":
-    mixed_folder = r"imagesv3.3"
-    output_folder = os.path.join(mixed_folder, "balanced_by_instances")
+def build_args():
+    p = argparse.ArgumentParser(
+        description="Stratified train/val/test split for a YOLO dataset, balancing instances per class."
+    )
+    p.add_argument("mixed_folder",
+                   help="Folder containing images and their .txt YOLO annotation files side-by-side.")
+    p.add_argument("--output", "-o", default=None,
+                   help="Output folder. Defaults to <mixed_folder>/balanced_by_instances.")
+    p.add_argument("--train", type=float, default=0.7,
+                   help="Fraction of instances to assign to train (default: 0.7).")
+    p.add_argument("--val",   type=float, default=0.2,
+                   help="Fraction of instances to assign to val (default: 0.2).")
+    p.add_argument("--test",  type=float, default=0.1,
+                   help="Fraction of instances to assign to test (default: 0.1).")
+    return p.parse_args()
 
-    stats = balance_by_instance_splits(mixed_folder, output_folder)
-    print("Instancias finales por clase y split:", stats)
+
+def main():
+    args = build_args()
+
+    total = args.train + args.val + args.test
+    if abs(total - 1.0) > 1e-6:
+        raise SystemExit(
+            f"Split ratios must sum to 1.0, but got {args.train} + {args.val} + {args.test} = {total:.4f}"
+        )
+
+    mixed_folder  = args.mixed_folder
+    output_folder = args.output or os.path.join(mixed_folder, "balanced_by_instances")
+
+    stats = balance_by_instance_splits(
+        mixed_folder, output_folder,
+        split_ratios=(args.train, args.val, args.test)
+    )
+    print("Final instances per class and split:", stats)
+
+
+if __name__ == "__main__":
+    main()

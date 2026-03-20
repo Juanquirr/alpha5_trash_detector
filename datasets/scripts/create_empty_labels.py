@@ -75,8 +75,9 @@ def check_dataset_structure(dataset_path: Path):
     """Print dataset structure summary"""
     images_dir = dataset_path / "images"
     labels_dir = dataset_path / "labels"
-    
+
     if not images_dir.exists():
+        print(f"  [WARNING] Images directory not found: {images_dir}")
         return
     
     image_files = [
