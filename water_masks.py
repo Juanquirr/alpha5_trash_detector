@@ -7,8 +7,17 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
+PURPLE = "#8000ff"
+BAR_FORMAT = (
+    "{desc:<28} "
+    "|{bar}| "
+    "{percentage:6.2f}% "
+    "({n_fmt}/{total_fmt}) "
+    "[{elapsed}<{remaining}, {rate_fmt}]"
+)
+
 METHODS = {
-    "hsv":    "core.water_detector",
+    "hsv":    "core.water_detector_hsv",
     "otsu":   "core.water_detector_otsu",
     "kmeans": "core.water_detector_kmeans",
     "flood":  "core.water_detector_flood",
@@ -34,7 +43,7 @@ os.makedirs(out_dir, exist_ok=True)
 images = sorted(glob.glob("inputs/*.jpeg") + glob.glob("inputs/*.jpg"))[:args.limit]
 print(f"Method: {args.method} | Output: {out_dir} | Images: {len(images)}")
 
-with tqdm(total=len(images), desc="Water masks", unit="img", position=0, leave=True) as pbar:
+with tqdm(total=len(images), desc="Water masks", unit="img", position=0, leave=True, bar_format=BAR_FORMAT, colour=PURPLE, dynamic_ncols=True) as pbar:
     for p in images:
         img = np.array(Image.open(p).convert("RGB"))
         mask = create_water_mask(img)
