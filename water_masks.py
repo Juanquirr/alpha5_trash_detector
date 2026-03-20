@@ -21,6 +21,7 @@ METHODS = {
     "otsu":   "core.water_detector_otsu",
     "kmeans": "core.water_detector_kmeans",
     "flood":  "core.water_detector_flood",
+    "sam":    "core.water_detector_sam",
 }
 
 parser = argparse.ArgumentParser(description="Generate water masks using different detection methods.")
