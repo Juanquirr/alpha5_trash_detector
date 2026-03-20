@@ -128,6 +128,7 @@ def cmd_test(args):
         model = load_model(model_name, references_dir=REFERENCES_DIR)
 
         out_dir = out_root / model_name
+        out_dir.mkdir(parents=True, exist_ok=True)
         log_fh, log_writer = _open_log(out_dir / "generation_log.csv", _TEST_LOG_FIELDS)
 
         cfg = ProcessConfig(
