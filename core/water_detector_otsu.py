@@ -14,6 +14,8 @@ Strategy:
 import cv2
 import numpy as np
 
+from core.water_detector import morphological_cleanup, remove_small_regions
+
 
 def create_water_mask(
     image_np: np.ndarray,
@@ -71,17 +73,8 @@ def create_water_mask(
     warm = ((h_ch < 30) | (h_ch > 160)) & (s_ch > 20)
     water[warm] = 0
 
-    # ── 5. Morphological cleanup ─────────────────────────────────────
-    kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (25, 25))
-    kernel_open = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
-    water = cv2.morphologyEx(water, cv2.MORPH_CLOSE, kernel_close)
-    water = cv2.morphologyEx(water, cv2.MORPH_OPEN, kernel_open)
-
-    # ── 6. Remove small regions ──────────────────────────────────────
-    min_area = int(img_h * img_w * min_region_ratio)
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(water)
-    for i in range(1, num_labels):
-        if stats[i, cv2.CC_STAT_AREA] < min_area:
-            water[labels == i] = 0
+    # ── 5. Morphological cleanup + small region removal ─────────────
+    water = morphological_cleanup(water)
+    water = remove_small_regions(water, min_region_ratio)
 
     return water

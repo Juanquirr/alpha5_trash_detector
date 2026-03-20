@@ -10,7 +10,7 @@ from diffusers import FluxFillPipeline
 from PIL import Image
 from pydantic import BaseModel
 import torch
-from core.dependencies.ai.generative_ai.image_inpainters.image_inpainter import ImageInpainter
+from core.inpainters.base import ImageInpainter
 
 
 class FluxLocalImageInpainter(ImageInpainter, BaseModel):
