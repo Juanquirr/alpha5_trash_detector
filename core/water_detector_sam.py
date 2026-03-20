@@ -34,11 +34,11 @@ def _load_model(device: str = "cuda"):
     """Lazy-load SAM3 model and processor (singleton)."""
     global _model, _processor
     if _model is None:
-        from transformers import AutoModel, AutoProcessor
+        from transformers import Sam3Model, Sam3Processor
 
         print("  Loading SAM3 model (first time may download ~3.5 GB)...")
-        _processor = AutoProcessor.from_pretrained("facebook/sam3")
-        _model = AutoModel.from_pretrained(
+        _processor = Sam3Processor.from_pretrained("facebook/sam3")
+        _model = Sam3Model.from_pretrained(
             "facebook/sam3",
             torch_dtype=torch.bfloat16,
         ).to(device)
