@@ -9,3 +9,4 @@ alpha5_*
 *.yaml
 *.zip
 *.json
+*.pyc
