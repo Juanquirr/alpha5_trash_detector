@@ -121,7 +121,7 @@ class FluxKontextInpainter(BaseModel):
         image: Image.Image,
         mask: Image.Image,          # Used only to extract cx, cy, w, h
         prompt: str,
-        num_inference_steps: int = 28,
+        num_inference_steps: int = 50,
         guidance_scale: float = 3.5,
     ) -> Image.Image:
         """

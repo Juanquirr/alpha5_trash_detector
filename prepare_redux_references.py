@@ -50,17 +50,18 @@ _CLASSES = [
     "trash",
 ]
 
-# Object scale as fraction of patch width: (min, max)
-# Larger objects get a larger slice so they remain visually prominent.
+# Object scale as fraction of patch width: (min, max).
+# Intentionally large: the object should dominate the reference so Redux
+# encodes "what the object looks like" rather than "what the background looks like".
 _CLASS_SCALE: dict[str, tuple[float, float]] = {
-    "plastic_bottle":  (0.20, 0.40),
-    "glass":           (0.20, 0.40),
-    "can":             (0.18, 0.35),
-    "plastic_bag":     (0.30, 0.55),
-    "metal_scrap":     (0.22, 0.42),
-    "plastic_wrapper": (0.25, 0.45),
-    "trash_pile":      (0.40, 0.65),
-    "trash":           (0.18, 0.38),
+    "plastic_bottle":  (0.45, 0.65),
+    "glass":           (0.45, 0.65),
+    "can":             (0.40, 0.60),
+    "plastic_bag":     (0.55, 0.75),
+    "metal_scrap":     (0.45, 0.65),
+    "plastic_wrapper": (0.50, 0.70),
+    "trash_pile":      (0.65, 0.85),
+    "trash":           (0.40, 0.60),
 }
 
 
@@ -287,7 +288,7 @@ def main() -> None:
         help="Number of compositions to generate per segmented object.",
     )
     parser.add_argument(
-        "--patch-size", type=int, default=320,
+        "--patch-size", type=int, default=224,
         help="Size (px) of the square water background patch.",
     )
     parser.add_argument(
