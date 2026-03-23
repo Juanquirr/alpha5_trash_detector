@@ -7,7 +7,9 @@
       "Bash(while read:*)",
       "Bash(do wc:*)",
       "Bash(done)",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(wc -l .planning/codebase/*.md)",
+      "Bash(grep -E '\\(sk-[a-zA-Z0-9]{20,}|sk_live_[a-zA-Z0-9]+|ghp_[a-zA-Z0-9]{36}|AKIA[A-Z0-9]{16}|xox[baprs]-[a-zA-Z0-9-]+|-----BEGIN.*PRIVATE KEY\\)' .planning/codebase/*.md)"
     ]
   }
 }

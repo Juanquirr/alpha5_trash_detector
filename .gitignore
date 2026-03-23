@@ -190,6 +190,8 @@ outputs_*/*
 results/
 
 .claude/
+.planning/
+backgrounds/
 
 # Ignore hidden files
 .*.swp
