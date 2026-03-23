@@ -349,9 +349,6 @@ def main() -> None:
         )
 
     print("\nDone.")
-    print(f"\nNext step: point Redux to the composed references:")
-    print(f"  python run.py fill --model redux --references {output_dir}")
-
 
 if __name__ == "__main__":
     main()
