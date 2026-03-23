@@ -125,7 +125,7 @@ def cmd_test(args):
         print(f"\n{'═' * 60}")
         print(f"Model: {model_name.upper()}")
         print("Loading model...")
-        model = load_model(model_name, references_dir=REFERENCES_DIR)
+        model = load_model(model_name, references_dir=args.references)
 
         out_dir = out_root / model_name
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -190,6 +190,8 @@ def main():
     p_test.add_argument("--water-method", default="hsv",
                         choices=["hsv", "otsu", "kmeans", "flood", "sam"],
                         help="Water detection method (default: hsv)")
+    p_test.add_argument("--references", default=REFERENCES_DIR,
+                        help="Reference images directory for Redux (default: inputs/references)")
 
     args = parser.parse_args()
 
