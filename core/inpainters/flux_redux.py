@@ -85,7 +85,13 @@ class FluxReduxInpainter(BaseModel):
             return None
 
         chosen = random.choice(candidates)
-        return Image.open(chosen).convert("RGB")
+        img = Image.open(chosen)
+        if img.mode == "RGBA":
+            # Composite transparent areas onto white so Redux focuses on the object
+            background = Image.new("RGB", img.size, (255, 255, 255))
+            background.paste(img, mask=img.split()[3])
+            return background
+        return img.convert("RGB")
 
     def _get_embeddings(self, reference: Image.Image):
         """Extract Redux visual embeddings from the reference image."""
