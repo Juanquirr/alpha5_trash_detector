@@ -150,6 +150,7 @@ class ProcessConfig:
     max_objects: int = 3
     log_fields: list = field(default_factory=list)
     water_method: str = "hsv"             # hsv | otsu | kmeans | flood | sam
+    min_water_coverage: float = 0.40      # Skip images below this water fraction (0.0-1.0)
 
 
 def process_image(
@@ -184,8 +185,8 @@ def process_image(
     water_mask = create_water_mask(np.array(image))
     coverage = water_mask.mean() / 255.0
     print(f"    Water coverage: {coverage:.1%}")
-    if coverage < 0.01:
-        print("    WARNING: no water found, skipping.")
+    if coverage < cfg.min_water_coverage:
+        print(f"    WARNING: water coverage {coverage:.1%} below threshold {cfg.min_water_coverage:.0%}, skipping.")
         return []
 
     # Object positions
