@@ -3,8 +3,8 @@ Synthetic marine-trash dataset generator.
 
 Two subcommands:
 
-  fill   Generate a full annotated dataset using FLUX Fill (baseline model).
-         Processes ALL input images. Outputs YOLO labels + debug overlays.
+  fill   Generate a full annotated dataset using FLUX Redux (visual reference model).
+         Processes open-water input images. Outputs YOLO labels + debug overlays.
 
   test   Compare inpainting models (Canny, Redux, Kontext) on a random
          subset of images. Useful for evaluating which model integrates
@@ -72,7 +72,7 @@ def _open_log(path: Path, fields: list) -> tuple:
 # ── Subcommands ────────────────────────────────────────────────────────────────
 
 def cmd_fill(args):
-    """Generate a full annotated dataset with FLUX Fill."""
+    """Generate a full annotated dataset with FLUX Redux."""
     out_dir = Path(args.output)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -80,8 +80,8 @@ def cmd_fill(args):
     image_paths = _collect_images(INPUT_DIR, shuffle=False, limit=None)
 
     print(f"Images: {len(image_paths)}  →  {out_dir}")
-    print("Loading FLUX Fill model...")
-    model = load_model("fill")
+    print("Loading FLUX Redux model...")
+    model = load_model("redux", references_dir=args.references)
 
     log_fh, log_writer = _open_log(out_dir / "generation_log.csv", _FILL_LOG_FIELDS)
 
@@ -97,7 +97,7 @@ def cmd_fill(args):
     for i, img_path in enumerate(image_paths):
         print(f"\n{'─' * 60}")
         print(f"[{i+1}/{len(image_paths)}] {img_path.name}")
-        process_image(img_path, "fill", model, prompts_by_class, class_names,
+        process_image(img_path, "redux", model, prompts_by_class, class_names,
                       out_dir, log_writer, cfg)
 
     log_fh.close()
@@ -162,7 +162,7 @@ def main():
     sub = parser.add_subparsers(dest="command", required=True)
 
     # ── fill ──
-    p_fill = sub.add_parser("fill", help="Generate full dataset with FLUX Fill")
+    p_fill = sub.add_parser("fill", help="Generate full dataset with FLUX Redux")
     p_fill.add_argument("--output", default="outputs",
                         help="Output directory (default: outputs)")
     p_fill.add_argument("--num-instances", type=int, default=None,
@@ -174,6 +174,8 @@ def main():
                         help="Water detection method (default: hsv)")
     p_fill.add_argument("--min-water-coverage", type=float, default=0.40,
                         help="Skip images with water coverage below this fraction (default: 0.40)")
+    p_fill.add_argument("--references", default=REFERENCES_DIR,
+                        help="Reference images directory for Redux (default: inputs/references)")
 
     # ── test ──
     p_test = sub.add_parser("test", help="Compare models on a subset of images")
