@@ -91,6 +91,7 @@ def cmd_fill(args):
         output_suffix="_synth",
         log_fields=_FILL_LOG_FIELDS,
         water_method=args.water_method,
+        min_water_coverage=args.min_water_coverage,
     )
 
     for i, img_path in enumerate(image_paths):
@@ -137,6 +138,7 @@ def cmd_test(args):
             output_suffix="_result",
             log_fields=_TEST_LOG_FIELDS,
             water_method=args.water_method,
+            min_water_coverage=args.min_water_coverage,
         )
 
         for img_path in image_paths:
@@ -170,6 +172,8 @@ def main():
     p_fill.add_argument("--water-method", default="hsv",
                         choices=["hsv", "otsu", "kmeans", "flood", "sam"],
                         help="Water detection method (default: hsv)")
+    p_fill.add_argument("--min-water-coverage", type=float, default=0.40,
+                        help="Skip images with water coverage below this fraction (default: 0.40)")
 
     # ── test ──
     p_test = sub.add_parser("test", help="Compare models on a subset of images")
@@ -190,6 +194,8 @@ def main():
     p_test.add_argument("--water-method", default="hsv",
                         choices=["hsv", "otsu", "kmeans", "flood", "sam"],
                         help="Water detection method (default: hsv)")
+    p_test.add_argument("--min-water-coverage", type=float, default=0.40,
+                        help="Skip images with water coverage below this fraction (default: 0.40)")
     p_test.add_argument("--references", default=REFERENCES_DIR,
                         help="Reference images directory for Redux (default: inputs/references)")
 
