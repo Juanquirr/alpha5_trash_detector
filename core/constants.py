@@ -21,7 +21,11 @@ OBJECT_SIZES = {
     7: (40, 80,  30, 60),     # trash - generic small
 }
 
-# Crop-based inpainting settings
-CROP_CONTEXT_FACTOR = 4.0
-MIN_CROP_SIZE = 320
+# Crop-based inpainting settings.
+# CROP_CONTEXT_FACTOR controls how much background context surrounds the object.
+# Lower = object is a larger fraction of the crop → more detail, better generation.
+# At 2.5×: a 60px object → 150px raw → MIN_CROP_SIZE=256 → object is ~23% of width.
+# At 4.0×: same object → 240px raw → 320px min  → object is ~19% of width (too small).
+CROP_CONTEXT_FACTOR = 2.5
+MIN_CROP_SIZE = 256
 MAX_CROP_SIZE = 640

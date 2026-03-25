@@ -16,8 +16,8 @@ def prepare_image(image: Image.Image, max_side: int = 1024, divisor: int = 16):
 
 
 def create_mask(img_w: int, img_h: int, cx: int, cy: int,
-                obj_w: int, obj_h: int, blur_radius: int = 4) -> Image.Image:
-    """Elliptical binary mask with soft edges (Gaussian blur)."""
+                obj_w: int, obj_h: int, blur_radius: int = 0) -> Image.Image:
+    """Elliptical binary mask. Hard edges (blur_radius=0) produce sharper FLUX Fill results."""
     mask = Image.new("L", (img_w, img_h), 0)
     draw = ImageDraw.Draw(mask)
     draw.ellipse(

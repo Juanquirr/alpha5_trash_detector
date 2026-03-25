@@ -75,6 +75,19 @@ def _open_log(path: Path) -> tuple:
 
 # ── Interactive configuration ─────────────────────────────────────────────────
 
+def _ask_folders() -> tuple[str, str]:
+    """Ask for input and output directories."""
+    input_dir = questionary.text(
+        "Input folder (images to process)?",
+        default=INPUT_DIR,
+    ).ask()
+    output_dir = questionary.text(
+        "Output folder (where to save results)?",
+        default=OUTPUT_DIR,
+    ).ask()
+    return input_dir.strip(), output_dir.strip()
+
+
 def _ask_classes() -> list[int]:
     """Ask which trash classes to generate (checkbox multi-select)."""
     choices = [
@@ -153,8 +166,12 @@ def main():
         help="Water detection method. Omit to select interactively.",
     )
     parser.add_argument(
-        "--output", default=OUTPUT_DIR,
-        help=f"Output directory (default: {OUTPUT_DIR})",
+        "--input", default=None,
+        help=f"Input directory with source images (default: {INPUT_DIR}, or interactive)",
+    )
+    parser.add_argument(
+        "--output", default=None,
+        help=f"Output directory for results (default: {OUTPUT_DIR}, or interactive)",
     )
     parser.add_argument(
         "--no-crop", action="store_true",
@@ -168,6 +185,13 @@ def main():
     args = parser.parse_args()
 
     # ── Resolve interactive vs CLI settings ───────────────────────────────────
+
+    # Folders — ask interactively only when neither --input nor --output is given
+    if args.input is None and args.output is None:
+        input_dir, output_dir = _ask_folders()
+    else:
+        input_dir  = args.input  or INPUT_DIR
+        output_dir = args.output or OUTPUT_DIR
 
     if args.classes is not None:
         if args.classes.lower() == "all":
@@ -185,15 +209,15 @@ def main():
 
     # ── Validate and load ─────────────────────────────────────────────────────
 
-    image_paths = _collect_images(INPUT_DIR, limit=max_images)
+    image_paths = _collect_images(input_dir, limit=max_images)
     if not image_paths:
-        print(f"No images found in {INPUT_DIR}/")
+        print(f"No images found in {input_dir}/")
         return
 
     prompts_by_class = load_prompts(PROMPTS_CSV)
     class_names      = load_class_names(PROMPTS_CSV)
 
-    out_dir = Path(args.output)
+    out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     selected_names = [ALL_CLASSES.get(c, str(c)) for c in class_filter]

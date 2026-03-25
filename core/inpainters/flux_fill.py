@@ -31,7 +31,7 @@ class FluxLocalImageInpainter(ImageInpainter, BaseModel):
         mask: Image.Image,
         prompt: str,
         num_inference_steps: int = 50,
-        guidance_scale: float = 3.5,
+        guidance_scale: float = 30,
     ) -> Image.Image:
         return self._pipe(
             prompt=prompt,
