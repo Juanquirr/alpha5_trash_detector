@@ -192,6 +192,7 @@ results/
 .claude/
 .planning/
 backgrounds/
+inputs/
 
 # Ignore hidden files
 .*.swp
