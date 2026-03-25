@@ -1,22 +1,18 @@
 """
-Synthetic marine-trash dataset generator.
+Synthetic marine-trash dataset generator — FLUX Fill.
 
-Two subcommands:
+Inserts photorealistic floating trash into harbour/coastal images and
+produces YOLO-format annotated training data.
 
-  fill   Generate a full annotated dataset using FLUX Redux (visual reference model).
-         Processes open-water input images. Outputs YOLO labels + debug overlays.
+Interactive usage (prompts for all settings):
+    python run.py
 
-  test   Compare inpainting models (Canny, Redux, Kontext) on a random
-         subset of images. Useful for evaluating which model integrates
-         objects most naturally.
+Scripted usage (all settings via CLI flags):
+    python run.py --classes 0,3,7 --num-instances 2 --max-images 10
+    python run.py --classes all --water-method otsu --output results/
 
-Usage:
-    python run.py fill
-    python run.py fill --num-instances 3 --no-crop --output outputs/
-
-    python run.py test --model canny
-    python run.py test --model all --max-images 5 --num-instances 2
-    python run.py test --model redux --no-shuffle --no-crop
+When any of --classes / --num-instances / --water-method are omitted,
+the script will ask for them interactively before starting.
 """
 
 import argparse
@@ -24,189 +20,217 @@ import csv
 import random
 from pathlib import Path
 
+import questionary
+
 from core.pipeline import ProcessConfig, load_model, process_image
 from core.prompts import load_class_names, load_prompts
+from core.water import AVAILABLE_METHODS
 
 # ── Defaults ──────────────────────────────────────────────────────────────────
 
-INPUT_DIR    = "inputs"
-PROMPTS_CSV  = "config/prompts.csv"
-REFERENCES_DIR = "inputs/references"
+INPUT_DIR   = "inputs"
+OUTPUT_DIR  = "outputs"
+PROMPTS_CSV = "config/prompts.csv"
 
-_FILL_LOG_FIELDS = [
+LOG_FIELDS = [
     "image_out", "source_image",
     "class_id", "class_name", "prompt",
     "cx", "cy", "obj_w", "obj_h",
     "bbox_xc", "bbox_yc", "bbox_w", "bbox_h",
 ]
-_TEST_LOG_FIELDS = _FILL_LOG_FIELDS + ["model"]
 
-TEST_MODELS = ["canny", "redux", "kontext"]
+ALL_CLASSES = {
+    0: "plastic_bottle",
+    1: "glass_bottle",
+    2: "can",
+    3: "plastic_bag",
+    4: "metal_scrap",
+    5: "plastic_wrapper",
+    6: "trash_pile",
+    7: "trash",
+}
 
 
-# ── Shared helpers ─────────────────────────────────────────────────────────────
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
-def _load_prompts():
-    return load_prompts(PROMPTS_CSV), load_class_names(PROMPTS_CSV)
-
-
-def _collect_images(input_dir: str, shuffle: bool, limit: int | None) -> list[Path]:
+def _collect_images(input_dir: str, limit: int | None) -> list[Path]:
     paths = sorted(
         p for p in Path(input_dir).iterdir()
         if p.suffix.lower() in (".jpg", ".jpeg", ".png") and p.is_file()
     )
-    if shuffle:
+    if limit:
         random.shuffle(paths)
-    return paths[:limit] if limit else paths
+        return paths[:limit]
+    return paths
 
 
-def _open_log(path: Path, fields: list) -> tuple:
+def _open_log(path: Path) -> tuple:
     exists = path.exists()
     fh = open(path, "a", newline="", encoding="utf-8")
-    writer = csv.DictWriter(fh, fieldnames=fields)
+    writer = csv.DictWriter(fh, fieldnames=LOG_FIELDS)
     if not exists:
         writer.writeheader()
     return fh, writer
 
 
-# ── Subcommands ────────────────────────────────────────────────────────────────
+# ── Interactive configuration ─────────────────────────────────────────────────
 
-def cmd_fill(args):
-    """Generate a full annotated dataset with FLUX Redux."""
+def _ask_classes() -> list[int]:
+    """Ask which trash classes to generate (checkbox multi-select)."""
+    choices = [
+        questionary.Choice(f"{name.replace('_', ' ')}  (class {cid})", value=cid)
+        for cid, name in ALL_CLASSES.items()
+    ]
+    selected = questionary.checkbox(
+        "Which trash classes to generate?",
+        choices=choices,
+        instruction="  space = toggle · enter = confirm",
+    ).ask()
+    if not selected:
+        print("No classes selected — using all.")
+        return list(ALL_CLASSES.keys())
+    return selected
+
+
+def _ask_num_instances() -> int:
+    """Ask how many objects to insert per image."""
+    answer = questionary.text(
+        "Objects to insert per image?",
+        default="2",
+        validate=lambda v: v.isdigit() and int(v) >= 1 or "Enter a positive integer",
+    ).ask()
+    return int(answer)
+
+
+def _ask_max_images() -> int | None:
+    """Ask how many input images to process (blank = all, random order)."""
+    answer = questionary.text(
+        "How many images to process?  (leave blank for all)",
+        default="",
+    ).ask()
+    return int(answer) if answer.strip().isdigit() else None
+
+
+def _ask_water_method() -> str:
+    """Ask which water detection method to use."""
+    return questionary.select(
+        "Water detection method?",
+        choices=[
+            questionary.Choice("hsv    — fast, colour-based  [recommended]", value="hsv"),
+            questionary.Choice("otsu   — automatic thresholding", value="otsu"),
+            questionary.Choice("kmeans — colour clustering, robust", value="kmeans"),
+            questionary.Choice("flood  — flood fill from horizon", value="flood"),
+            questionary.Choice("sam    — SAM 3, most accurate but slow", value="sam"),
+        ],
+    ).ask()
+
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Marine-trash synthetic dataset generator (FLUX Fill)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+    parser.add_argument(
+        "--classes", default=None,
+        help='Comma-separated class IDs (e.g. "0,3,7") or "all". '
+             'Omit to select interactively.',
+    )
+    parser.add_argument(
+        "--num-instances", type=int, default=None,
+        help="Objects to insert per image. Omit to enter interactively.",
+    )
+    parser.add_argument(
+        "--max-images", type=int, default=None,
+        help="Max number of input images to process (random order). "
+             "Omit for all images.",
+    )
+    parser.add_argument(
+        "--water-method", default=None,
+        choices=AVAILABLE_METHODS,
+        help="Water detection method. Omit to select interactively.",
+    )
+    parser.add_argument(
+        "--output", default=OUTPUT_DIR,
+        help=f"Output directory (default: {OUTPUT_DIR})",
+    )
+    parser.add_argument(
+        "--no-crop", action="store_true",
+        help="Full-image inpainting instead of crop-based (lower quality).",
+    )
+    parser.add_argument(
+        "--min-water-coverage", type=float, default=0.40,
+        help="Skip images with less water than this fraction (default: 0.40).",
+    )
+
+    args = parser.parse_args()
+
+    # ── Resolve interactive vs CLI settings ───────────────────────────────────
+
+    if args.classes is not None:
+        if args.classes.lower() == "all":
+            class_filter = list(ALL_CLASSES.keys())
+        else:
+            class_filter = [int(c.strip()) for c in args.classes.split(",")]
+    else:
+        class_filter = _ask_classes()
+
+    n_objects = args.num_instances if args.num_instances is not None else _ask_num_instances()
+
+    water_method = args.water_method if args.water_method is not None else _ask_water_method()
+
+    max_images = args.max_images  # None = all (no interactive prompt for this one)
+
+    # ── Validate and load ─────────────────────────────────────────────────────
+
+    image_paths = _collect_images(INPUT_DIR, limit=max_images)
+    if not image_paths:
+        print(f"No images found in {INPUT_DIR}/")
+        return
+
+    prompts_by_class = load_prompts(PROMPTS_CSV)
+    class_names      = load_class_names(PROMPTS_CSV)
+
     out_dir = Path(args.output)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    prompts_by_class, class_names = _load_prompts()
-    image_paths = _collect_images(INPUT_DIR, shuffle=False, limit=None)
+    selected_names = [ALL_CLASSES.get(c, str(c)) for c in class_filter]
+    print()
+    print(f"  Images  : {len(image_paths)}  →  {out_dir}/")
+    print(f"  Classes : {', '.join(selected_names)}")
+    print(f"  Objects : {n_objects} per image")
+    print(f"  Water   : {water_method}  (min coverage {args.min_water_coverage:.0%})")
+    print()
+    print("  Loading FLUX Fill model...")
 
-    print(f"Images: {len(image_paths)}  →  {out_dir}")
-    print("Loading FLUX Redux model...")
-    model = load_model("redux", references_dir=args.references)
+    model = load_model()
 
-    log_fh, log_writer = _open_log(out_dir / "generation_log.csv", _FILL_LOG_FIELDS)
+    log_fh, log_writer = _open_log(out_dir / "generation_log.csv")
 
     cfg = ProcessConfig(
-        n_objects=args.num_instances,
+        n_objects=n_objects,
         use_crop=not args.no_crop,
         output_suffix="_synth",
-        log_fields=_FILL_LOG_FIELDS,
-        water_method=args.water_method,
+        log_fields=LOG_FIELDS,
+        water_method=water_method,
         min_water_coverage=args.min_water_coverage,
+        class_filter=class_filter,
     )
+
+    # ── Generation loop ───────────────────────────────────────────────────────
 
     for i, img_path in enumerate(image_paths):
         print(f"\n{'─' * 60}")
         print(f"[{i+1}/{len(image_paths)}] {img_path.name}")
-        process_image(img_path, "redux", model, prompts_by_class, class_names,
+        process_image(img_path, model, prompts_by_class, class_names,
                       out_dir, log_writer, cfg)
 
     log_fh.close()
     print(f"\n{'─' * 60}")
-    print(f"Done. Log: {out_dir}/generation_log.csv")
-
-
-def cmd_test(args):
-    """Compare inpainting models on a random image subset."""
-    models_to_run = TEST_MODELS if args.model == "all" else [args.model]
-
-    prompts_by_class, class_names = _load_prompts()
-    image_paths = _collect_images(
-        args.input, shuffle=not args.no_shuffle, limit=args.max_images
-    )
-
-    if not image_paths:
-        print(f"No images found in {args.input}")
-        return
-
-    print(f"Images selected: {[p.name for p in image_paths]}")
-
-    out_root = Path(args.output)
-
-    for model_name in models_to_run:
-        print(f"\n{'═' * 60}")
-        print(f"Model: {model_name.upper()}")
-        print("Loading model...")
-        model = load_model(model_name, references_dir=args.references)
-
-        out_dir = out_root / model_name
-        out_dir.mkdir(parents=True, exist_ok=True)
-        log_fh, log_writer = _open_log(out_dir / "generation_log.csv", _TEST_LOG_FIELDS)
-
-        cfg = ProcessConfig(
-            n_objects=args.num_instances,
-            use_crop=not args.no_crop,
-            output_suffix="_result",
-            log_fields=_TEST_LOG_FIELDS,
-            water_method=args.water_method,
-            min_water_coverage=args.min_water_coverage,
-        )
-
-        for img_path in image_paths:
-            process_image(img_path, model_name, model, prompts_by_class, class_names,
-                          out_dir, log_writer, cfg)
-
-        log_fh.close()
-        print(f"\n  Done → {out_dir}/")
-
-    print(f"\n{'═' * 60}")
-    print(f"All models complete. Results in {out_root}/")
-
-
-# ── CLI ────────────────────────────────────────────────────────────────────────
-
-def main():
-    parser = argparse.ArgumentParser(
-        description="Marine-trash synthetic dataset generator",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    sub = parser.add_subparsers(dest="command", required=True)
-
-    # ── fill ──
-    p_fill = sub.add_parser("fill", help="Generate full dataset with FLUX Redux")
-    p_fill.add_argument("--output", default="outputs",
-                        help="Output directory (default: outputs)")
-    p_fill.add_argument("--num-instances", type=int, default=None,
-                        help="Objects per image (default: random 2–3)")
-    p_fill.add_argument("--no-crop", action="store_true",
-                        help="Use full-image inpainting instead of crop-based")
-    p_fill.add_argument("--water-method", default="hsv",
-                        choices=["hsv", "otsu", "kmeans", "flood", "sam"],
-                        help="Water detection method (default: hsv)")
-    p_fill.add_argument("--min-water-coverage", type=float, default=0.40,
-                        help="Skip images with water coverage below this fraction (default: 0.40)")
-    p_fill.add_argument("--references", default=REFERENCES_DIR,
-                        help="Reference images directory for Redux (default: inputs/references)")
-
-    # ── test ──
-    p_test = sub.add_parser("test", help="Compare models on a subset of images")
-    p_test.add_argument("--model", choices=TEST_MODELS + ["all"], default="all",
-                        help="Model(s) to test (default: all)")
-    p_test.add_argument("--output", default="outputs_test",
-                        help="Output root directory (default: outputs_test)")
-    p_test.add_argument("--input", default=INPUT_DIR,
-                        help="Input image directory")
-    p_test.add_argument("--max-images", type=int, default=5,
-                        help="Max images per model (default: 5)")
-    p_test.add_argument("--num-instances", type=int, default=1,
-                        help="Objects per image (default: 1)")
-    p_test.add_argument("--no-shuffle", action="store_true",
-                        help="Use alphabetical order instead of random selection")
-    p_test.add_argument("--no-crop", action="store_true",
-                        help="Use full-image inpainting instead of crop-based")
-    p_test.add_argument("--water-method", default="hsv",
-                        choices=["hsv", "otsu", "kmeans", "flood", "sam"],
-                        help="Water detection method (default: hsv)")
-    p_test.add_argument("--min-water-coverage", type=float, default=0.40,
-                        help="Skip images with water coverage below this fraction (default: 0.40)")
-    p_test.add_argument("--references", default=REFERENCES_DIR,
-                        help="Reference images directory for Redux (default: inputs/references)")
-
-    args = parser.parse_args()
-
-    if args.command == "fill":
-        cmd_fill(args)
-    elif args.command == "test":
-        cmd_test(args)
+    print(f"Done.  {len(image_paths)} images processed.")
+    print(f"Log  → {out_dir}/generation_log.csv")
 
 
 if __name__ == "__main__":

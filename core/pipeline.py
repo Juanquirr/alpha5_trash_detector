@@ -1,11 +1,20 @@
 """
-Core inpainting pipeline.
+Core inpainting pipeline — FLUX Fill.
 
-Responsibilities:
-- Model factory (load_model)
-- Model-agnostic inpainting dispatch (run_inpaint)
-- Single-object insertion, crop-based or full-image (insert_object)
-- Full single-image pipeline: water detection → placement → inpainting → output (process_image)
+Current state (Phase 1):
+    Only FLUX Fill is active. The inpainters/ directory also contains
+    flux_redux.py and flux_canny.py, which will be wired in later phases.
+
+Extension point:
+    To add Redux or Canny, update load_model() to accept a model_name arg
+    and add the corresponding branch. The rest of the pipeline is unchanged.
+
+Data flow:
+    image → water mask → placement positions → [insert_object per position]
+                                                    ↓
+                                            crop → object mask → FLUX Fill → paste back
+                                                                    ↓
+                                            YOLO annotation + debug overlay saved
 """
 
 import csv
@@ -23,85 +32,79 @@ from core.image_utils import (
     compute_crop_region, compute_yolo_bbox,
     create_mask, prepare_image, save_debug_image,
 )
-from core.water_detector import find_water_positions
-import importlib
-
-_WATER_MODULES = {
-    "hsv":    "core.water_detector",
-    "otsu":   "core.water_detector_otsu",
-    "kmeans": "core.water_detector_kmeans",
-    "flood":  "core.water_detector_flood",
-    "sam":    "core.water_detector_sam",
-}
-
-def _get_water_detector(method: str):
-    module_name = _WATER_MODULES.get(method)
-    if module_name is None:
-        raise ValueError(f"Unknown water method '{method}'. Valid: {list(_WATER_MODULES)}")
-    return importlib.import_module(module_name).create_water_mask
+from core.water import get_detector, find_water_positions
 
 
-# ── Model factory ────────────────────────────────────────────────────────────
+# ── Model factory ─────────────────────────────────────────────────────────────
 
-def load_model(model_name: str, references_dir: str = "inputs/references"):
-    """Instantiate an inpainting model by name (lazy import — avoids loading
-    unused heavy models)."""
-    if model_name == "fill":
-        from core.inpainters.flux_fill import FluxLocalImageInpainter
-        return FluxLocalImageInpainter()
-    if model_name == "canny":
-        from core.inpainters.flux_canny import FluxCannyInpainter
-        return FluxCannyInpainter()
-    if model_name == "redux":
-        from core.inpainters.flux_redux import FluxReduxInpainter
-        return FluxReduxInpainter(references_dir=references_dir)
-    if model_name == "kontext":
-        from core.inpainters.flux_kontext import FluxKontextInpainter
-        return FluxKontextInpainter()
-    raise ValueError(f"Unknown model '{model_name}'. Valid: fill, canny, redux, kontext")
+def load_model():
+    """Load the FLUX Fill inpainter (lazy import — GPU model only loaded here).
 
-
-# ── Low-level inpainting dispatch ────────────────────────────────────────────
-
-def run_inpaint(
-    model_name: str, model, image: Image.Image, mask: Image.Image,
-    prompt: str, class_id: int,
-) -> tuple[Image.Image, tuple | None]:
+    Extension point: future phases will add Redux and Canny variants.
+        # Phase 2: return FluxReduxInpainter(references_dir=...)
+        # Phase 3: return FluxCannyInpainter()
     """
-    Call the model's inpaint() handling each model's unique interface.
+    from core.inpainters.flux_fill import FluxLocalImageInpainter
+    return FluxLocalImageInpainter()
 
-    Returns:
-        (result_image, bbox) — bbox is in caller's coordinate space,
-        or None if the model doesn't produce its own bbox.
+
+# ── Config ────────────────────────────────────────────────────────────────────
+
+@dataclass
+class ProcessConfig:
+    """Runtime parameters for process_image()."""
+    n_objects: int | None = None        # None → random between min_objects/max_objects
+    use_crop: bool = True               # True = crop-based (better), False = full-image
+    output_suffix: str = "_synth"
+    min_objects: int = 2
+    max_objects: int = 3
+    log_fields: list = field(default_factory=list)
+    water_method: str = "hsv"           # hsv | otsu | kmeans | flood | sam
+    min_water_coverage: float = 0.40    # Skip images with less water than this
+    class_filter: list | None = None    # None = all classes; [0, 3] = only those IDs
+
+
+# ── Perspective-aware sizing ──────────────────────────────────────────────────
+
+def _depth_scale(cy: int, img_h: int) -> float:
+    """Scale factor based on vertical position in the frame.
+
+    Harbour cameras show perspective: objects near the horizon (top of frame)
+    are far away and appear small; objects near the bottom are close and large.
+
+    Scale ranges from 0.4× at the horizon to 1.6× at the bottom of the frame.
     """
-    if model_name == "redux":
-        return model.inpaint(image, mask, prompt, class_id=class_id), None
-    if model_name == "kontext":
-        result = model.inpaint(image, mask, prompt)
-        return result, model.compute_bbox(image, result)
-    return model.inpaint(image, mask, prompt), None
+    return 0.4 + 1.2 * (cy / img_h)
 
 
 # ── Single-object insertion ───────────────────────────────────────────────────
 
 def insert_object(
-    model_name: str, model,
+    model,
     image: Image.Image,
     cx: int, cy: int, obj_w: int, obj_h: int,
-    prompt: str, class_id: int,
+    prompt: str,
     use_crop: bool = True,
 ) -> tuple[Image.Image, tuple | None]:
-    """
-    Insert one object into *image* at (cx, cy).
+    """Insert one trash object at (cx, cy) using FLUX Fill.
 
     Two modes:
-    - use_crop=True  → extract a local crop, inpaint there, paste back.
-                       Better integration: model sees focused water context.
-    - use_crop=False → inpaint on the full image (legacy).
+      use_crop=True   Extract a local crop around the object position,
+                      inpaint within that crop, then paste back.
+                      Better quality: model sees focused water context.
+      use_crop=False  Inpaint on the full image directly (faster, lower quality).
+
+    Args:
+        model:        FluxLocalImageInpainter instance.
+        image:        Full scene PIL image (RGB).
+        cx, cy:       Centre of the placement in image pixel coordinates.
+        obj_w, obj_h: Object bounding box dimensions in pixels.
+        prompt:       Text prompt describing the trash object.
+        use_crop:     See above.
 
     Returns:
-        (updated_image, yolo_bbox) — bbox normalized to full-image coords,
-        or None if it could not be computed.
+        (updated_image, yolo_bbox) — bbox normalised to [0, 1] full-image coords,
+        or (image, None) if bbox could not be computed.
     """
     img_w, img_h = image.size
 
@@ -110,52 +113,36 @@ def insert_object(
         crop = image.crop((x0, y0, x1, y1))
         cw, ch = crop.size
 
+        # Object mask: ellipse centred on (cx, cy) relative to crop origin
         mask = create_mask(cw, ch, cx - x0, cy - y0, obj_w, obj_h)
-        result_crop, ext_bbox = run_inpaint(model_name, model, crop, mask, prompt, class_id)
+        result_crop = model.inpaint(crop, mask, prompt)
 
         result = image.copy()
         result.paste(result_crop, (x0, y0))
 
-        if ext_bbox:
-            bxc, byc, bw, bh = ext_bbox
-            bbox = ((x0 + bxc * cw) / img_w, (y0 + byc * ch) / img_h,
-                    bw * cw / img_w, bh * ch / img_h)
-        else:
-            mask_np = np.array(mask)
-            ys, xs = np.where(mask_np > 127)
-            bbox = (
-                (x0 + (xs.min() + xs.max()) / 2.0) / img_w,
-                (y0 + (ys.min() + ys.max()) / 2.0) / img_h,
-                (xs.max() - xs.min()) / img_w,
-                (ys.max() - ys.min()) / img_h,
-            ) if len(xs) > 0 else None
-
+        # Derive bbox from mask pixels (more accurate than the nominal obj_w/obj_h)
+        mask_np = np.array(mask)
+        ys, xs = np.where(mask_np > 127)
+        if len(xs) == 0:
+            return result, None
+        bbox = (
+            (x0 + (xs.min() + xs.max()) / 2.0) / img_w,
+            (y0 + (ys.min() + ys.max()) / 2.0) / img_h,
+            (xs.max() - xs.min()) / img_w,
+            (ys.max() - ys.min()) / img_h,
+        )
         return result, bbox
 
     # Full-image mode
     mask = create_mask(img_w, img_h, cx, cy, obj_w, obj_h)
-    result, ext_bbox = run_inpaint(model_name, model, image, mask, prompt, class_id)
-    return result, ext_bbox or compute_yolo_bbox(mask)
+    result = model.inpaint(image, mask, prompt)
+    return result, compute_yolo_bbox(mask)
 
 
 # ── Full single-image pipeline ────────────────────────────────────────────────
 
-@dataclass
-class ProcessConfig:
-    """Runtime parameters for process_image()."""
-    n_objects: int | None = None          # None → random between MIN/MAX
-    use_crop: bool = True
-    output_suffix: str = "_result"        # e.g. "_synth" or "_result"
-    min_objects: int = 2
-    max_objects: int = 3
-    log_fields: list = field(default_factory=list)
-    water_method: str = "hsv"             # hsv | otsu | kmeans | flood | sam
-    min_water_coverage: float = 0.40      # Skip images below this water fraction (0.0-1.0)
-
-
 def process_image(
     img_path: Path,
-    model_name: str,
     model,
     prompts_by_class: dict,
     class_names: dict,
@@ -163,15 +150,19 @@ def process_image(
     log_writer: csv.DictWriter | None,
     cfg: ProcessConfig,
 ) -> list[str]:
-    """
-    Full pipeline for a single image:
-      1. Load + resize
-      2. Detect water
-      3. Find object positions inside water
-      4. Insert each object (inpaint)
-      5. Save image, YOLO annotations, debug overlay, water mask
+    """Full pipeline for a single image.
 
-    Returns list of YOLO annotation strings (one per inserted object).
+    Steps:
+      1. Load and resize the image (max side MAX_SIDE, multiple of DIVISOR)
+      2. Detect water pixels with the chosen method
+      3. Skip if water coverage is below cfg.min_water_coverage
+      4. Find N valid object positions inside the water area
+      5. Apply perspective depth scaling to object sizes
+      6. Insert each object with FLUX Fill (crop mode by default)
+      7. Save output image, YOLO annotations (.txt), debug overlay, water mask
+
+    Returns:
+        List of YOLO annotation strings (one per inserted object).
     """
     print(f"\n  [{img_path.name}]")
 
@@ -180,38 +171,59 @@ def process_image(
     img_w, img_h = image.size
     print(f"    {img_w}x{img_h}  (scale={scale:.3f})")
 
-    # Water detection
-    create_water_mask = _get_water_detector(cfg.water_method)
+    # ── 1. Water detection ────────────────────────────────────────────────────
+    create_water_mask = get_detector(cfg.water_method)
     water_mask = create_water_mask(np.array(image))
     coverage = water_mask.mean() / 255.0
     print(f"    Water coverage: {coverage:.1%}")
     if coverage < cfg.min_water_coverage:
-        print(f"    WARNING: water coverage {coverage:.1%} below threshold {cfg.min_water_coverage:.0%}, skipping.")
+        print(f"    SKIP: {coverage:.1%} water < {cfg.min_water_coverage:.0%} threshold")
         return []
 
-    # Object positions
+    # ── 2. Object placement ───────────────────────────────────────────────────
+    # Filter to selected classes only
+    active_sizes = (
+        {k: v for k, v in OBJECT_SIZES.items() if k in cfg.class_filter}
+        if cfg.class_filter else OBJECT_SIZES
+    )
+    if not active_sizes:
+        print("    SKIP: no active classes after filter")
+        return []
+
     n = cfg.n_objects or random.randint(cfg.min_objects, cfg.max_objects)
     positions = find_water_positions(
-        water_mask, n, OBJECT_SIZES,
+        water_mask, n, active_sizes,
         min_dist=MIN_DIST_PX, safety_margin=EDGE_MARGIN,
     )
     if not positions:
-        print("    WARNING: could not place objects, skipping.")
+        print("    WARNING: could not find valid placement positions, skipping.")
         return []
     print(f"    Positions found: {len(positions)}")
 
+    # ── 3. Perspective depth scaling ──────────────────────────────────────────
+    # Objects lower in the frame (closer to camera) get scaled up.
+    # Objects near the horizon get scaled down.
+    positions = [
+        (cx, cy, cls,
+         max(20, int(obj_w * _depth_scale(cy, img_h))),
+         max(15, int(obj_h * _depth_scale(cy, img_h))))
+        for cx, cy, cls, obj_w, obj_h in positions
+    ]
+
+    # ── 4. Inpainting ─────────────────────────────────────────────────────────
     annotations = []
     stem = img_path.stem
 
     for i, (cx, cy, class_id, obj_w, obj_h) in enumerate(positions):
         prompt = random.choice(prompts_by_class[class_id])
         cls_name = class_names.get(class_id, "")
-        print(f"    [{i+1}/{len(positions)}] {cls_name} at ({cx},{cy}) {obj_w}x{obj_h}px")
+        depth = _depth_scale(cy, img_h)
+        print(f"    [{i+1}/{len(positions)}] {cls_name} @ ({cx},{cy}) {obj_w}×{obj_h}px  depth×{depth:.2f}")
 
         image, bbox = insert_object(
-            model_name, model, image,
+            model, image,
             cx, cy, obj_w, obj_h,
-            prompt, class_id, cfg.use_crop,
+            prompt, cfg.use_crop,
         )
 
         if bbox is None:
@@ -219,25 +231,22 @@ def process_image(
 
         xc, yc, bw, bh = bbox
         annotations.append(f"{class_id} {xc:.6f} {yc:.6f} {bw:.6f} {bh:.6f}")
-        print(f"      bbox center=({xc:.3f},{yc:.3f}) size=({bw:.3f},{bh:.3f})")
+        print(f"      bbox ({xc:.3f}, {yc:.3f})  {bw:.3f}×{bh:.3f}")
 
         if log_writer:
-            row = {
-                "image_out": str(out_dir / f"{stem}{cfg.output_suffix}.png"),
+            log_writer.writerow({
+                "image_out":   str(out_dir / f"{stem}{cfg.output_suffix}.png"),
                 "source_image": img_path.name,
-                "class_id": class_id,
-                "class_name": cls_name,
-                "prompt": prompt,
+                "class_id":    class_id,
+                "class_name":  cls_name,
+                "prompt":      prompt,
                 "cx": cx, "cy": cy,
                 "obj_w": obj_w, "obj_h": obj_h,
                 "bbox_xc": f"{xc:.6f}", "bbox_yc": f"{yc:.6f}",
-                "bbox_w": f"{bw:.6f}", "bbox_h": f"{bh:.6f}",
-            }
-            if "model" in cfg.log_fields:
-                row["model"] = model_name
-            log_writer.writerow(row)
+                "bbox_w":  f"{bw:.6f}", "bbox_h":  f"{bh:.6f}",
+            })
 
-    # Save outputs
+    # ── 5. Save outputs ───────────────────────────────────────────────────────
     out_dir.mkdir(parents=True, exist_ok=True)
     image.save(out_dir / f"{stem}{cfg.output_suffix}.png")
     (out_dir / f"{stem}.txt").write_text("\n".join(annotations))
