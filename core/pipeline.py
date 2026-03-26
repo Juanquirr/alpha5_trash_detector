@@ -54,7 +54,7 @@ def load_model():
 class ProcessConfig:
     """Runtime parameters for process_image()."""
     n_objects: int | None = None        # None → random between min_objects/max_objects
-    use_crop: bool = True               # True = crop-based (better), False = full-image
+    use_crop: bool = False              # False = full-image inpainting (background preserved)
     output_suffix: str = "_synth"
     min_objects: int = 2
     max_objects: int = 3
@@ -72,9 +72,10 @@ def _depth_scale(cy: int, img_h: int) -> float:
     Harbour cameras show perspective: objects near the horizon (top of frame)
     are far away and appear small; objects near the bottom are close and large.
 
-    Scale ranges from 0.4× at the horizon to 1.6× at the bottom of the frame.
+    Scale ranges from 0.6× at the horizon to 1.4× at the bottom of the frame.
+    Floor prevents objects from becoming too small to generate detail.
     """
-    return 0.4 + 1.2 * (cy / img_h)
+    return 0.6 + 0.8 * (cy / img_h)
 
 
 # ── Single-object insertion ───────────────────────────────────────────────────
@@ -205,8 +206,8 @@ def process_image(
     # Objects near the horizon get scaled down.
     positions = [
         (cx, cy, cls,
-         max(20, int(obj_w * _depth_scale(cy, img_h))),
-         max(15, int(obj_h * _depth_scale(cy, img_h))))
+         max(60, int(obj_w * _depth_scale(cy, img_h))),
+         max(50, int(obj_h * _depth_scale(cy, img_h))))
         for cx, cy, cls, obj_w, obj_h in positions
     ]
 

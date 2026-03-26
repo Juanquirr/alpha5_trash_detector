@@ -85,7 +85,7 @@ def _ask_folders() -> tuple[str, str]:
         "Output folder (where to save results)?",
         default=OUTPUT_DIR,
     ).ask()
-    return input_dir.strip(), output_dir.strip()
+    return (input_dir or INPUT_DIR).strip(), (output_dir or OUTPUT_DIR).strip()
 
 
 def _ask_classes() -> list[int]:
@@ -112,7 +112,7 @@ def _ask_num_instances() -> int:
         default="2",
         validate=lambda v: v.isdigit() and int(v) >= 1 or "Enter a positive integer",
     ).ask()
-    return int(answer)
+    return int(answer or "2")
 
 
 def _ask_max_images() -> int | None:
@@ -121,12 +121,13 @@ def _ask_max_images() -> int | None:
         "How many images to process?  (leave blank for all)",
         default="",
     ).ask()
-    return int(answer) if answer.strip().isdigit() else None
+    answer = (answer or "").strip()
+    return int(answer) if answer.isdigit() else None
 
 
 def _ask_water_method() -> str:
     """Ask which water detection method to use."""
-    return questionary.select(
+    answer = questionary.select(
         "Water detection method?",
         choices=[
             questionary.Choice("hsv    — fast, colour-based  [recommended]", value="hsv"),
@@ -136,6 +137,7 @@ def _ask_water_method() -> str:
             questionary.Choice("sam    — SAM 3, most accurate but slow", value="sam"),
         ],
     ).ask()
+    return answer or "hsv"
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
@@ -174,8 +176,8 @@ def main():
         help=f"Output directory for results (default: {OUTPUT_DIR}, or interactive)",
     )
     parser.add_argument(
-        "--no-crop", action="store_true",
-        help="Full-image inpainting instead of crop-based (lower quality).",
+        "--crop", action="store_true",
+        help="Use crop-based inpainting instead of full-image (faster but background may not match).",
     )
     parser.add_argument(
         "--min-water-coverage", type=float, default=0.40,
@@ -235,7 +237,7 @@ def main():
 
     cfg = ProcessConfig(
         n_objects=n_objects,
-        use_crop=not args.no_crop,
+        use_crop=args.crop,
         output_suffix="_synth",
         log_fields=LOG_FIELDS,
         water_method=water_method,
