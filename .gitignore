@@ -191,7 +191,6 @@ results/
 
 .claude/
 .planning/
-backgrounds/
 inputs/
 
 # Ignore hidden files
@@ -206,3 +205,5 @@ runs/*
 *.zip
 *.png
 *.txt
+
+!backgrounds/*.*
