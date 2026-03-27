@@ -62,6 +62,8 @@ class ProcessConfig:
     water_method: str = "hsv"           # hsv | otsu | kmeans | flood | sam
     min_water_coverage: float = 0.40    # Skip images with less water than this
     class_filter: list | None = None    # None = all classes; [0, 3] = only those IDs
+    guidance_scale: float = 30.0        # FLUX Fill classifier-free guidance (7–30 typical)
+    num_inference_steps: int = 50       # Denoising steps (20 = fast, 50 = quality)
 
 
 # ── Perspective-aware sizing ──────────────────────────────────────────────────
@@ -85,23 +87,26 @@ def insert_object(
     image: Image.Image,
     cx: int, cy: int, obj_w: int, obj_h: int,
     prompt: str,
-    use_crop: bool = True,
+    use_crop: bool = False,
+    guidance_scale: float = 30.0,
+    num_inference_steps: int = 50,
 ) -> tuple[Image.Image, tuple | None]:
     """Insert one trash object at (cx, cy) using FLUX Fill.
 
     Two modes:
-      use_crop=True   Extract a local crop around the object position,
-                      inpaint within that crop, then paste back.
-                      Better quality: model sees focused water context.
-      use_crop=False  Inpaint on the full image directly (faster, lower quality).
+      use_crop=False  Inpaint on the full image — background perfectly preserved.
+      use_crop=True   Extract a local crop, inpaint it, paste back (faster but
+                      background colour may diverge from the original scene).
 
     Args:
-        model:        FluxLocalImageInpainter instance.
-        image:        Full scene PIL image (RGB).
-        cx, cy:       Centre of the placement in image pixel coordinates.
-        obj_w, obj_h: Object bounding box dimensions in pixels.
-        prompt:       Text prompt describing the trash object.
-        use_crop:     See above.
+        model:               FluxLocalImageInpainter instance.
+        image:               Full scene PIL image (RGB).
+        cx, cy:              Centre of the placement in image pixel coordinates.
+        obj_w, obj_h:        Object bounding box dimensions in pixels.
+        prompt:              Text prompt describing the trash object.
+        use_crop:            See above.
+        guidance_scale:      CFG strength (7–30). Higher = stronger prompt adherence.
+        num_inference_steps: Denoising steps (20 = fast, 50 = quality).
 
     Returns:
         (updated_image, yolo_bbox) — bbox normalised to [0, 1] full-image coords,
@@ -114,14 +119,13 @@ def insert_object(
         crop = image.crop((x0, y0, x1, y1))
         cw, ch = crop.size
 
-        # Object mask: ellipse centred on (cx, cy) relative to crop origin
         mask = create_mask(cw, ch, cx - x0, cy - y0, obj_w, obj_h)
-        result_crop = model.inpaint(crop, mask, prompt)
-
+        result_crop = model.inpaint(crop, mask, prompt,
+                                    num_inference_steps=num_inference_steps,
+                                    guidance_scale=guidance_scale)
         result = image.copy()
         result.paste(result_crop, (x0, y0))
 
-        # Derive bbox from mask pixels (more accurate than the nominal obj_w/obj_h)
         mask_np = np.array(mask)
         ys, xs = np.where(mask_np > 127)
         if len(xs) == 0:
@@ -136,7 +140,9 @@ def insert_object(
 
     # Full-image mode
     mask = create_mask(img_w, img_h, cx, cy, obj_w, obj_h)
-    result = model.inpaint(image, mask, prompt)
+    result = model.inpaint(image, mask, prompt,
+                           num_inference_steps=num_inference_steps,
+                           guidance_scale=guidance_scale)
     return result, compute_yolo_bbox(mask)
 
 
@@ -225,6 +231,8 @@ def process_image(
             model, image,
             cx, cy, obj_w, obj_h,
             prompt, cfg.use_crop,
+            guidance_scale=cfg.guidance_scale,
+            num_inference_steps=cfg.num_inference_steps,
         )
 
         if bbox is None:
@@ -236,15 +244,17 @@ def process_image(
 
         if log_writer:
             log_writer.writerow({
-                "image_out":   str(out_dir / f"{stem}{cfg.output_suffix}.png"),
+                "image_out":    str(out_dir / f"{stem}{cfg.output_suffix}.png"),
                 "source_image": img_path.name,
-                "class_id":    class_id,
-                "class_name":  cls_name,
-                "prompt":      prompt,
+                "class_id":     class_id,
+                "class_name":   cls_name,
+                "prompt":       prompt,
                 "cx": cx, "cy": cy,
                 "obj_w": obj_w, "obj_h": obj_h,
                 "bbox_xc": f"{xc:.6f}", "bbox_yc": f"{yc:.6f}",
                 "bbox_w":  f"{bw:.6f}", "bbox_h":  f"{bh:.6f}",
+                "guidance_scale":      cfg.guidance_scale,
+                "num_inference_steps": cfg.num_inference_steps,
             })
 
     # ── 5. Save outputs ───────────────────────────────────────────────────────

@@ -37,6 +37,7 @@ LOG_FIELDS = [
     "class_id", "class_name", "prompt",
     "cx", "cy", "obj_w", "obj_h",
     "bbox_xc", "bbox_yc", "bbox_w", "bbox_h",
+    "guidance_scale", "num_inference_steps",
 ]
 
 ALL_CLASSES = {
@@ -180,6 +181,16 @@ def main():
         help="Use crop-based inpainting instead of full-image (faster but background may not match).",
     )
     parser.add_argument(
+        "--guidance-scale", type=float, default=30.0,
+        help="FLUX Fill CFG guidance scale (default: 30). "
+             "Higher = stronger prompt adherence. Typical range: 7–30.",
+    )
+    parser.add_argument(
+        "--steps", type=int, default=50,
+        help="Number of denoising inference steps (default: 50). "
+             "20 = fast draft, 50 = quality.",
+    )
+    parser.add_argument(
         "--min-water-coverage", type=float, default=0.40,
         help="Skip images with less water than this fraction (default: 0.40).",
     )
@@ -228,6 +239,7 @@ def main():
     print(f"  Classes : {', '.join(selected_names)}")
     print(f"  Objects : {n_objects} per image")
     print(f"  Water   : {water_method}  (min coverage {args.min_water_coverage:.0%})")
+    print(f"  FLUX    : guidance={args.guidance_scale}  steps={args.steps}")
     print()
     print("  Loading FLUX Fill model...")
 
@@ -243,6 +255,8 @@ def main():
         water_method=water_method,
         min_water_coverage=args.min_water_coverage,
         class_filter=class_filter,
+        guidance_scale=args.guidance_scale,
+        num_inference_steps=args.steps,
     )
 
     # ── Generation loop ───────────────────────────────────────────────────────
