@@ -4,15 +4,12 @@ Synthetic marine-trash dataset generator — FLUX Fill.
 Inserts photorealistic floating trash into harbour/coastal images and
 produces YOLO-format annotated training data.
 
-Interactive usage (prompts for all settings):
+Interactive usage (questionary prompts for everything):
     python run.py
 
-Scripted usage (all settings via CLI flags):
-    python run.py --classes 0,3,7 --num-instances 2 --max-images 10
-    python run.py --classes all --water-method otsu --output results/
-
-When any of --classes / --num-instances / --water-method are omitted,
-the script will ask for them interactively before starting.
+Scripted usage (bypass all prompts with CLI flags):
+    python run.py --input clean/ --output exp_D --classes 2 --num-instances 1 \
+                  --guidance-scale 12 --steps 50 --water-method sam --max-images 3
 """
 
 import argparse
@@ -74,23 +71,25 @@ def _open_log(path: Path) -> tuple:
     return fh, writer
 
 
-# ── Interactive configuration ─────────────────────────────────────────────────
+# ── Interactive prompts (one per parameter) ───────────────────────────────────
 
-def _ask_folders() -> tuple[str, str]:
-    """Ask for input and output directories."""
-    input_dir = questionary.text(
-        "Input folder (images to process)?",
+def _ask_input_dir() -> str:
+    answer = questionary.text(
+        "Input folder (source images)?",
         default=INPUT_DIR,
     ).ask()
-    output_dir = questionary.text(
+    return (answer or INPUT_DIR).strip()
+
+
+def _ask_output_dir() -> str:
+    answer = questionary.text(
         "Output folder (where to save results)?",
         default=OUTPUT_DIR,
     ).ask()
-    return (input_dir or INPUT_DIR).strip(), (output_dir or OUTPUT_DIR).strip()
+    return (answer or OUTPUT_DIR).strip()
 
 
 def _ask_classes() -> list[int]:
-    """Ask which trash classes to generate (checkbox multi-select)."""
     choices = [
         questionary.Choice(f"{name.replace('_', ' ')}  (class {cid})", value=cid)
         for cid, name in ALL_CLASSES.items()
@@ -107,7 +106,6 @@ def _ask_classes() -> list[int]:
 
 
 def _ask_num_instances() -> int:
-    """Ask how many objects to insert per image."""
     answer = questionary.text(
         "Objects to insert per image?",
         default="2",
@@ -117,9 +115,8 @@ def _ask_num_instances() -> int:
 
 
 def _ask_max_images() -> int | None:
-    """Ask how many input images to process (blank = all, random order)."""
     answer = questionary.text(
-        "How many images to process?  (leave blank for all)",
+        "Max images to process?  (leave blank for all)",
         default="",
     ).ask()
     answer = (answer or "").strip()
@@ -127,7 +124,6 @@ def _ask_max_images() -> int | None:
 
 
 def _ask_water_method() -> str:
-    """Ask which water detection method to use."""
     answer = questionary.select(
         "Water detection method?",
         choices=[
@@ -141,6 +137,63 @@ def _ask_water_method() -> str:
     return answer or "hsv"
 
 
+def _ask_min_water_coverage() -> float:
+    answer = questionary.text(
+        "Min water coverage to process an image?  (0.0–1.0)",
+        default="0.40",
+        validate=lambda v: (
+            v.replace(".", "", 1).isdigit() and 0.0 <= float(v) <= 1.0
+            or "Enter a number between 0.0 and 1.0"
+        ),
+    ).ask()
+    return float(answer or "0.40")
+
+
+def _ask_guidance_scale() -> float:
+    answer = questionary.select(
+        "Guidance scale?  (controls prompt adherence — higher = more literal)",
+        choices=[
+            questionary.Choice("3.5  — very loose, often blurry", value="3.5"),
+            questionary.Choice("7    — soft integration", value="7"),
+            questionary.Choice("10   — community sweet spot", value="10"),
+            questionary.Choice("12   — good balance  [recommended]", value="12"),
+            questionary.Choice("18   — strong adherence", value="18"),
+            questionary.Choice("30   — maximum (default FLUX Fill)", value="30"),
+        ],
+    ).ask()
+    return float(answer or "12")
+
+
+def _ask_steps() -> int:
+    answer = questionary.select(
+        "Inference steps?  (more = better quality, slower)",
+        choices=[
+            questionary.Choice("20  — fast draft", value="20"),
+            questionary.Choice("30  — balanced", value="30"),
+            questionary.Choice("40  — good quality", value="40"),
+            questionary.Choice("50  — full quality  [recommended]", value="50"),
+        ],
+    ).ask()
+    return int(answer or "50")
+
+
+def _ask_crop_mode() -> bool:
+    answer = questionary.select(
+        "Inpainting mode?",
+        choices=[
+            questionary.Choice(
+                "Full-image  — background perfectly preserved  [recommended]",
+                value="full",
+            ),
+            questionary.Choice(
+                "Crop-based  — faster but background may diverge",
+                value="crop",
+            ),
+        ],
+    ).ask()
+    return (answer or "full") == "crop"
+
+
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 def main():
@@ -149,78 +202,42 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
-    parser.add_argument(
-        "--classes", default=None,
-        help='Comma-separated class IDs (e.g. "0,3,7") or "all". '
-             'Omit to select interactively.',
-    )
-    parser.add_argument(
-        "--num-instances", type=int, default=None,
-        help="Objects to insert per image. Omit to enter interactively.",
-    )
-    parser.add_argument(
-        "--max-images", type=int, default=None,
-        help="Max number of input images to process (random order). "
-             "Omit for all images.",
-    )
-    parser.add_argument(
-        "--water-method", default=None,
-        choices=AVAILABLE_METHODS,
-        help="Water detection method. Omit to select interactively.",
-    )
-    parser.add_argument(
-        "--input", default=None,
-        help=f"Input directory with source images (default: {INPUT_DIR}, or interactive)",
-    )
-    parser.add_argument(
-        "--output", default=None,
-        help=f"Output directory for results (default: {OUTPUT_DIR}, or interactive)",
-    )
-    parser.add_argument(
-        "--crop", action="store_true",
-        help="Use crop-based inpainting instead of full-image (faster but background may not match).",
-    )
-    parser.add_argument(
-        "--guidance-scale", type=float, default=30.0,
-        help="FLUX Fill CFG guidance scale (default: 30). "
-             "Higher = stronger prompt adherence. Typical range: 7–30.",
-    )
-    parser.add_argument(
-        "--steps", type=int, default=50,
-        help="Number of denoising inference steps (default: 50). "
-             "20 = fast draft, 50 = quality.",
-    )
-    parser.add_argument(
-        "--min-water-coverage", type=float, default=0.40,
-        help="Skip images with less water than this fraction (default: 0.40).",
-    )
+    parser.add_argument("--input",          default=None)
+    parser.add_argument("--output",         default=None)
+    parser.add_argument("--classes",        default=None,
+                        help='"all" or comma-separated IDs, e.g. "0,2,3"')
+    parser.add_argument("--num-instances",  type=int,   default=None)
+    parser.add_argument("--max-images",     type=int,   default=None)
+    parser.add_argument("--water-method",   default=None, choices=AVAILABLE_METHODS)
+    parser.add_argument("--min-water-coverage", type=float, default=None)
+    parser.add_argument("--guidance-scale", type=float, default=None)
+    parser.add_argument("--steps",          type=int,   default=None)
+    parser.add_argument("--crop",           action="store_true", default=None)
 
     args = parser.parse_args()
 
-    # ── Resolve interactive vs CLI settings ───────────────────────────────────
+    # ── Resolve: CLI flag if provided, otherwise ask interactively ────────────
 
-    # Folders — ask interactively only when neither --input nor --output is given
-    if args.input is None and args.output is None:
-        input_dir, output_dir = _ask_folders()
-    else:
-        input_dir  = args.input  or INPUT_DIR
-        output_dir = args.output or OUTPUT_DIR
+    input_dir  = args.input  or _ask_input_dir()
+    output_dir = args.output or _ask_output_dir()
 
     if args.classes is not None:
-        if args.classes.lower() == "all":
-            class_filter = list(ALL_CLASSES.keys())
-        else:
-            class_filter = [int(c.strip()) for c in args.classes.split(",")]
+        class_filter = (
+            list(ALL_CLASSES.keys()) if args.classes.lower() == "all"
+            else [int(c.strip()) for c in args.classes.split(",")]
+        )
     else:
         class_filter = _ask_classes()
 
-    n_objects = args.num_instances if args.num_instances is not None else _ask_num_instances()
+    n_objects         = args.num_instances      if args.num_instances      is not None else _ask_num_instances()
+    max_images        = args.max_images         if args.max_images         is not None else _ask_max_images()
+    water_method      = args.water_method       if args.water_method       is not None else _ask_water_method()
+    min_water         = args.min_water_coverage if args.min_water_coverage is not None else _ask_min_water_coverage()
+    guidance_scale    = args.guidance_scale     if args.guidance_scale     is not None else _ask_guidance_scale()
+    steps             = args.steps              if args.steps              is not None else _ask_steps()
+    use_crop          = args.crop               if args.crop               is not None else _ask_crop_mode()
 
-    water_method = args.water_method if args.water_method is not None else _ask_water_method()
-
-    max_images = args.max_images  # None = all (no interactive prompt for this one)
-
-    # ── Validate and load ─────────────────────────────────────────────────────
+    # ── Validate ──────────────────────────────────────────────────────────────
 
     image_paths = _collect_images(input_dir, limit=max_images)
     if not image_paths:
@@ -234,12 +251,14 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     selected_names = [ALL_CLASSES.get(c, str(c)) for c in class_filter]
+    mode_label = "crop" if use_crop else "full-image"
+
     print()
     print(f"  Images  : {len(image_paths)}  →  {out_dir}/")
     print(f"  Classes : {', '.join(selected_names)}")
     print(f"  Objects : {n_objects} per image")
-    print(f"  Water   : {water_method}  (min coverage {args.min_water_coverage:.0%})")
-    print(f"  FLUX    : guidance={args.guidance_scale}  steps={args.steps}")
+    print(f"  Water   : {water_method}  (min {min_water:.0%})")
+    print(f"  FLUX    : guidance={guidance_scale}  steps={steps}  mode={mode_label}")
     print()
     print("  Loading FLUX Fill model...")
 
@@ -249,14 +268,14 @@ def main():
 
     cfg = ProcessConfig(
         n_objects=n_objects,
-        use_crop=args.crop,
+        use_crop=use_crop,
         output_suffix="_synth",
         log_fields=LOG_FIELDS,
         water_method=water_method,
-        min_water_coverage=args.min_water_coverage,
+        min_water_coverage=min_water,
         class_filter=class_filter,
-        guidance_scale=args.guidance_scale,
-        num_inference_steps=args.steps,
+        guidance_scale=guidance_scale,
+        num_inference_steps=steps,
     )
 
     # ── Generation loop ───────────────────────────────────────────────────────
