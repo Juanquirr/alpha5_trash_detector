@@ -25,7 +25,7 @@ from core.water import AVAILABLE_METHODS
 
 # ── Defaults ──────────────────────────────────────────────────────────────────
 
-INPUT_DIR   = "inputs"
+INPUT_DIR   = "backgrounds"
 OUTPUT_DIR  = "outputs"
 PROMPTS_CSV = "config/prompts.csv"
 
@@ -169,7 +169,7 @@ def _ask_steps() -> int:
         "Inference steps?  (more = better quality, slower)",
         choices=[
             questionary.Choice("20  — fast draft", value="20"),
-            questionary.Choice("30  — balanced", value="30"),
+            questionary.Choice("35  — balanced", value="35"),
             questionary.Choice("40  — good quality", value="40"),
             questionary.Choice("50  — full quality  [recommended]", value="50"),
         ],
