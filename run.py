@@ -6,10 +6,14 @@ produces YOLO-format annotated training data.
 
 Interactive usage (questionary prompts for everything):
     python run.py
+    python run.py fill
 
 Scripted usage (bypass all prompts with CLI flags):
-    python run.py --input clean/ --output exp_D --classes 2 --num-instances 1 \
+    python run.py fill --input clean/ --output exp_D --classes 2 --num-instances 1 \
                   --guidance-scale 12 --steps 50 --water-method sam --max-images 3
+
+Batch usage (run multiple experiments from a YAML config):
+    python run.py batch --config experiments.yaml
 """
 
 import argparse
@@ -193,27 +197,10 @@ def _ask_crop_mode() -> bool:
     return (answer or "full") == "crop"
 
 
-# ── CLI ───────────────────────────────────────────────────────────────────────
+# ── Subcommand handlers ───────────────────────────────────────────────────────
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Marine-trash synthetic dataset generator (FLUX Fill)",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__,
-    )
-    parser.add_argument("--input",          default=None)
-    parser.add_argument("--output",         default=None)
-    parser.add_argument("--classes",        default=None,
-                        help='"all" or comma-separated IDs, e.g. "0,2,3"')
-    parser.add_argument("--num-instances",  type=int,   default=None)
-    parser.add_argument("--max-images",     type=int,   default=None)
-    parser.add_argument("--water-method",   default=None, choices=AVAILABLE_METHODS)
-    parser.add_argument("--min-water-coverage", type=float, default=None)
-    parser.add_argument("--guidance-scale", type=float, default=None)
-    parser.add_argument("--steps",          type=int,   default=None)
-    parser.add_argument("--crop",           action="store_true", default=None)
-
-    args = parser.parse_args()
+def _cmd_fill(args):
+    """Run interactive/scripted fill generation (existing behaviour)."""
 
     # ── Resolve: CLI flag if provided, otherwise ask interactively ────────────
 
@@ -289,6 +276,134 @@ def main():
     print(f"\n{'─' * 60}")
     print(f"Done.  {len(image_paths)} images processed.")
     print(f"Log  → {out_dir}/generation_log.csv")
+
+
+def _cmd_batch(args):
+    """Run multiple experiments sequentially from a YAML config file."""
+    import yaml  # lazy import
+
+    cfg_path = Path(args.config)
+    if not cfg_path.exists():
+        print(f"Config not found: {cfg_path}")
+        return
+
+    raw = yaml.safe_load(cfg_path.read_text())
+
+    # ── Shared params ─────────────────────────────────────────────────────────
+    input_dir     = raw.get("input", INPUT_DIR)
+    base_output   = raw.get("base_output", OUTPUT_DIR)
+    num_instances = raw.get("num_instances", 2)
+    max_images    = raw.get("max_images", None)
+    water_method  = raw.get("water_method", "hsv")
+    min_water     = raw.get("min_water_coverage", 0.40)
+    use_crop      = raw.get("crop", False)
+    classes_raw   = raw.get("classes", list(ALL_CLASSES.keys()))
+    class_filter  = (
+        list(ALL_CLASSES.keys()) if classes_raw == "all"
+        else [int(c) for c in classes_raw]
+    )
+    experiments   = raw.get("experiments", [])
+
+    if not experiments:
+        print("No experiments defined in config.")
+        return
+
+    prompts_by_class = load_prompts(PROMPTS_CSV)
+    class_names      = load_class_names(PROMPTS_CSV)
+    image_paths      = _collect_images(input_dir, limit=max_images)
+
+    if not image_paths:
+        print(f"No images found in {input_dir}/")
+        return
+
+    print(f"\n  Batch run: {len(experiments)} experiments × {len(image_paths)} images")
+    print(f"  Loading FLUX Fill model (once)...")
+    model = load_model()
+
+    for exp in experiments:
+        name           = exp.get("name", "exp")
+        guidance_scale = float(exp.get("guidance_scale", 12.0))
+        steps          = int(exp.get("steps", 50))
+
+        out_dir = Path(base_output) / f"exp_{name}"
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        print(f"\n{'═' * 60}")
+        print(f"  Experiment {name}  |  guidance={guidance_scale}  steps={steps}")
+        print(f"  Output → {out_dir}/")
+        print(f"{'═' * 60}")
+
+        log_fh, log_writer = _open_log(out_dir / "generation_log.csv")
+
+        cfg = ProcessConfig(
+            n_objects=num_instances,
+            use_crop=use_crop,
+            output_suffix="_synth",
+            log_fields=LOG_FIELDS,
+            water_method=water_method,
+            min_water_coverage=min_water,
+            class_filter=class_filter,
+            guidance_scale=guidance_scale,
+            num_inference_steps=steps,
+        )
+
+        for i, img_path in enumerate(image_paths):
+            print(f"\n{'─' * 60}")
+            print(f"  [{i+1}/{len(image_paths)}] {img_path.name}")
+            process_image(img_path, model, prompts_by_class, class_names,
+                          out_dir, log_writer, cfg)
+
+        log_fh.close()
+        print(f"\n  Experiment {name} done.  Log → {out_dir}/generation_log.csv")
+
+    print(f"\n{'═' * 60}")
+    print(f"  Batch complete.  {len(experiments)} experiments finished.")
+
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Marine-trash synthetic dataset generator (FLUX Fill)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+    subs = parser.add_subparsers(dest="subcommand")
+
+    # ── fill subcommand (existing behaviour) ──────────────────────────────────
+    p_fill = subs.add_parser(
+        "fill",
+        help="Generate dataset interactively or with CLI flags (FLUX Fill)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p_fill.add_argument("--input",          default=None)
+    p_fill.add_argument("--output",         default=None)
+    p_fill.add_argument("--classes",        default=None,
+                        help='"all" or comma-separated IDs, e.g. "0,2,3"')
+    p_fill.add_argument("--num-instances",  type=int,   default=None)
+    p_fill.add_argument("--max-images",     type=int,   default=None)
+    p_fill.add_argument("--water-method",   default=None, choices=AVAILABLE_METHODS)
+    p_fill.add_argument("--min-water-coverage", type=float, default=None)
+    p_fill.add_argument("--guidance-scale", type=float, default=None)
+    p_fill.add_argument("--steps",          type=int,   default=None)
+    p_fill.add_argument("--crop",           action="store_true", default=None)
+
+    # ── batch subcommand ──────────────────────────────────────────────────────
+    p_batch = subs.add_parser(
+        "batch",
+        help="Run multiple experiments from a YAML config file",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p_batch.add_argument("--config", required=True,
+                         help="Path to experiments YAML (e.g. experiments.yaml)")
+
+    args = parser.parse_args()
+
+    if args.subcommand == "batch":
+        _cmd_batch(args)
+    else:
+        # default: fill (also handles bare `python run.py` with no subcommand)
+        _cmd_fill(args)
 
 
 if __name__ == "__main__":
