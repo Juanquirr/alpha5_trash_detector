@@ -170,7 +170,6 @@ def _ask_steps() -> int:
         choices=[
             questionary.Choice("20  — fast draft", value="20"),
             questionary.Choice("35  — balanced", value="35"),
-            questionary.Choice("40  — good quality", value="40"),
             questionary.Choice("50  — full quality  [recommended]", value="50"),
         ],
     ).ask()
