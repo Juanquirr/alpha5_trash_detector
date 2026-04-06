@@ -239,16 +239,18 @@ def _cmd_fill(args):
     selected_names = [ALL_CLASSES.get(c, str(c)) for c in class_filter]
     mode_label = "crop" if use_crop else "full-image"
 
+    model_name = getattr(args, "model", None) or "fill"
+
     print()
     print(f"  Images  : {len(image_paths)}  →  {out_dir}/")
     print(f"  Classes : {', '.join(selected_names)}")
     print(f"  Objects : {n_objects} per image")
     print(f"  Water   : {water_method}  (min {min_water:.0%})")
-    print(f"  FLUX    : guidance={guidance_scale}  steps={steps}  mode={mode_label}")
+    print(f"  FLUX    : model={model_name}  guidance={guidance_scale}  steps={steps}  mode={mode_label}")
     print()
-    print("  Loading FLUX Fill model...")
+    print(f"  Loading FLUX {model_name} model...")
 
-    model = load_model()
+    model = load_model(model_name)
 
     log_fh, log_writer = _open_log(out_dir / "generation_log.csv")
 
@@ -316,14 +318,24 @@ def _cmd_batch(args):
         print(f"No images found in {input_dir}/")
         return
 
+    global_model_name = getattr(args, "model", None) or raw.get("model", "fill")
+
     print(f"\n  Batch run: {len(experiments)} experiments × {len(image_paths)} images")
-    print(f"  Loading FLUX Fill model (once)...")
-    model = load_model()
+    print(f"  Default model: {global_model_name}")
+
+    current_model_name = None
+    model = None
 
     for exp in experiments:
         name           = exp.get("name", "exp")
         guidance_scale = float(exp.get("guidance_scale", 12.0))
         steps          = int(exp.get("steps", 50))
+        model_name     = exp.get("model", global_model_name)
+
+        if model_name != current_model_name:
+            print(f"\n  Loading FLUX {model_name} model...")
+            model = load_model(model_name)
+            current_model_name = model_name
 
         out_dir = Path(base_output) / f"exp_{name}"
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -387,6 +399,8 @@ def main():
     p_fill.add_argument("--guidance-scale", type=float, default=None)
     p_fill.add_argument("--steps",          type=int,   default=None)
     p_fill.add_argument("--crop",           action="store_true", default=None)
+    p_fill.add_argument("--model",          default="fill", choices=["fill", "canny"],
+                        help="FLUX model: fill (default) or canny")
 
     # ── batch subcommand ──────────────────────────────────────────────────────
     p_batch = subs.add_parser(
@@ -396,6 +410,8 @@ def main():
     )
     p_batch.add_argument("--config", required=True,
                          help="Path to experiments YAML (e.g. experiments.yaml)")
+    p_batch.add_argument("--model",  default=None, choices=["fill", "canny"],
+                         help="Override model for all experiments (overrides YAML model field)")
 
     args = parser.parse_args()
 

@@ -37,15 +37,22 @@ from core.water import get_detector, find_water_positions
 
 # ── Model factory ─────────────────────────────────────────────────────────────
 
-def load_model():
-    """Load the FLUX Fill inpainter (lazy import — GPU model only loaded here).
+def load_model(name: str = "fill"):
+    """Load the requested FLUX inpainter (lazy import — GPU model only loaded here).
 
-    Extension point: future phases will add Redux and Canny variants.
-        # Phase 2: return FluxReduxInpainter(references_dir=...)
-        # Phase 3: return FluxCannyInpainter()
+    Args:
+        name: "fill" (default) or "canny".
+
+    Raises:
+        ValueError: if name is not a known model.
     """
-    from core.inpainters.flux_fill import FluxLocalImageInpainter
-    return FluxLocalImageInpainter()
+    if name == "fill":
+        from core.inpainters.flux_fill import FluxLocalImageInpainter
+        return FluxLocalImageInpainter()
+    if name == "canny":
+        from core.inpainters.flux_canny import FluxCannyInpainter
+        return FluxCannyInpainter()
+    raise ValueError(f"Unknown model '{name}'. Choices: fill, canny")
 
 
 # ── Config ────────────────────────────────────────────────────────────────────
