@@ -1,0 +1,42 @@
+# Experiment grid: guidance_scale × steps
+# Usage: python run.py batch --config experiments.yaml
+
+input: backgrounds/
+base_output: results/
+
+# Shared params (override per experiment if needed)
+classes: [0, 2, 3, 4, 5, 6, 7]
+num_instances: 1
+max_images: 5
+water_method: hsv
+min_water_coverage: 0.40
+crop: false
+
+experiments:
+  - name: A
+    guidance_scale: 3.5
+    steps: 20
+  - name: B
+    guidance_scale: 7
+    steps: 20
+  - name: C
+    guidance_scale: 10
+    steps: 35
+  - name: D
+    guidance_scale: 12
+    steps: 50
+  - name: E
+    guidance_scale: 12
+    steps: 35
+  - name: F
+    guidance_scale: 18
+    steps: 50
+  - name: G
+    guidance_scale: 18
+    steps: 35
+  - name: H
+    guidance_scale: 30
+    steps: 50
+  - name: I
+    guidance_scale: 30
+    steps: 35
