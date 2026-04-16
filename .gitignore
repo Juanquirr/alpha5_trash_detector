@@ -10,3 +10,4 @@ alpha5_*
 *.zip
 *.json
 *.pyc
+.claude/
