@@ -284,7 +284,7 @@ def build_args():
     p.add_argument("--iou", type=float, default=0.45, help="IoU threshold for global NMS.")
     p.add_argument("--device", type=str, default="cuda:0", help="Device (e.g., cpu, cuda:0).")
 
-    p.add_argument("--crops", type=int, default=4, help="Number of crops (must be even). More than 8 crops is not recomended.")
+    p.add_argument("--crops", type=int, default=4, help="Number of crops (must be even). More than 8 crops is not recommended.")
     p.add_argument("--overlap", type=float, default=0.2, help="Overlap ratio in [0, 1).")
     p.add_argument("--save_crops", action="store_true", help="Save annotated crop images.")
     p.add_argument("--draw_grid", action="store_true", help="Save original image with crop grid drawn.")

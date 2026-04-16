@@ -85,8 +85,8 @@ def crops_inference(model: YOLO, img: np.ndarray, crops_number: int, overlap: fl
             all_classes.append(int(c))
     
     if not all_boxes:
-        return np.empty((0, 4), dtype=np.float32), np.array([]), np.array([])
-    
+        return np.empty((0, 4), dtype=np.float32), np.array([]), np.array([]), coords
+
     boxes = np.array(all_boxes, dtype=np.float32)
     scores = np.array(all_scores, dtype=np.float32)
     classes = np.array(all_classes, dtype=np.int32)

@@ -245,7 +245,7 @@ def process_image_tta(
 
 def iter_images(source: Path, recursive: bool = False):
     """Iterate over images"""
-    supported = {".jpg", ".jpeg", ".png", ".bmp", ".tif", "."}
+    supported = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
     
     if source.is_file():
         return [source] if source.suffix.lower() in supported else []

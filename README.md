@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
 [![YOLOv26](https://img.shields.io/badge/Model-YOLOv26-purple)](https://github.com/ultralytics/ultralytics)
 [![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker)](https://www.docker.com/)
-[![LICENSE](https://img.shields.io/badge/License-MIT-green)](LICENSE.md)
+[![LICENSE](https://img.shields.io/badge/License-Proprietary-red)](LICENSE.md)
 
 **Alpha5** is a robust waste detection system built on the YOLO26 architecture,
 featuring six configurable inference strategies and an interactive GUI for visual comparison of results.
@@ -102,9 +102,8 @@ per class** across splits — not just image counts.
 
 ```bash
 python img_stratifier.py /path/to/mixed_dir \
-  --out_dir /path/to/output_dir \
-  --ratios 0.7 0.2 0.1 \
-  --seed 42
+  --output /path/to/output_dir \
+  --train 0.7 --val 0.2 --test 0.1
 ```
 
 Output follows the standard YOLO layout:
@@ -125,6 +124,21 @@ python create_empty_labels.py /path/to/split_dir --dry_run
 # Write missing empty label files
 python create_empty_labels.py /path/to/split_dir
 ```
+
+#### YOLO to COCO conversion
+
+`yolo2coco.py` converts a YOLO-format dataset (normalized center-based bounding
+boxes) to COCO format (absolute corner-based). Reads class names from `data.yaml`
+and writes one `instances_{split}.json` per split.
+
+```bash
+python yolo2coco.py \
+  --input /path/to/yolo_dataset \
+  --output /path/to/coco_dataset
+```
+
+The input directory must contain a `data.yaml` file and `train/`, `val/`, and/or
+`test/` subdirectories with standard `images/` and `labels/` folders.
 
 ---
 
@@ -385,5 +399,6 @@ If you use this work in your research, please cite:
 
 ## License
 
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE.md) for
-details.
+This project uses a **Proprietary License** for non-commercial use only.
+Commercial use, production deployment, or redistribution requires prior written
+permission from the author. See [LICENSE](LICENSE.md) for details.
