@@ -1,0 +1,28 @@
+services:
+  autolabel:
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - HF_HOME=/cache/huggingface
+    volumes:
+      - ./alpha5_trash_v4_dataset:/data/dataset:ro   # dataset (read-only)
+      - ./output:/data/output                         # labels + annotations out
+      - hf_cache:/cache/huggingface                   # model cache (persists across runs)
+      # Uncomment to use a local model instead of downloading:
+      # - /path/to/local/sam3:/model:ro
+    command: >
+      /data/dataset
+      --dataset-mode
+      --output-root /data/output/labels
+      --output-annot /data/output/annot
+      --output-json  /data/output/report.json
+      --device cuda
+
+volumes:
+  hf_cache:

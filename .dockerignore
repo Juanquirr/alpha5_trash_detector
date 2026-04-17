@@ -1,0 +1,9 @@
+alpha5_trash_v4_dataset/
+alpha5_trash_v4.zip
+output/
+*.zip
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
