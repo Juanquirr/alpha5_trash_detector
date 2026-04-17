@@ -1,4 +1,21 @@
 services:
+
+  # ── Download model from HuggingFace ────────────────────────────────────────
+  # Usage: docker compose run download
+  # Optional token for gated models: docker compose run -e HF_TOKEN=hf_xxx download
+  download:
+    build: .
+    environment:
+      - HF_HOME=/cache/huggingface
+      - HF_TOKEN=${HF_TOKEN:-}        # pass via env or .env file
+    volumes:
+      - ./sam3_model:/model           # saves model to ./sam3_model on host
+      - hf_cache:/cache/huggingface
+    entrypoint: ["python", "download_model.py"]
+    command: ["--output", "/model"]
+
+  # ── Auto-label dataset ─────────────────────────────────────────────────────
+  # Usage: docker compose up autolabel
   autolabel:
     build: .
     deploy:
@@ -13,12 +30,12 @@ services:
     volumes:
       - ./alpha5_trash_v4_dataset:/data/dataset:ro   # dataset (read-only)
       - ./output:/data/output                         # labels + annotations out
-      - hf_cache:/cache/huggingface                   # model cache (persists across runs)
-      # Uncomment to use a local model instead of downloading:
-      # - /path/to/local/sam3:/model:ro
+      - ./sam3_model:/model:ro                        # local model (populated by 'download')
+      - hf_cache:/cache/huggingface                   # fallback: auto-download if /model empty
     command: >
       /data/dataset
       --dataset-mode
+      --model    /model
       --output-root /data/output/labels
       --output-annot /data/output/annot
       --output-json  /data/output/report.json
