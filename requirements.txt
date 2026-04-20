@@ -4,4 +4,3 @@ torchvision
 transformers>=4.45.0
 accelerate
 Pillow
-moondream

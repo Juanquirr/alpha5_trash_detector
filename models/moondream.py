@@ -6,11 +6,22 @@ class Moondream(BaseVLM):
     variant = "vikhyatk/moondream2"
 
     def load(self) -> None:
-        import moondream as md
-        self.model = md.vl(model=self.variant)
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        self._torch = torch
+        self.tokenizer = AutoTokenizer.from_pretrained(self.variant, trust_remote_code=True)
+        self.model = AutoModelForCausalLM.from_pretrained(
+            self.variant,
+            trust_remote_code=True,
+            torch_dtype=torch.float16,
+            device_map=self.device,
+        )
+        self.model.eval()
 
     def describe(self, image_path: str, prompt: str) -> str:
         from PIL import Image
+
         image = Image.open(image_path).convert("RGB")
         encoded = self.model.encode_image(image)
-        return self.model.query(encoded, prompt)["answer"]
+        return self.model.answer_question(encoded, prompt, self.tokenizer)
