@@ -8,7 +8,10 @@ class SmolVLM(BaseVLM):
     def load(self) -> None:
         from PIL import Image  # noqa: F401 — ensure Pillow available early
         import torch
-        from transformers import AutoProcessor, AutoModelForVision2Seq
+        try:
+            from transformers import AutoProcessor, AutoModelForImageTextToText as AutoModelForVision2Seq
+        except ImportError:
+            from transformers import AutoProcessor, AutoModelForVision2Seq
 
         self._torch = torch
         self.processor = AutoProcessor.from_pretrained(self.variant)
