@@ -19,7 +19,7 @@ def load_sam3(device: str, model_path: str = "facebook/sam3") -> tuple:
         _processor = Sam3Processor.from_pretrained(model_path)
         _model = Sam3Model.from_pretrained(
             model_path,
-            torch_dtype=torch.bfloat16,
+            torch_dtype=torch.float16,
         ).to(device)
         _model.eval()
         print("[SAM3] Ready.\n")
