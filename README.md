@@ -155,7 +155,7 @@ python train_yolo.py /path/to/data.yaml yolo26x.pt \
   --imgsz 640 \
   --workers 4 \
   --patience 15 \
-  --device cuda \
+  --device 0 \
   --project /ultralytics/USER/runs/detect/train \
   --name alpha5_yolo26 \
   --optimizer auto
@@ -185,7 +185,7 @@ python hyperparam_yolo_tunning.py /path/to/data.yaml yolo26x.pt 50 20 \
   --batch -1 \
   --imgsz 640 \
   --patience 15 \
-  --device cuda \
+  --device 0 \
   --name tune_exp \
   --project /ultralytics/USER/runs/detect/tune
 ```
