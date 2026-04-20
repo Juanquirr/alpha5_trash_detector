@@ -1,6 +1,3 @@
-from PIL import Image
-import torch
-
 from .base import BaseVLM
 
 
@@ -13,6 +10,7 @@ class Moondream(BaseVLM):
         self.model = md.vl(model=self.variant)
 
     def describe(self, image_path: str, prompt: str) -> str:
+        from PIL import Image
         image = Image.open(image_path).convert("RGB")
         encoded = self.model.encode_image(image)
         return self.model.query(encoded, prompt)["answer"]
