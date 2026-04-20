@@ -23,7 +23,7 @@ def build_args() -> argparse.Namespace:
     p.add_argument("--batch", type=int, default=-1, help="Batch size (-1 for AutoBatch)")
     p.add_argument("--imgsz", type=int, default=640, help="Image size")
     p.add_argument("--patience", type=int, help="Early-stopping patience")
-    p.add_argument("--device", type=str, default="cuda", help="Device (cuda, cpu, cuda:0, ...)")
+    p.add_argument("--device", type=str, default="0", help="Device (0, 1, cpu, 0,1,2,3 for multi-GPU DDP, ...)")
 
     p.add_argument("--name", type=str, default="tune_exp", help="Tuning run name")
     p.add_argument("--project", type=str, default=None, help="Output project directory (optional)")

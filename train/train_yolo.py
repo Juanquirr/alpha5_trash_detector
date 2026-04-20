@@ -34,7 +34,7 @@ def build_arguments() -> argparse.Namespace:
     parser.add_argument("--imgsz", type=int, default=640, help="Training image size")
     parser.add_argument("--workers", type=int, default=4, help="Number of dataloader workers")
     parser.add_argument("--patience", type=int, default=15, help="Early-stopping patience (epochs)")
-    parser.add_argument("--device", type=str, default="cuda", help="Device (cuda, cpu, cuda:0, ...)")
+    parser.add_argument("--device", type=str, default="0", help="Device (0, 1, cpu, 0,1,2,3 for multi-GPU DDP, ...)")
 
     # Output arguments
     parser.add_argument(
