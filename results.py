@@ -10,6 +10,7 @@ FIELDS = [
     "prompt",
     "response",
     "garbage_detected",
+    "classes_detected",
     "inference_s",
     "vram_mb",
 ]
