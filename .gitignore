@@ -1,7 +1,6 @@
 __pycache__/
 .claude/
 .venv/
-envs/
 *.pyc
 results/*.csv
 images/*
