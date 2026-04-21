@@ -1,6 +1,6 @@
 __pycache__/
 .claude/
-.venv/
+.venv*/
 *.pyc
 results/*.csv
 images/*
