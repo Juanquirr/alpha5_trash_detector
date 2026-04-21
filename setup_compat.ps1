@@ -9,8 +9,8 @@ python -m venv .venv-compat
 Write-Host "Activating..."
 .\.venv-compat\Scripts\Activate.ps1
 
-Write-Host "Installing PyTorch with CUDA 12.1..."
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+Write-Host "Installing PyTorch with CUDA 12.4..."
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 
 Write-Host "Installing transformers 4.46.x + deps..."
 pip install "transformers==4.46.3" accelerate Pillow

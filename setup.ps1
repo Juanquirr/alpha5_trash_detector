@@ -9,8 +9,8 @@ python -m venv .venv
 Write-Host "Activating..."
 .\.venv\Scripts\Activate.ps1
 
-Write-Host "Installing PyTorch with CUDA 12.1..."
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+Write-Host "Installing PyTorch with CUDA 12.4..."
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 
 Write-Host "Installing remaining dependencies..."
 pip install -r requirements.txt
