@@ -14,9 +14,8 @@ class Moondream(BaseVLM):
         self.model = AutoModelForCausalLM.from_pretrained(
             self.variant,
             trust_remote_code=True,
-            torch_dtype=torch.float16,
-            device_map=self.device,
-        )
+            dtype=torch.float16,
+        ).to(self.device)
         self.model.eval()
 
     def describe(self, image_path: str, prompt: str) -> str:
