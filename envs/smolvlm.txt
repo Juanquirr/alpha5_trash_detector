@@ -1,0 +1,5 @@
+transformers>=4.45.0
+torch>=2.1.0
+torchvision
+Pillow
+accelerate
