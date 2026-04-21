@@ -2,6 +2,8 @@ FROM ultralytics/ultralytics:8.4.11
 
 RUN apt update && apt install -y vim
 
+RUN pip uninstall numpy -y
+
 # Pin numpy to 1.26.x — numpy 2.x breaks albumentations
 RUN pip install pandas sahi "numpy==1.26.4"
 
