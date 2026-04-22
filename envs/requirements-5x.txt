@@ -5,3 +5,8 @@
 transformers>=5.0.0
 accelerate
 Pillow
+# VideoLLaMA3 video processing deps (required even for static images)
+opencv-python
+decord
+ffmpeg-python
+imageio
