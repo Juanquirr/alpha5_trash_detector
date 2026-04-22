@@ -14,29 +14,48 @@ CLASSES = [
 ]
 
 DETECTION_PROMPT = (
-    "Look at this image and determine if there is any garbage, litter, or waste visible.\n\n"
-    "If you see garbage: respond with YES followed by a colon and the applicable categories "
-    "from this list (comma-separated): plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash\n"
-    "If there is no garbage: respond with only NO\n\n"
-    "Examples:\n"
-    "YES: plastic bottle, can\n"
-    "YES: trash pile\n"
-    "NO"
+    "Describe what you see in this image in detail, focusing on any objects on the ground, "
+    "surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.\n\n"
+    "After your description, conclude with exactly one of these two lines:\n"
+    "DETECTED: <comma-separated types from this list: "
+    "plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>\n"
+    "CLEAN\n\n"
+    "Example responses:\n"
+    "The image shows a park path with several crushed plastic bottles and an aluminum can "
+    "scattered on the grass near a bench.\nDETECTED: plastic bottle, can\n\n"
+    "The image shows a clean sidewalk with no visible litter.\nCLEAN"
 )
 
 
 def parse_response(response: str) -> tuple[bool, list[str]]:
-    """Parse YES/NO and class labels from model response.
+    """Parse DETECTED/CLEAN label and class names from model response.
 
-    Robust: scans for class names anywhere in the text, so partial
-    or reformatted responses still yield correct classes.
+    Strategy:
+    1. Look for DETECTED: or CLEAN at end of response (expected format).
+    2. Fallback: scan full text for class names if label missing.
     """
     text = response.strip()
-    detected = text.upper().startswith("YES")
-    classes = []
-    if detected:
-        lower = text.lower()
+    upper = text.upper()
+
+    # Primary: structured label at end
+    if "DETECTED:" in upper:
+        detected = True
+        # Extract everything after last DETECTED:
+        after = text[upper.rfind("DETECTED:") + len("DETECTED:"):].strip()
+        lower = after.lower()
         classes = [c for c in CLASSES if c in lower]
+        # Fallback to full text scan if nothing matched after label
+        if not classes:
+            classes = [c for c in CLASSES if c in text.lower()]
+        return detected, classes
+
+    if upper.endswith("CLEAN") or "\nCLEAN" in upper:
+        return False, []
+
+    # Fallback: no structured label — scan full response for class names
+    lower = text.lower()
+    classes = [c for c in CLASSES if c in lower]
+    detected = len(classes) > 0
     return detected, classes
 
 

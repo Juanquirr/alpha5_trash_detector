@@ -6,10 +6,13 @@ from .base import BaseVLM, DETECTION_PROMPT
 
 # PaliGemma uses shorter, prefix-style prompts better than long instructions.
 # Override with a compact prompt.
+# PaliGemma is a prefix-completion model — short prompts work better.
+# Describe-first still applies: ask for scene description then classification.
 _PALI_PROMPT = (
-    "Is there garbage, litter or waste in this image? "
-    "Answer YES or NO. If YES, list types from: "
-    "plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash."
+    "Describe the objects and ground conditions visible. "
+    "Then write DETECTED: followed by types present from: "
+    "plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash. "
+    "Or write CLEAN if no waste is visible."
 )
 
 
