@@ -1,8 +1,8 @@
-# venv: .venv (transformers 5.x)
-# VideoLLaMA3 is primarily a video model but handles static images fine.
-# Uses trust_remote_code.
-# Variant options: DAMO-NLP-SG/VideoLLaMA3-2B (~4GB)
-#                  DAMO-NLP-SG/VideoLLaMA3-7B (~14GB)
+# venv: .transformers-5.X-venv
+# STATUS: UNAVAILABLE — VideoLLaMA3 custom code imports `VideoInput` from
+# transformers.image_utils which does not exist in any released version (as of 5.5.4).
+# Requires transformers from git main (pre-release, unstable).
+# Keeping implementation for future compatibility check.
 from .base import BaseVLM
 
 
@@ -11,7 +11,12 @@ class VideoLLaMA3(BaseVLM):
     variant = "DAMO-NLP-SG/VideoLLaMA3-2B"
 
     def load(self) -> None:
-        import torch
+        raise RuntimeError(
+            "VideoLLaMA3 requires `VideoInput` from transformers which is not in any "
+            "released version. Blocked until transformers adds `VideoInput` to image_utils. "
+            "Use smolvlm or qwen_vl instead."
+        )
+        import torch  # noqa: unreachable — kept for future use
         from transformers import AutoModel, AutoProcessor
 
         self._torch = torch
