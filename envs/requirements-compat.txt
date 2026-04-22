@@ -1,0 +1,9 @@
+# .transformers-4.46-venv dependencies
+# Models: moondream, llava, blip2, instructblip, clip, paligemma, idefics, mplug_owl3
+# PyTorch installed separately in setup_compat.ps1 (needs --index-url for CUDA)
+
+transformers==4.46.3
+accelerate
+Pillow
+timm
+sentencepiece

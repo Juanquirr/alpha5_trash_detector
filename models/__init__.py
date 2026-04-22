@@ -11,14 +11,14 @@ from .qwen_vl import QwenVL
 from .videollama3 import VideoLLaMA3
 
 # ── Venv reference ────────────────────────────────────────────────────────────
-# .venv        → transformers 5.x    → setup.ps1
+# .transformers-5.X-venv        → transformers 5.x    → setup.ps1
 # .transformers-4.46-venv → transformers 4.46.x → setup_compat.ps1
 # ─────────────────────────────────────────────────────────────────────────────
 
 VENV = {
-    "smolvlm":      ".venv",
-    "qwen_vl":      ".venv",
-    "videollama3":  ".venv",
+    "smolvlm":      ".transformers-5.X-venv",
+    "qwen_vl":      ".transformers-5.X-venv",
+    "videollama3":  ".transformers-5.X-venv",
     "moondream":    ".transformers-4.46-venv",
     "llava":        ".transformers-4.46-venv",
     "blip2":        ".transformers-4.46-venv",

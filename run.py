@@ -5,9 +5,9 @@ Usage:
     python run.py --model all --images images/
 
 Venv reference:
-    .venv        (transformers 5.x) : smolvlm, qwen_vl, videollama3
-    .venv-compat (transformers 4.46): moondream, llava, blip2, instructblip,
-                                      clip, paligemma, idefics, mplug_owl3
+    .transformers-5.X-venv  (transformers 5.x) : smolvlm, qwen_vl, videollama3
+    .transformers-4.46-venv (transformers 4.46): moondream, llava, blip2, instructblip,
+                                                 clip, paligemma, idefics, mplug_owl3
 """
 import argparse
 from pathlib import Path
