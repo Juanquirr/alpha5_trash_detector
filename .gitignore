@@ -5,3 +5,5 @@ __pycache__/
 results/*.csv
 images/*
 !images/.gitkeep
+alpha5*/
+.transformers*/
