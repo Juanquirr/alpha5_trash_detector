@@ -32,9 +32,10 @@ def run_model(model_key: str, images: list[Path]) -> None:
     vlm.load()
     print(f"[{model_key}] Model ready. Processing {len(images)} image(s)...")
 
+    csv_path = f"results/detections_{model_key}.csv"
     for img in images:
         row = vlm.detect_garbage(str(img))
-        append_row(row)
+        append_row(row, csv_path=csv_path)
         status = "YES" if row["garbage_detected"] else "NO "
         classes = row["classes_detected"] or "—"
         print(f"  [{status}] {img.name} | {classes} | {row['inference_s']}s | {row['vram_mb']}MB VRAM")
