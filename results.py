@@ -2,6 +2,16 @@ import csv
 import datetime
 from pathlib import Path
 
+
+def already_processed(csv_path: str) -> set[str]:
+    """Return set of image filenames already present in csv_path."""
+    path = Path(csv_path)
+    if not path.exists():
+        return set()
+    with open(path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        return {row["image"] for row in reader if "image" in row}
+
 FIELDS = [
     "timestamp",
     "image",
