@@ -8,22 +8,39 @@ CLASSES = [
     "glass",
     "can",
     "plastic bag",
+    "metal scrap",
     "plastic wrapper",
     "trash pile",
     "trash",
 ]
 
 DETECTION_PROMPT = (
-    "Describe what you see in this image in detail, focusing on any objects on the ground, "
-    "surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.\n\n"
-    "After your description, conclude with exactly one of these two lines:\n"
-    "DETECTED: <comma-separated types from this list: "
-    "plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>\n"
+    "Examine this image carefully and describe what you see, paying attention to any waste, "
+    "litter, or garbage on the ground, surfaces, or environment.\n\n"
+    "Use the following class definitions to identify waste:\n"
+    "- plastic bottle: any plastic CONTAINER with a visible CAP or LID (bottles, jugs, flasks).\n"
+    "- glass: glass BOTTLES distinguishable by a bottle NECK shape and glass appearance "
+    "(beer, wine, spirits). Does NOT include glass jars.\n"
+    "- can: any metal beverage or food can — whole, crushed, or deformed — clearly "
+    "identifiable as a can by its cylindrical shape and metallic surface.\n"
+    "- plastic bag: clearly a BAG (grocery, garbage, zip-lock). Distinguished from wrappers "
+    "by its larger size and bag-like dimensions.\n"
+    "- metal scrap: small metal/aluminium items that can be litter — tuna cans, spray cans, "
+    "aluminium foil, small metal pieces. NOT structural metal like bars, sheets, or planks "
+    "(those are trash).\n"
+    "- plastic wrapper: small plastic wrapping — snack bags, candy/chocolate wrappers, "
+    "cling film. Smaller and flatter than a plastic bag.\n"
+    "- trash pile: an ACCUMULATION of mixed garbage where individual items may or may not "
+    "be distinguishable. Must be a visible pile or heap of waste.\n"
+    "- trash: any other waste that does not fit the above categories. A catch-all for "
+    "unclassifiable litter, including structural metal debris.\n\n"
+    "After your description, write exactly one of:\n"
+    "DETECTED: <comma-separated classes present from the list above>\n"
     "CLEAN\n\n"
-    "Example responses:\n"
-    "The image shows a park path with several crushed plastic bottles and an aluminum can "
-    "scattered on the grass near a bench.\nDETECTED: plastic bottle, can\n\n"
-    "The image shows a clean sidewalk with no visible litter.\nCLEAN"
+    "Example:\n"
+    "The ground shows a crushed plastic bottle near a crumpled snack wrapper. "
+    "A small pile of mixed rubbish is visible in the corner.\n"
+    "DETECTED: plastic bottle, plastic wrapper, trash pile"
 )
 
 

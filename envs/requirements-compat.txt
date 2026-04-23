@@ -7,3 +7,5 @@ accelerate
 Pillow
 timm
 sentencepiece
+pandas
+matplotlib

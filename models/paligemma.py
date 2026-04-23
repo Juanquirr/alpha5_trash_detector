@@ -9,10 +9,16 @@ from .base import BaseVLM, DETECTION_PROMPT
 # PaliGemma is a prefix-completion model — short prompts work better.
 # Describe-first still applies: ask for scene description then classification.
 _PALI_PROMPT = (
-    "Describe the objects and ground conditions visible. "
-    "Then write DETECTED: followed by types present from: "
-    "plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash. "
-    "Or write CLEAN if no waste is visible."
+    "Describe visible waste. Classes: "
+    "plastic bottle=plastic container with cap; "
+    "glass=glass bottle with neck shape; "
+    "can=metal cylindrical can; "
+    "plastic bag=large bag shape; "
+    "metal scrap=small metal/aluminium litter; "
+    "plastic wrapper=small snack/candy wrapping; "
+    "trash pile=accumulated heap of mixed waste; "
+    "trash=other unclassifiable waste. "
+    "End with DETECTED: <classes> or CLEAN."
 )
 
 
