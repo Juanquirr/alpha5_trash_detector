@@ -1,0 +1,1205 @@
+timestamp,image,model,variant,prompt,response,garbage_detected,classes_detected,inference_s,vram_mb
+2026-04-22T12:55:57,close_distance_trash11.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty street with a pile of trash, including plastic bags and bottles, and a car parked nearby.",True,"plastic bag, trash",2.854,13938.1
+2026-04-22T12:56:00,close_distance_trash12.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including plastic bottles, cans, and wrappers.",True,"plastic bottle, can, trash",2.228,13936.9
+2026-04-22T12:56:02,close_distance_trash1286.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty field with a pile of trash, including plastic bottles, cans, and wrappers.",True,"plastic bottle, can, trash",2.141,13936.9
+2026-04-22T12:56:04,close_distance_trash1287.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty hillside with a pile of trash, including plastic bags, bottles, and wrappers.",True,"plastic bag, trash",2.226,13936.9
+2026-04-22T12:56:06,close_distance_trash1288.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including plastic bags, wrappers, and bottles.",True,"plastic bag, trash",2.254,13936.9
+2026-04-22T12:56:09,close_distance_trash1289.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including plastic bags, wrappers, and bottles.",True,"plastic bag, trash",2.264,13936.9
+2026-04-22T12:56:11,close_distance_trash1290.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a pile of trash on the ground, including a bunch of papers, a can, and a wrapper.",True,"can, trash",2.093,13936.9
+2026-04-22T12:56:12,close_distance_trash1291.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.641,13936.9
+2026-04-22T12:56:14,close_distance_trash1292.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a white countertop with a plastic bottle sitting on it.,True,plastic bottle,1.356,13936.9
+2026-04-22T12:56:16,close_distance_trash1293.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including plastic bottles, a can, and a plastic bag.",True,"plastic bottle, can, plastic bag, trash",2.292,13936.9
+2026-04-22T12:56:17,close_distance_trash1296.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a bunch of plastic bottles hanging from a net.,True,plastic bottle,1.321,13936.9
+2026-04-22T12:56:21,close_distance_trash1297.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a person holding a brown egg carton with a broken egg in it. The carton is made of cardboard and has a label on it. The person is standing in a living room with a couch and a chair.,False,,3.56,13936.9
+2026-04-22T12:56:22,close_distance_trash1298.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a kitchen counter with a can of beans on it.,True,can,1.263,13936.9
+2026-04-22T12:56:24,close_distance_trash1299.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with leaves, trash, and a plastic bag on the ground.",True,"plastic bag, trash",1.719,13936.9
+2026-04-22T12:56:26,close_distance_trash13.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a wooden table with a broken tube of lip balm and a small metal container on it.,False,,1.748,13936.9
+2026-04-22T12:56:27,close_distance_trash1300.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including plastic bottles and cans.",True,"plastic bottle, can, trash",1.817,13936.9
+2026-04-22T12:56:29,close_distance_trash1301.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a glass on the ground.,True,"plastic bottle, glass",1.624,13936.9
+2026-04-22T12:56:31,close_distance_trash1302.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a tree with a black bag hanging from it, and a pile of trash on the ground.",True,trash,1.94,13936.9
+2026-04-22T12:56:32,close_distance_trash1303.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty field with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.52,13936.9
+2026-04-22T12:56:34,close_distance_trash1304.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.567,13936.9
+2026-04-22T12:56:36,close_distance_trash16.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with two plastic bags and a plastic wrapper on the ground.,True,"plastic bag, plastic wrapper",1.737,13936.9
+2026-04-22T12:56:37,close_distance_trash17.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a white table with a green bag sitting on it.,False,,1.182,13936.9
+2026-04-22T12:56:40,close_distance_trash18.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a person holding a foil-wrapped sandwich in their hand. The sandwich is wrapped in aluminum foil, which is a type of plastic. The person is standing on a sidewalk, which appears to be clean.",False,,3.242,13936.9
+2026-04-22T12:56:41,close_distance_trash20.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a cardboard box sitting on a white table.,False,,0.886,13936.9
+2026-04-22T12:56:44,close_distance_trash21.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a pizza box and a sign on the ground. The pizza box is on top of a trash can.,True,"can, trash",2.493,13936.9
+2026-04-22T12:56:47,close_distance_trash22.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty train with a table full of beer cans and bottles. There is also a plastic bag on the table.
+DETECTED: plastic bottle, can, plastic bag",True,"plastic bottle, can, plastic bag",3.448,13936.9
+2026-04-22T12:56:49,close_distance_trash23.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including a plastic bag, plastic wrapper, and a can.",True,"can, plastic bag, plastic wrapper, trash",2.261,13936.9
+2026-04-22T12:56:51,close_distance_trash24.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty bathroom with a can, a plastic bag, and a trash pile on the floor.",True,"can, plastic bag, trash pile, trash",2.088,13936.9
+2026-04-22T12:56:53,close_distance_trash25.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a bag of functional foods sitting on a table.,False,,1.171,13936.9
+2026-04-22T12:56:54,close_distance_trash26.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a white countertop with two aluminum cans and a plastic bottle on it.,True,"plastic bottle, can",1.852,13936.9
+2026-04-22T12:56:56,close_distance_trash27.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a white countertop with a plastic bottle sitting on it.,True,plastic bottle,1.361,13936.9
+2026-04-22T12:56:59,close_distance_trash28.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a wooden dining table with a white plate, a fork, a spoon, and a book on it. There is also a bag of chips on the table.",False,,2.922,13936.9
+2026-04-22T12:57:01,close_distance_trash29.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a black trash bag and a plastic bottle on the ground.,True,"plastic bottle, trash",1.816,13936.9
+2026-04-22T12:57:02,close_distance_trash30.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a blue plastic bag and a white toothbrush on the ground.,True,plastic bag,1.909,13936.9
+2026-04-22T12:57:08,close_distance_trash31.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a pile of trash on the ground, including plastic bottles, cans, and a plastic bag. The trash is scattered around, and there is also a paper towel on the ground. The environment appears to be dirty and unclean.
+DETECTED: plastic bottle, can, plastic bag, paper towel",True,"plastic bottle, can, plastic bag",5.781,13936.9
+2026-04-22T12:57:13,close_distance_trash32.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a kitchen counter with two eggs, a can of coffee, and a plastic container. The eggs are sitting on top of the counter, and the can of coffee is placed next to them. The plastic container is also on the counter. The kitchen appears to be clean and well-maintained.",True,can,4.76,13936.9
+2026-04-22T12:57:15,close_distance_trash33.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a pile of trash on the ground, including a can, a bottle, and a book.",True,"can, trash",1.971,13936.9
+2026-04-22T12:57:17,close_distance_trash35.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a man holding a drink in a cup while standing on a sidewalk. The sidewalk appears to be clean, with no visible litter.",False,,2.448,13936.9
+2026-04-22T12:57:19,close_distance_trash36.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty staircase with a piece of trash on the ground.,True,trash,1.47,13936.9
+2026-04-22T12:57:21,close_distance_trash37.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty floor with a pile of trash, including a plastic bag and a plastic wrapper.",True,"plastic bag, plastic wrapper, trash",2.001,13936.9
+2026-04-22T12:57:25,close_distance_trash38.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a white countertop with two boxes of Dove chocolate bars. One box is open, and the other is closed. The chocolate bars are placed on the countertop, and there is no visible litter or waste.",False,,3.856,13936.9
+2026-04-22T12:57:27,close_distance_trash4.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including plastic bottles, cans, and a plastic bag.",True,"plastic bottle, can, plastic bag, trash",2.353,13936.9
+2026-04-22T12:57:29,close_distance_trash5.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including plastic bottles, a can, and a plastic bag.",True,"plastic bottle, can, plastic bag, trash",2.353,13936.9
+2026-04-22T12:57:32,close_distance_trash6.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a park with a trash pile of various items, including plastic bags, bottles, and wrappers.",True,"plastic bag, trash pile, trash",2.2,13936.9
+2026-04-22T12:57:34,close_distance_trash9.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a pile of trash on the side of the road, including plastic bags, wrappers, and bottles.",True,"plastic bag, trash",2.269,13936.9
+2026-04-22T12:57:36,far_distance_trash272.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty pond with a bunch of trash, including plastic bottles and cans, floating on the surface.",True,"plastic bottle, can, trash",2.234,13936.9
+2026-04-22T12:57:38,far_distance_trash273.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a field with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.462,13936.9
+2026-04-22T12:57:40,far_distance_trash274.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty pond with green water and tall grass surrounding it. There are also a few plastic bottles and a can in the area.,True,"plastic bottle, can",2.485,13936.9
+2026-04-22T12:57:44,far_distance_trash275.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a park bench sitting on a grassy field. There are no visible signs of litter or waste on the ground. The bench is positioned under a tree, providing a shaded area for visitors to sit and relax.",False,,3.685,13936.9
+2026-04-22T12:57:45,far_distance_trash276.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a bush with a plastic bag and wrapper on the ground.,True,plastic bag,1.354,13936.9
+2026-04-22T12:57:47,far_distance_trash277.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a grassy field with a blue plastic bottle and a can on the ground.,True,"plastic bottle, can",1.705,13936.9
+2026-04-22T12:57:49,far_distance_trash278.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.,True,"plastic bottle, can",2.235,13936.9
+2026-04-22T12:57:54,far_distance_trash279.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a grassy field with a white frisbee on the ground. The frisbee is surrounded by leaves, indicating that it has been used and is now resting on the ground. The field appears to be relatively clean, with no visible litter or waste.",False,,4.427,13936.9
+2026-04-22T12:57:55,far_distance_trash280.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a pond with a bunch of plants and a plastic bottle on the ground.,True,plastic bottle,1.769,13936.9
+2026-04-22T12:57:58,far_distance_trash281.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a pond with a green surface and a puddle of water. There are no visible objects on the ground or surfaces, and the environment appears to be clean.",False,,2.844,13936.9
+2026-04-22T12:58:00,far_distance_trash282.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.67,13936.9
+2026-04-22T12:58:02,far_distance_trash283.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty field with a blue plastic bag and a plastic wrapper on the ground.,True,"plastic bag, plastic wrapper",1.749,13936.9
+2026-04-22T12:58:04,far_distance_trash284.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.,True,"plastic bottle, can",2.222,13936.9
+2026-04-22T12:58:07,far_distance_trash285.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a park with a tree and a bench. There is a book on the ground, and a plastic bag is also present. The environment appears to be clean.
+DETECTED: plastic bag",True,plastic bag,3.588,13936.9
+2026-04-22T12:58:09,far_distance_trash286.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with trash piled up on the side.,True,"trash pile, trash",1.459,13936.9
+2026-04-22T12:58:11,far_distance_trash287.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including a plastic bag and a plastic wrapper.",True,"plastic bag, plastic wrapper, trash",2.128,13936.9
+2026-04-22T12:58:13,far_distance_trash288.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a trash pile of plastic bags and wrappers.,True,"plastic bag, trash pile, trash",1.806,13936.9
+2026-04-22T12:58:14,medium_distance_trash104.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.688,13936.9
+2026-04-22T12:58:17,medium_distance_trash105.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.,True,"plastic bottle, can",2.276,13936.9
+2026-04-22T12:58:18,medium_distance_trash106.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.605,13936.9
+2026-04-22T12:58:22,medium_distance_trash107.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a person sitting on a plane with a red cup and a book. The cup is placed on a tray, and the book is open on the person's lap. The person is wearing a red jacket.",False,,3.86,13936.9
+2026-04-22T12:58:24,medium_distance_trash108.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty river bank with trash piled up on the grass.,True,"trash pile, trash",1.496,13936.9
+2026-04-22T12:58:25,medium_distance_trash110.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a glass on the ground.,True,"plastic bottle, glass",1.682,13936.9
+2026-04-22T12:58:27,medium_distance_trash111.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.687,13936.9
+2026-04-22T12:58:29,medium_distance_trash112.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.652,13936.9
+2026-04-22T12:58:30,medium_distance_trash113.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.687,13936.9
+2026-04-22T12:58:32,medium_distance_trash114.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a plastic bottle, a can, and a spoon on the ground.",True,"plastic bottle, can",1.965,13936.9
+2026-04-22T12:58:34,medium_distance_trash115.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty table with two cans and a spoon on it. The table appears to be made of wood.,True,can,2.07,13936.9
+2026-04-22T12:58:36,medium_distance_trash116.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty road with a wrapper and a plastic bag on the ground.,True,plastic bag,1.5,13936.9
+2026-04-22T12:58:38,medium_distance_trash118.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty parking lot with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.771,13936.9
+2026-04-22T12:58:41,medium_distance_trash119.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a sidewalk with a brick wall and a small patch of grass. There is a brick planter with a small tree in it. The sidewalk appears to be clean and well-maintained.,False,,3.501,13936.9
+2026-04-22T12:58:43,medium_distance_trash120.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty beach with a plastic cup and a plastic bag on the sand.,True,plastic bag,1.619,13936.9
+2026-04-22T12:58:44,medium_distance_trash121.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty beach with a plastic bottle and a can on the sand.,True,"plastic bottle, can",1.534,13936.9
+2026-04-22T12:58:47,medium_distance_trash122.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including a broken umbrella, a plastic bag, and a glass.",True,"glass, plastic bag, trash",2.442,13936.9
+2026-04-22T12:58:48,medium_distance_trash124.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bag and wrapper on the ground.,True,plastic bag,1.557,13936.9
+2026-04-22T12:58:51,medium_distance_trash125.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty subway car floor with a cup and a wrapper on the ground. The floor is covered with pink and black tiles.,False,,2.475,13936.9
+2026-04-22T12:58:52,medium_distance_trash127.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bag and wrapper on the ground.,True,plastic bag,1.509,13936.9
+2026-04-22T12:58:54,medium_distance_trash128.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a field with a black box on the ground.,False,,1.177,13936.9
+2026-04-22T12:58:56,medium_distance_trash130.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty pond with leaves and trash floating on the water. There are two plastic bottles and a can on the ground near the water.,True,"plastic bottle, can, trash",2.739,13936.9
+2026-04-22T12:58:58,medium_distance_trash131.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.611,13936.9
+2026-04-22T12:59:00,medium_distance_trash132.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a white paper plate and a wrapper on the ground.,False,,1.561,13936.9
+2026-04-22T12:59:01,medium_distance_trash133.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a park with a pile of trash on the ground, including plastic bottles and a can.",True,"plastic bottle, can, trash",1.925,13936.9
+2026-04-22T12:59:03,medium_distance_trash134.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a tree with a can and a plastic bottle stuck in its trunk.,True,"plastic bottle, can",1.714,13936.9
+2026-04-22T12:59:05,medium_distance_trash199.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a pile of trash, including a plastic bag and wrapper.",True,"plastic bag, trash",1.928,13936.9
+2026-04-22T12:59:07,medium_distance_trash200.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a piece of trash on the ground.,True,trash,1.493,13936.9
+2026-04-22T12:59:08,medium_distance_trash202.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bag and wrapper on the ground.,True,plastic bag,1.504,13936.9
+2026-04-22T12:59:10,medium_distance_trash203.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a blue glove lying on the ground.,False,,1.433,13936.9
+2026-04-22T12:59:12,medium_distance_trash204.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a brick wall with a cigarette butt and a pack of cigarettes on the ground. The wall is made of bricks and appears to be old.,False,,2.97,13936.9
+2026-04-22T12:59:16,medium_distance_trash206.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a wooden fence with a pot of plants growing on the ground. The plants are growing in a pot with dirt. The fence is made of wood and is located next to a wall.,False,,3.268,13936.9
+2026-04-22T12:59:17,medium_distance_trash207.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bottle and a can on the ground.,True,"plastic bottle, can",1.652,13936.9
+2026-04-22T12:59:19,medium_distance_trash208.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty field with a red cup, a can, and a plastic bottle on the ground.",True,"plastic bottle, can",1.949,13936.9
+2026-04-22T12:59:21,medium_distance_trash209.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a dirty sidewalk with a plastic bag and a trash pile on the ground.,True,"plastic bag, trash pile, trash",1.866,13936.9
+2026-04-22T12:59:23,medium_distance_trash210.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN",The image shows a grassy field with a plastic bag and wrapper on the ground.,True,plastic bag,1.608,13936.9
+2026-04-22T12:59:25,medium_distance_trash211.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a bottle, a can, and a wrapper on the ground.",True,can,1.83,13936.9
+2026-04-22T12:59:29,medium_distance_trash212.jpg,llava,llava-hf/llava-1.5-7b-hf,"Describe what you see in this image in detail, focusing on any objects on the ground, surfaces, or environment. Note materials, conditions, and any signs of waste or cleanliness.
+
+After your description, conclude with exactly one of these two lines:
+DETECTED: <comma-separated types from this list: plastic bottle, glass, can, plastic bag, plastic wrapper, trash pile, trash>
+CLEAN
+
+Example responses:
+The image shows a park path with several crushed plastic bottles and an aluminum can scattered on the grass near a bench.
+DETECTED: plastic bottle, can
+
+The image shows a clean sidewalk with no visible litter.
+CLEAN","The image shows a dirty sidewalk with a brick planter box and a potted plant. There are also several crushed plastic bottles and an aluminum can scattered on the ground.
+DETECTED: plastic bottle, can",True,"plastic bottle, can",3.975,13936.9
