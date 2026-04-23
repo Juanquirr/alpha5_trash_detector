@@ -21,7 +21,7 @@ import time
 from pathlib import Path
 
 from models import REGISTRY, VENV
-from results import append_row, already_processed
+from results import append_row, already_processed, save_prompt_registry
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 
@@ -90,6 +90,7 @@ def run_model(model_key: str, images: list[Path]) -> None:
         )
 
     vlm.unload()
+    save_prompt_registry()
     print(f"[{model_key}] Done in {_fmt_time(time.perf_counter() - t_start)}.")
 
 
