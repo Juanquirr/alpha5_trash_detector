@@ -16,8 +16,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
-
+import matplotlib.patches as mpatches
+from matplotlib.gridspec import GridSpec
 
 # ── Class maps ────────────────────────────────────────────────────────────────
 
@@ -26,13 +26,12 @@ YOLO_ID_TO_CLASS = {
     1: "glass",
     2: "can",
     3: "plastic bag",
-    4: "metal scrap",      # not in VLM classes — kept in GT, skipped in class comparison
+    4: "metal scrap",
     5: "plastic wrapper",
     6: "trash pile",
     7: "trash",
 }
 
-# Classes the VLMs can actually predict (no metal scrap)
 VLM_COMPARABLE_CLASSES = [
     "plastic bottle", "glass", "can", "plastic bag",
     "metal scrap", "plastic wrapper", "trash pile", "trash",
@@ -43,20 +42,12 @@ PALETTE = [
     "#8172B3", "#937860", "#DA8BC3", "#8C8C8C",
 ]
 
-
 # ── YOLO label loading ────────────────────────────────────────────────────────
 
 def load_yolo_labels(images_dir: Path) -> pd.DataFrame:
-    """Parse all .txt YOLO annotations in images_dir.
-
-    Returns DataFrame: image | gt_detected | gt_classes (frozenset of class names)
-    Empty .txt  = clean image (gt_detected=False).
-    Missing .txt = image skipped (not included).
-    """
     rows = []
     for txt in sorted(images_dir.glob("*.txt")):
-        image_name = txt.with_suffix(".jpg").name  # assume .jpg; also check .png below
-        # resolve actual image extension
+        image_name = txt.with_suffix(".jpg").name
         for ext in (".jpg", ".jpeg", ".png", ".webp", ".bmp"):
             candidate = images_dir / txt.with_suffix(ext).name
             if candidate.exists():
@@ -108,8 +99,13 @@ def load_results(results_dir: Path) -> dict[str, pd.DataFrame]:
 
 # ── Metrics ───────────────────────────────────────────────────────────────────
 
-def compute_metrics(dfs: dict[str, pd.DataFrame], gt: pd.DataFrame) -> dict:
+def compute_metrics(dfs: dict[str, pd.DataFrame], gt: pd.DataFrame) -> tuple[dict, dict]:
+    """Returns (per-model metrics dict, class_gt_counts dict)."""
     metrics = {}
+
+    # Count GT instances per class across all images
+    class_gt_counts = {cls: int(gt["gt_classes"].apply(lambda s: cls in s).sum())
+                       for cls in VLM_COMPARABLE_CLASSES}
 
     for model, df in dfs.items():
         m: dict = {}
@@ -125,6 +121,7 @@ def compute_metrics(dfs: dict[str, pd.DataFrame], gt: pd.DataFrame) -> dict:
 
         if n == 0:
             m["accuracy"] = m["precision"] = m["recall"] = m["f1"] = float("nan")
+            m["tp"] = m["fp"] = m["fn"] = m["tn"] = 0
             m["class_recall"] = {}
             metrics[model] = m
             continue
@@ -136,17 +133,17 @@ def compute_metrics(dfs: dict[str, pd.DataFrame], gt: pd.DataFrame) -> dict:
         fn = int((~pred & true).sum())
         tn = int((~pred & ~true).sum())
 
+        m["tp"], m["fp"], m["fn"], m["tn"] = tp, fp, fn, tn
         m["accuracy"]  = (tp + tn) / n * 100
         m["precision"] = tp / (tp + fp) * 100 if (tp + fp) > 0 else 0.0
         m["recall"]    = tp / (tp + fn) * 100 if (tp + fn) > 0 else 0.0
         m["f1"]        = 2 * tp / (2 * tp + fp + fn) * 100 if (2 * tp + fp + fn) > 0 else 0.0
 
-        # Per-class recall: did VLM mention the class when GT says it's present?
         class_recall = {}
         for cls in VLM_COMPARABLE_CLASSES:
             gt_has = merged["gt_classes"].apply(lambda s: cls in s)
             if gt_has.sum() == 0:
-                continue  # class not present in any image for this model's subset
+                continue
             pred_has = merged["classes_detected"].str.lower().str.contains(
                 re.escape(cls), na=False
             )
@@ -155,43 +152,79 @@ def compute_metrics(dfs: dict[str, pd.DataFrame], gt: pd.DataFrame) -> dict:
 
         metrics[model] = m
 
-    return metrics
+    return metrics, class_gt_counts
 
 
 # ── Plotting helpers ──────────────────────────────────────────────────────────
 
-def _bar(ax, models, values, colors, title, ylim=None, ylabel="", fmt=".1f"):
+def _section_header(fig, y, text, color="#2c3e50"):
+    """Draw a full-width section label."""
+    fig.text(0.5, y, text, ha="center", va="center",
+             fontsize=11, fontweight="bold", color="white",
+             bbox=dict(boxstyle="round,pad=0.3", facecolor=color, alpha=0.85, edgecolor="none"))
+
+
+def _bar(ax, models, values, colors, title, subtitle,
+         ylim=None, ylabel="", fmt=".1f", higher_better=True,
+         ref_lines=None):
+    """Bar chart with descriptive subtitle, reference lines, and direction hint."""
     x = np.arange(len(models))
-    bars = ax.bar(x, values, color=colors, edgecolor="white", linewidth=0.8, width=0.6)
-    ax.set_title(title, fontsize=11, fontweight="bold")
-    ax.set_ylabel(ylabel, fontsize=9)
+    bars = ax.bar(x, values, color=colors, edgecolor="white", linewidth=0.8, width=0.6, zorder=3)
+
+    # Reference lines (e.g. 50% baseline, 80% target)
+    if ref_lines:
+        for val, label, style in ref_lines:
+            ax.axhline(val, color="#888", linewidth=0.8, linestyle=style, zorder=2)
+            ax.text(len(models) - 0.5, val + 1.5, label,
+                    ha="right", va="bottom", fontsize=6.5, color="#666")
+
+    ax.set_title(title, fontsize=10, fontweight="bold", pad=4)
+    ax.set_xlabel(subtitle, fontsize=7.5, color="#555", labelpad=6, wrap=True)
+    ax.set_ylabel(ylabel, fontsize=8)
     ax.set_xticks(x)
     ax.set_xticklabels(models, rotation=30, ha="right", fontsize=8)
     ax.tick_params(axis="y", labelsize=8)
     if ylim:
         ax.set_ylim(0, ylim)
+    ax.grid(axis="y", linewidth=0.4, alpha=0.5, zorder=0)
+    ax.set_axisbelow(True)
     ax.spines[["top", "right"]].set_visible(False)
-    top = ylim or (max(v for v in values if not np.isnan(v)) * 1.12 if any(not np.isnan(v) for v in values) else 1)
+
+    arrow = "↑ higher better" if higher_better else "↓ lower better"
+    ax.text(1.0, 1.02, arrow, transform=ax.transAxes,
+            ha="right", va="bottom", fontsize=7, color="#888", style="italic")
+
+    top = ylim or (max((v for v in values if not np.isnan(v)), default=1) * 1.12)
     for bar, v in zip(bars, values):
         if not np.isnan(v):
-            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + top * 0.01,
-                    f"{v:{fmt}}", ha="center", va="bottom", fontsize=7.5)
+            ax.text(bar.get_x() + bar.get_width() / 2,
+                    bar.get_height() + top * 0.01,
+                    f"{v:{fmt}}", ha="center", va="bottom", fontsize=7.5, fontweight="bold")
 
 
-def _bar_err(ax, models, means, stds, colors, title, ylabel=""):
+def _bar_err(ax, models, means, stds, colors, title, subtitle, ylabel=""):
     x = np.arange(len(models))
     ax.bar(x, means, yerr=stds, color=colors, edgecolor="white", linewidth=0.8, width=0.6,
-           error_kw={"elinewidth": 1.2, "capsize": 4, "ecolor": "#333"})
-    ax.set_title(title, fontsize=11, fontweight="bold")
-    ax.set_ylabel(ylabel, fontsize=9)
+           error_kw={"elinewidth": 1.2, "capsize": 4, "ecolor": "#333"}, zorder=3)
+    ax.set_title(title, fontsize=10, fontweight="bold", pad=4)
+    ax.set_xlabel(subtitle, fontsize=7.5, color="#555", labelpad=6)
+    ax.set_ylabel(ylabel, fontsize=8)
     ax.set_xticks(x)
     ax.set_xticklabels(models, rotation=30, ha="right", fontsize=8)
     ax.tick_params(axis="y", labelsize=8)
+    ax.grid(axis="y", linewidth=0.4, alpha=0.5, zorder=0)
+    ax.set_axisbelow(True)
     ax.spines[["top", "right"]].set_visible(False)
+    ax.text(1.0, 1.02, "↓ lower better", transform=ax.transAxes,
+            ha="right", va="bottom", fontsize=7, color="#888", style="italic")
+
+    for xi, (mean, std) in enumerate(zip(means, stds)):
+        if not np.isnan(mean):
+            ax.text(xi, mean + (std or 0) + max(means) * 0.02,
+                    f"{mean:.2f}s", ha="center", va="bottom", fontsize=7.5, fontweight="bold")
 
 
-def _class_heatmap(ax, metrics, models):
-    """Recall heatmap: rows=classes, cols=models."""
+def _class_heatmap(ax, metrics, models, class_gt_counts):
     classes = VLM_COMPARABLE_CLASSES
     data = np.full((len(classes), len(models)), np.nan)
     for j, model in enumerate(models):
@@ -202,61 +235,146 @@ def _class_heatmap(ax, metrics, models):
 
     im = ax.imshow(data, aspect="auto", cmap="RdYlGn", vmin=0, vmax=100)
     ax.set_xticks(np.arange(len(models)))
-    ax.set_xticklabels(models, rotation=30, ha="right", fontsize=8)
+    ax.set_xticklabels(models, rotation=30, ha="right", fontsize=9, fontweight="bold")
     ax.set_yticks(np.arange(len(classes)))
-    ax.set_yticklabels(classes, fontsize=8)
-    ax.set_title("Per-class Recall (%) — when GT says class is present",
-                 fontsize=11, fontweight="bold")
-    # Annotate cells
+
+    # Row labels with GT counts
+    ylabels = [
+        f"{cls}  (GT: {class_gt_counts.get(cls, 0)} imgs)"
+        for cls in classes
+    ]
+    ax.set_yticklabels(ylabels, fontsize=8.5)
+
+    ax.set_title(
+        "Per-class Recall  —  of all images where GT contains a class, "
+        "what % did the model mention it?  (red = missed, green = detected)",
+        fontsize=10, fontweight="bold", pad=8
+    )
+
+    # Cell annotations
     for i in range(len(classes)):
         for j in range(len(models)):
             v = data[i, j]
             if not np.isnan(v):
-                ax.text(j, i, f"{v:.0f}", ha="center", va="center",
-                        fontsize=8, color="black" if 20 < v < 80 else "white",
-                        fontweight="bold")
+                text_color = "black" if 20 < v < 80 else "white"
+                ax.text(j, i, f"{v:.0f}%", ha="center", va="center",
+                        fontsize=8.5, color=text_color, fontweight="bold")
             else:
-                ax.text(j, i, "—", ha="center", va="center", fontsize=8, color="#999")
-    plt.colorbar(im, ax=ax, shrink=0.8, label="%")
+                ax.text(j, i, "n/a", ha="center", va="center", fontsize=7.5, color="#aaa")
+
+    cbar = plt.colorbar(im, ax=ax, shrink=0.7, pad=0.01)
+    cbar.set_label("Recall (%)", fontsize=8)
+    cbar.ax.tick_params(labelsize=7)
+
+
+def _dataset_info_box(fig, gt: pd.DataFrame, metrics: dict, y: float):
+    """Top info strip: dataset stats + per-model image count."""
+    n_total   = len(gt)
+    n_garbage = int(gt["gt_detected"].sum())
+    n_clean   = n_total - n_garbage
+
+    class_counts = {cls: int(gt["gt_classes"].apply(lambda s: cls in s).sum())
+                    for cls in VLM_COMPARABLE_CLASSES}
+    top_classes = sorted(class_counts.items(), key=lambda x: -x[1])
+
+    dataset_str = (
+        f"Dataset: {n_total} images  |  "
+        f"{n_garbage} with garbage ({n_garbage/n_total*100:.0f}%)  |  "
+        f"{n_clean} clean ({n_clean/n_total*100:.0f}%)"
+    )
+    class_str = "  ·  ".join(f"{cls}: {n}" for cls, n in top_classes if n > 0)
+
+    fig.text(0.5, y + 0.012, dataset_str, ha="center", va="center",
+             fontsize=9, fontweight="bold", color="#2c3e50")
+    fig.text(0.5, y - 0.005, f"Class distribution  →  {class_str}",
+             ha="center", va="center", fontsize=7.5, color="#555")
 
 
 # ── Main figure ───────────────────────────────────────────────────────────────
 
-def build_figure(metrics: dict, out: Path) -> None:
+def build_figure(metrics: dict, gt: pd.DataFrame, class_gt_counts: dict, out: Path) -> None:
     models = list(metrics.keys())
     colors = PALETTE[: len(models)]
 
-    fig = plt.figure(figsize=(18, 14))
-    fig.suptitle("VLM Garbage Detector — Model Evaluation", fontsize=16, fontweight="bold", y=1.01)
+    fig = plt.figure(figsize=(20, 18))
+    fig.patch.set_facecolor("#f8f9fa")
 
-    # Layout: 3 rows
-    # Row 0 (3 cols): accuracy, precision, recall
-    # Row 1 (3 cols): F1, inference time, VRAM
-    # Row 2 (1 col spanning all): per-class recall heatmap
+    # Grid: info strip + 2 section rows + heatmap
+    gs = GridSpec(4, 3, figure=fig,
+                  height_ratios=[0.08, 1, 1, 1.4],
+                  hspace=0.72, wspace=0.38,
+                  top=0.93, bottom=0.04)
 
-    gs = fig.add_gridspec(3, 3, hspace=0.55, wspace=0.35)
+    fig.suptitle("VLM Garbage Detector — Model Evaluation Report",
+                 fontsize=16, fontweight="bold", y=0.97, color="#1a1a2e")
 
-    ax_acc  = fig.add_subplot(gs[0, 0])
-    ax_prec = fig.add_subplot(gs[0, 1])
-    ax_rec  = fig.add_subplot(gs[0, 2])
-    ax_f1   = fig.add_subplot(gs[1, 0])
-    ax_time = fig.add_subplot(gs[1, 1])
-    ax_vram = fig.add_subplot(gs[1, 2])
-    ax_heat = fig.add_subplot(gs[2, :])
+    # Dataset info strip
+    _dataset_info_box(fig, gt, metrics, y=0.925)
 
-    _bar(ax_acc,  models, [metrics[m]["accuracy"]  for m in models], colors, "Accuracy (%)",  ylim=105, ylabel="%")
-    _bar(ax_prec, models, [metrics[m]["precision"] for m in models], colors, "Precision (%)", ylim=105, ylabel="%")
-    _bar(ax_rec,  models, [metrics[m]["recall"]    for m in models], colors, "Recall (%)",    ylim=105, ylabel="%")
-    _bar(ax_f1,   models, [metrics[m]["f1"]        for m in models], colors, "F1 (%)",        ylim=105, ylabel="%")
+    # Section headers
+    _section_header(fig, y=0.755, text="▌ CLASSIFICATION QUALITY  —  binary detection: garbage vs clean")
+    _section_header(fig, y=0.495, text="▌ EFFICIENCY  —  compute cost per image")
+
+    # Row 1: classification quality
+    ax_acc  = fig.add_subplot(gs[1, 0])
+    ax_prec = fig.add_subplot(gs[1, 1])
+    ax_rec  = fig.add_subplot(gs[1, 2])
+
+    ref_pct = [
+        (50,  "50% baseline", "--"),
+        (80,  "80% target",   ":"),
+    ]
+
+    _bar(ax_acc, models, [metrics[m]["accuracy"] for m in models], colors,
+         "Accuracy",
+         "(TP + TN) / total  —  % of all images correctly labelled as garbage or clean",
+         ylim=105, ylabel="%", ref_lines=ref_pct)
+
+    _bar(ax_prec, models, [metrics[m]["precision"] for m in models], colors,
+         "Precision",
+         "TP / (TP + FP)  —  when the model flags garbage, how often is it right?\n"
+         "Low precision = many false alarms on clean images",
+         ylim=105, ylabel="%", ref_lines=ref_pct)
+
+    _bar(ax_rec, models, [metrics[m]["recall"] for m in models], colors,
+         "Recall  (Sensitivity)",
+         "TP / (TP + FN)  —  of all images that contain garbage, how many did the model catch?\n"
+         "Low recall = garbage being missed",
+         ylim=105, ylabel="%", ref_lines=ref_pct)
+
+    # Row 2: efficiency + F1
+    ax_f1   = fig.add_subplot(gs[2, 0])
+    ax_time = fig.add_subplot(gs[2, 1])
+    ax_vram = fig.add_subplot(gs[2, 2])
+
+    _bar(ax_f1, models, [metrics[m]["f1"] for m in models], colors,
+         "F1 Score",
+         "2·TP / (2·TP + FP + FN)  —  harmonic mean of precision & recall.\n"
+         "Best single-number summary when dataset is imbalanced",
+         ylim=105, ylabel="%", ref_lines=ref_pct)
+
     _bar_err(ax_time, models,
              [metrics[m]["time_mean"] for m in models],
              [metrics[m]["time_std"]  for m in models],
-             colors, "Inference Time — mean ± std", ylabel="seconds")
-    _bar(ax_vram, models, [metrics[m]["vram_mean"] for m in models], colors, "VRAM — mean", ylabel="MB", fmt=".0f")
-    _class_heatmap(ax_heat, metrics, models)
+             colors,
+             "Inference Time",
+             "Seconds per image (mean ± std).  Bars show average; error bars show variability.\n"
+             "Low mean + low std = fast and consistent",
+             ylabel="seconds")
+
+    _bar(ax_vram, models,
+         [metrics[m]["vram_mean"] for m in models], colors,
+         "GPU Memory (VRAM)",
+         "Peak MB allocated during inference (mean across images).\n"
+         "Determines minimum GPU hardware needed for deployment",
+         ylabel="MB", fmt=".0f", higher_better=False)
+
+    # Row 3: per-class heatmap
+    ax_heat = fig.add_subplot(gs[3, :])
+    _class_heatmap(ax_heat, metrics, models, class_gt_counts)
 
     out.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(out, dpi=150, bbox_inches="tight")
+    plt.savefig(out, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())
     print(f"\nFigure saved → {out}")
 
 
@@ -265,9 +383,10 @@ def build_figure(metrics: dict, out: Path) -> None:
 def print_summary(metrics: dict) -> None:
     models = list(metrics.keys())
     col_w = max(len(m) for m in models) + 2
-    sep = "─" * (col_w + 62)
+    sep = "─" * (col_w + 65)
     print(f"\n{sep}")
-    print(f"{'Model':<{col_w}}  {'N':>5}  {'Time(s)':>8}  {'VRAM MB':>8}  {'Acc%':>6}  {'Prec%':>6}  {'Rec%':>5}  {'F1%':>5}")
+    print(f"{'Model':<{col_w}}  {'N':>5}  {'Time(s)':>8}  {'VRAM MB':>8}  "
+          f"{'Acc%':>6}  {'Prec%':>6}  {'Rec%':>5}  {'F1%':>5}")
     print(sep)
     for model, m in metrics.items():
         print(
@@ -288,11 +407,11 @@ def main():
     parser.add_argument("--out",     default="results/evaluation.png", help="Output figure path")
     args = parser.parse_args()
 
-    gt   = load_yolo_labels(Path(args.images))
-    dfs  = load_results(Path(args.results))
-    mets = compute_metrics(dfs, gt)
+    gt                   = load_yolo_labels(Path(args.images))
+    dfs                  = load_results(Path(args.results))
+    mets, class_gt_counts = compute_metrics(dfs, gt)
     print_summary(mets)
-    build_figure(mets, Path(args.out))
+    build_figure(mets, gt, class_gt_counts, Path(args.out))
 
 
 if __name__ == "__main__":
