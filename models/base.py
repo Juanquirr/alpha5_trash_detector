@@ -8,6 +8,7 @@ CLASSES = [
     "glass",
     "can",
     "plastic bag",
+    "metal scrap",
     "plastic wrapper",
     "trash pile",
     "trash",

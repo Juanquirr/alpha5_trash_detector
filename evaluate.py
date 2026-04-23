@@ -35,7 +35,7 @@ YOLO_ID_TO_CLASS = {
 # Classes the VLMs can actually predict (no metal scrap)
 VLM_COMPARABLE_CLASSES = [
     "plastic bottle", "glass", "can", "plastic bag",
-    "plastic wrapper", "trash pile", "trash",
+    "metal scrap", "plastic wrapper", "trash pile", "trash",
 ]
 
 PALETTE = [
