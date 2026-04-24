@@ -18,7 +18,7 @@ from .videollama3 import VideoLLaMA3
 VENV = {
     "smolvlm":      ".transformers-5.X-venv",
     "qwen_vl":      ".transformers-5.X-venv",
-    "videollama3":  ".transformers-5.X-venv",
+    # videollama3 omitted — blocked on unreleased transformers VideoInput
     "moondream":    ".transformers-4.46-venv",
     "llava":        ".transformers-4.46-venv",
     "blip2":        ".transformers-4.46-venv",
@@ -32,7 +32,7 @@ VENV = {
 REGISTRY = {
     "smolvlm":      SmolVLM,
     "qwen_vl":      QwenVL,
-    "videollama3":  VideoLLaMA3,
+    # videollama3 omitted — blocked on unreleased transformers VideoInput
     "moondream":    Moondream,
     "llava":        LLaVA,
     "blip2":        BLIP2,

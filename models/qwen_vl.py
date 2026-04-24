@@ -17,7 +17,7 @@ class QwenVL(BaseVLM):
         self.processor = AutoProcessor.from_pretrained(self.variant)
         self.model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             self.variant,
-            dtype=torch.bfloat16,
+            torch_dtype=torch.bfloat16,
             device_map=self.device,
         )
         self.model.eval()

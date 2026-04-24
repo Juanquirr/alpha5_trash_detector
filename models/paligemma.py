@@ -27,15 +27,18 @@ class PaliGemma(BaseVLM):
     variant = "google/paligemma-3b-mix-448"
 
     def load(self) -> None:
+        import os
         import torch
         from transformers import PaliGemmaForConditionalGeneration, AutoProcessor
 
         self._torch = torch
-        self.processor = AutoProcessor.from_pretrained(self.variant)
+        token = os.environ.get("HF_TOKEN")
+        self.processor = AutoProcessor.from_pretrained(self.variant, token=token)
         self.model = PaliGemmaForConditionalGeneration.from_pretrained(
             self.variant,
             torch_dtype=torch.bfloat16,
             device_map=self.device,
+            token=token,
         )
         self.model.eval()
 
