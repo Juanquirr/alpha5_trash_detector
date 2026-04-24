@@ -96,14 +96,14 @@ def run_model(model_key: str, images: list[Path]) -> None:
 
 # ── All-models orchestrator (spawns subprocesses) ─────────────────────────────
 
-def run_all(images_arg: str, limit: int | None) -> None:
+def run_all(images_arg: str, limit: int | None, keys: list[str] | None = None) -> None:
     script = Path(__file__).resolve()
-    keys   = list(REGISTRY)
+    keys   = keys if keys is not None else list(REGISTRY)
     total  = len(keys)
     errors = []
 
     print(f"\n{'═'*62}")
-    print(f"  --model all  →  {total} models queued")
+    print(f"  {total} model(s) queued: {', '.join(keys)}")
     print(f"  Each model runs in its own venv via subprocess.")
     print(f"  Resume supported: already-processed images are skipped.")
     print(f"{'═'*62}\n")
@@ -168,14 +168,22 @@ def main():
                         help="Process only first N images (useful for testing)")
     args = parser.parse_args()
 
-    # ── --model all: orchestrate via subprocesses ──────────────────────────────
+    # ── --model all or comma-separated: orchestrate via subprocesses ──────────
     if args.model == "all":
         run_all(args.images, args.limit)
         return
 
-    # ── specific model(s) ──────────────────────────────────────────────────────
     keys = [k.strip() for k in args.model.split(",")]
+    unknown = [k for k in keys if k not in REGISTRY]
+    if unknown:
+        print(f"Unknown model(s): {unknown}. Available: {list(REGISTRY)}")
+        sys.exit(1)
 
+    if len(keys) > 1:
+        run_all(args.images, args.limit, keys=keys)
+        return
+
+    # ── single model: run directly in current process ─────────────────────────
     images = collect_images(args.images)
     if not images:
         print(f"No images found at: {args.images}")
@@ -184,11 +192,7 @@ def main():
         images = images[: args.limit]
         print(f"Limit: using first {len(images)} images.")
 
-    for key in keys:
-        if key not in REGISTRY:
-            print(f"Unknown model '{key}'. Available: {list(REGISTRY)}")
-            continue
-        run_model(key, images)
+    run_model(keys[0], images)
 
 
 if __name__ == "__main__":
