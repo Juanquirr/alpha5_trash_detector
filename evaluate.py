@@ -157,11 +157,15 @@ def compute_metrics(dfs: dict[str, pd.DataFrame], gt: pd.DataFrame) -> tuple[dic
 
 # ── Plotting helpers ──────────────────────────────────────────────────────────
 
-def _section_header(fig, y, text, color="#2c3e50"):
-    """Draw a full-width section label."""
-    fig.text(0.5, y, text, ha="center", va="center",
-             fontsize=11, fontweight="bold", color="white",
-             bbox=dict(boxstyle="round,pad=0.3", facecolor=color, alpha=0.85, edgecolor="none"))
+def _section_header_ax(ax, text, color="#2c3e50"):
+    """Fill a spanning axes row as a colored section banner (no overlay)."""
+    ax.set_facecolor(color)
+    ax.text(0.5, 0.5, text, transform=ax.transAxes,
+            ha="center", va="center", fontsize=11, fontweight="bold", color="white")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_visible(False)
 
 
 def _bar(ax, models, values, colors, title, subtitle,
@@ -296,24 +300,31 @@ def build_figure(metrics: dict, gt: pd.DataFrame, class_gt_counts: dict, out: Pa
     models = list(metrics.keys())
     colors = PALETTE[: len(models)]
 
-    fig = plt.figure(figsize=(20, 18))
+    fig = plt.figure(figsize=(22, 21))
     fig.patch.set_facecolor("#f8f9fa")
 
-    # Grid: info strip + 2 section rows + heatmap
-    gs = GridSpec(4, 3, figure=fig,
-                  height_ratios=[0.08, 1, 1, 1.4],
-                  hspace=0.72, wspace=0.38,
-                  top=0.93, bottom=0.04)
+    # 5-row grid: [header1, charts1, header2, charts2, heatmap]
+    # Info strip lives above the GridSpec via fig.text
+    gs = GridSpec(5, 3, figure=fig,
+                  height_ratios=[0.07, 1, 0.07, 1, 1.5],
+                  hspace=0.45, wspace=0.33,
+                  top=0.89, bottom=0.04)
 
     fig.suptitle("VLM Garbage Detector — Model Evaluation Report",
-                 fontsize=16, fontweight="bold", y=0.97, color="#1a1a2e")
+                 fontsize=17, fontweight="bold", y=0.975, color="#1a1a2e")
 
-    # Dataset info strip
+    # Dataset info strip (above GridSpec)
     _dataset_info_box(fig, gt, metrics, y=0.925)
 
-    # Section headers
-    _section_header(fig, y=0.755, text="▌ CLASSIFICATION QUALITY  —  binary detection: garbage vs clean")
-    _section_header(fig, y=0.495, text="▌ EFFICIENCY  —  compute cost per image")
+    # Section header axes — proper rows, no overlay
+    _section_header_ax(
+        fig.add_subplot(gs[0, :]),
+        "▌ CLASSIFICATION QUALITY  —  binary detection: garbage vs clean",
+    )
+    _section_header_ax(
+        fig.add_subplot(gs[2, :]),
+        "▌ EFFICIENCY  —  compute cost per image",
+    )
 
     # Row 1: classification quality
     ax_acc  = fig.add_subplot(gs[1, 0])
@@ -321,8 +332,8 @@ def build_figure(metrics: dict, gt: pd.DataFrame, class_gt_counts: dict, out: Pa
     ax_rec  = fig.add_subplot(gs[1, 2])
 
     ref_pct = [
-        (50,  "50% baseline", "--"),
-        (80,  "80% target",   ":"),
+        (50, "50% baseline", "--"),
+        (80, "80% target",   ":"),
     ]
 
     _bar(ax_acc, models, [metrics[m]["accuracy"] for m in models], colors,
@@ -343,9 +354,9 @@ def build_figure(metrics: dict, gt: pd.DataFrame, class_gt_counts: dict, out: Pa
          ylim=105, ylabel="%", ref_lines=ref_pct)
 
     # Row 2: efficiency + F1
-    ax_f1   = fig.add_subplot(gs[2, 0])
-    ax_time = fig.add_subplot(gs[2, 1])
-    ax_vram = fig.add_subplot(gs[2, 2])
+    ax_f1   = fig.add_subplot(gs[3, 0])
+    ax_time = fig.add_subplot(gs[3, 1])
+    ax_vram = fig.add_subplot(gs[3, 2])
 
     _bar(ax_f1, models, [metrics[m]["f1"] for m in models], colors,
          "F1 Score",
@@ -369,8 +380,8 @@ def build_figure(metrics: dict, gt: pd.DataFrame, class_gt_counts: dict, out: Pa
          "Determines minimum GPU hardware needed for deployment",
          ylabel="MB", fmt=".0f", higher_better=False)
 
-    # Row 3: per-class heatmap
-    ax_heat = fig.add_subplot(gs[3, :])
+    # Row 3: per-class heatmap (spans all 3 columns)
+    ax_heat = fig.add_subplot(gs[4, :])
     _class_heatmap(ax_heat, metrics, models, class_gt_counts)
 
     out.parent.mkdir(parents=True, exist_ok=True)
