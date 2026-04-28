@@ -66,6 +66,7 @@ def build_arguments() -> argparse.Namespace:
     )
 
     # Misc
+    parser.add_argument("--resume", action="store_true", help="Resume training from last.pt checkpoint.")
     parser.add_argument("--verbose", action="store_true", help="Print CUDA / PyTorch info.")
 
     return parser.parse_args()
@@ -147,6 +148,7 @@ def train_yolo(args: argparse.Namespace) -> None:
         project=args.project,
         name=args.name,
         optimizer=args.optimizer,
+        resume=args.resume,
         **hparams,
     )
 
