@@ -1,13 +1,52 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+alpha5_env/
+.venv*/
+
+# Models & weights
+*.pt
+*.pth
+sam3_model/
+
+# Archives
+*.zip
+
+# IDE & tools
+.claude/
+.planning/
+.idea/
+.transformers*/
+*.log
+*.tmp
+*.swp
+*~
+.*.swp
+
+# Secrets
+.env
+
+# Images (large binaries, not for git)
 *.jpg
 *.jpeg
 *.JPG
 *.png
-*.txt
-alpha5_*
-*.pt
-*.pth
-*.yaml
-*.zip
-*.json
-*.pyc
-.claude/
+# Exception: generator backgrounds are tracked
+!generator/backgrounds/**
+
+# Data files at root (not in subdirectories)
+/*.json
+/*.yaml
+
+# Module-specific
+generator/outputs_*/
+generator/inputs/
+generator/models/
+generator/runs/
+vlm/results/
+!vlm/results/*.csv
+vlm/images/
