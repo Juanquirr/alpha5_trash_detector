@@ -1,4 +1,4 @@
-# Alpha5 — Trash Detection System
+# Alpha5 — Marine Waste Detection Platform
 
 <div align="center">
 
@@ -7,379 +7,250 @@
 [![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker)](https://www.docker.com/)
 [![LICENSE](https://img.shields.io/badge/License-Proprietary-red)](LICENSE.md)
 
-**Alpha5** is a robust waste detection system built on the YOLO26 architecture,
-featuring six configurable inference strategies and an interactive GUI for visual comparison of results.
+**Alpha5** is an end-to-end platform for marine and urban waste detection,
+covering synthetic data generation, automatic labelling, multi-strategy YOLO
+inference, and Vision-Language Model evaluation.
 
 </div>
 
 ---
 
-## Overview
+## Repository Structure
 
-Alpha5 is designed to detect and classify urban and marine waste across diverse
-environmental conditions. The system is oriented towards integration with real-world
-camera streams — including PLOCAN marine monitoring infrastructure — and provides a
-complete toolkit covering dataset preparation, model training, hyperparameter tuning,
-multi-strategy inference, and interactive result visualization.
+This monorepo unifies four previously independent components into a single
+pipeline. Each module can run independently and has its own Dockerfile.
 
-The project targets eight waste categories, combining fine-grained classes with a
-generic fallback to handle uncertain predictions:
+```
+alpha5_trash_detector/
+├── alpha5/          Detection model — training, inference, GUI visualizer
+├── autolabel/       Automatic labelling with SAM3
+├── generator/       Synthetic dataset generation with FLUX inpainting
+├── vlm/             Vision-Language Model evaluation benchmark
+├── LICENSE.md
+└── README.md
+```
 
-```yaml
-nc: 8
-names:
-  0: plastic_bottle
-  1: glass
-  2: can
-  3: plastic_bag
-  4: metal_scrap
-  5: plastic_wrapper
-  6: trash_pile
-  7: trash          # Generic fallback class
+**Commit history** for each component is preserved in dedicated branches:
+
+| Branch | Component | Commits |
+|--------|-----------|---------|
+| `main` | Unified monorepo + original Alpha5 history | full |
+| `history/autolabel-sam3` | SAM3 auto-labelling pipeline | 7 |
+| `history/vlm-detector` | VLM evaluation framework | 10+ |
+| `history/trash-generator` | FLUX-based data generator | 30+ |
+
+---
+
+## Pipeline Overview
+
+All modules share the same **8 waste categories**:
+
+| ID | Class | Description |
+|----|-------|-------------|
+| 0 | `plastic_bottle` | PET / water bottles |
+| 1 | `glass` | Glass bottles and jars |
+| 2 | `can` | Aluminium / metal cans |
+| 3 | `plastic_bag` | Shopping bags, film |
+| 4 | `metal_scrap` | Corroded metal fragments |
+| 5 | `plastic_wrapper` | Foil, food packaging |
+| 6 | `trash_pile` | Mixed debris clusters |
+| 7 | `trash` | Generic fallback class |
+
+```
+                          ┌──────────────┐
+  Real harbour images ──► │  generator/  │ ──► Synthetic training images
+                          │  FLUX models │     + YOLO annotations
+                          └──────────────┘
+                                 │
+                                 ▼
+                          ┌──────────────┐
+  Unlabelled images ────► │  autolabel/  │ ──► YOLO .txt labels
+                          │  SAM3        │
+                          └──────────────┘
+                                 │
+                                 ▼
+                          ┌──────────────┐
+  Labelled dataset ─────► │   alpha5/    │ ──► Trained model (.pt)
+                          │  YOLO train  │     + inference results
+                          │  + 6 methods │
+                          └──────────────┘
+                                 │
+                                 ▼
+                          ┌──────────────┐
+  Test images ──────────► │    vlm/      │ ──► Accuracy/speed/VRAM
+                          │  10 VLMs     │     comparison report
+                          └──────────────┘
 ```
 
 ---
 
-## Key Features
+## Modules
 
-- **YOLO26** backbone trained with hyperparameter tuning.
-- **Six inference strategies** covering from real-time single-pass to high-accuracy
-  hybrid approaches
-- **Deduplication system** with class-specific prioritization (specific classes over
-  generic `trash`)
-- **Interactive GUI** for side-by-side method comparison with zoom, pan and
-  collapsible panels
-- **CLI and programmatic API** for batch processing and integration
-- **Full Docker support** with GPU passthrough
+### Alpha5 — Detection (`alpha5/`)
 
-Note: The code supports any **Ultralytics** YOLO model.  
+YOLO26-based detection system with six configurable inference strategies and an
+interactive GUI for visual comparison.
 
----
+**Components:**
 
-## Installation
+| Directory | Purpose |
+|-----------|---------|
+| `train/` | Model training + hyperparameter tuning |
+| `datasets/scripts/` | Dataset preparation (stratified split, YOLO↔COCO conversion) |
+| `tests/experiments/` | Inference methods + benchmarking |
+| `tests/visualizer/` | Interactive GUI for method comparison |
 
-### Requirements
-
-- Python 3.8+
-- PyTorch with CUDA support (recommended)
-- Ultralytics YOLO
-- OpenCV
-- NumPy
-- Pillow
-- Tkinter (for GUI)
-
-### Docker (Recommended)
-
-Build the image:
+#### Training
 
 ```bash
-docker build -f ./Dockerfile -t alpha5:latest .
+# Dataset preparation — instance-stratified split
+python alpha5/datasets/scripts/img_stratifier.py /path/to/data \
+  --output /path/to/output --train 0.7 --val 0.2 --test 0.1
+
+# Training
+python alpha5/train/train_yolo.py /path/to/data.yaml yolo26x.pt \
+  --epochs 300 --batch -1 --imgsz 640 --patience 15 --device 0
+
+# Hyperparameter tuning (Bayesian optimization)
+python alpha5/train/hyperparam_yolo_tunning.py /path/to/data.yaml yolo26x.pt 50 20
 ```
 
-Run with GPU support:
+#### Inference Methods
+
+| Method | Speed | Small Objects | Large Objects | Use Case |
+|--------|-------|---------------|---------------|----------|
+| Basic | 1.0x | Fair | Excellent | Real-time, baseline |
+| Tiled | 1.5-2.5x | Good | Good | High-res, dense scenes |
+| MultiScale | 3.0-4.0x | Excellent | Good | Variable object sizes |
+| TTA | 4.0-6.0x | Fair | Good | Orientation/lighting variability |
+| SuperRes | 1.1-1.3x | Good | Good | Low-quality imagery |
+| **Hybrid** | **2.5-3.5x** | **Excellent** | **Excellent** | **Research, validation** |
+
+#### GUI
 
 ```bash
+python alpha5/tests/visualizer/run_visualizer.py
+```
+
+Side-by-side method comparison with zoom, pan, collapsible panels, and
+adjustable confidence/IoU thresholds.
+
+#### Docker
+
+```bash
+docker build -f alpha5/Dockerfile -t alpha5:latest .
 docker run -it --gpus all --shm-size=8g \
-  -v "$(pwd):/ultralytics/USER" \
-  --name alpha5_container \
-  alpha5:latest
+  -v "$(pwd):/ultralytics/USER" alpha5:latest
 ```
 
 ---
 
-## Training Pipeline
+### Autolabel — SAM3 Labelling (`autolabel/`)
 
-The training workflow consists of three independent, composable stages: dataset
-preparation, model training, and hyperparameter optimization.
-
-### 1. Dataset Preparation
-
-#### Instance-stratified split
-
-`img_stratifier.py` splits a flat folder of images and YOLO `.txt` labels into
-`train/`, `val/`, and `test/` subsets, balancing the **number of annotated instances
-per class** across splits — not just image counts.
-
-```bash
-python img_stratifier.py /path/to/mixed_dir \
-  --output /path/to/output_dir \
-  --train 0.7 --val 0.2 --test 0.1
-```
-
-Output follows the standard YOLO layout:
-`output_dir/{train,val,test}/{images,labels}`.
-
-#### Negative sample labels
-
-`create_empty_labels.py` creates empty `.txt` label files for images without
-annotations, which is required when negative samples are included in training.
-
-```bash
-# Inspect dataset structure only
-python create_empty_labels.py /path/to/split_dir --check_only
-
-# Dry run (preview without writing)
-python create_empty_labels.py /path/to/split_dir --dry_run
-
-# Write missing empty label files
-python create_empty_labels.py /path/to/split_dir
-```
-
-#### YOLO to COCO conversion
-
-`yolo2coco.py` converts a YOLO-format dataset (normalized center-based bounding
-boxes) to COCO format (absolute corner-based). Reads class names from `data.yaml`
-and writes one `instances_{split}.json` per split.
-
-```bash
-python yolo2coco.py \
-  --input /path/to/yolo_dataset \
-  --output /path/to/coco_dataset
-```
-
-The input directory must contain a `data.yaml` file and `train/`, `val/`, and/or
-`test/` subdirectories with standard `images/` and `labels/` folders.
-
----
-
-### 2. Model Training
-
-`train_yolo.py` wraps the Ultralytics `model.train()` API with additional features:
-a per-epoch `metrics/mAP50(B)` logging callback and a manual patience counter based
-on mAP50 improvement.
-
-```bash
-python train_yolo.py /path/to/data.yaml yolo26x.pt \
-  --epochs 300 \
-  --batch -1 \
-  --imgsz 640 \
-  --workers 4 \
-  --patience 15 \
-  --device 0 \
-  --project /ultralytics/USER/runs/detect/train \
-  --name alpha5_yolo26 \
-  --optimizer auto
-```
-
-Hyperparameters can be overridden at runtime via a YAML file:
-
-```bash
-python train_yolo.py /path/to/data.yaml yolo26x.pt \
-  --epochs 200 \
-  --imgsz 640 \
-  --hyperparams /path/to/hparams.yaml
-```
-
-> **Note:** If `close_mosaic` is present in the hyperparameter file, the script
-> automatically casts it to `int` before passing it to Ultralytics.
-
----
-
-### 3. Hyperparameter Tuning
-
-`hyperparam_yolo_tunning.py` runs Ultralytics `model.tune()` (Bayesian optimization)
-for a configurable number of iterations, each trained for a fixed number of epochs.
-
-```bash
-python hyperparam_yolo_tunning.py /path/to/data.yaml yolo26x.pt 50 20 \
-  --batch -1 \
-  --imgsz 640 \
-  --patience 15 \
-  --device 0 \
-  --name tune_exp \
-  --project /ultralytics/USER/runs/detect/tune
-```
-
-Additional tuning kwargs can be provided via `--tune_kwargs` as a YAML file. Reserved
-keys (`data`, `model`, `epochs`, `iterations`, `batch`, `imgsz`, `patience`,
-`device`, `name`, `project`, `resume`) are automatically filtered out to prevent
-conflicts.
-
----
-
-## Inference Methods
-
-All methods are implemented in `inference_methods.py` and share a common interface
-through the `InferenceMethod` base class. Each method returns an `InferenceResult`
-object containing bounding boxes, scores, class labels, elapsed time, and an
-annotated image.
-
-### 1. Basic
-
-Standard single-pass YOLO inference. Applies confidence filtering and NMS, with
-optional deduplication. This is the reference baseline for all other methods.
-
-**Best for:** Real-time applications, large/medium objects, limited compute.
-
----
-
-### 2. Tiled
-
-Divides the image into an overlapping grid of crops (default: 4 crops, 20% overlap),
-runs inference on each crop independently, transforms detections back to global
-coordinates, and merges them using **Weighted Boxes Fusion (WBF)** or **NMS**.
-
-The overlap strategy ensures that objects near crop boundaries are detected by at
-least one crop, and WBF consolidates duplicate detections from adjacent tiles into a
-single confident prediction.
-
-**Best for:** High-resolution images, dense small-object scenes.
-
----
-
-### 3. MultiScale
-
-Runs inference at multiple resolutions (default: `[640, 960, 1280]`) and merges
-all predictions using cross-scale NMS. Each scale is optimized for a different
-object size range; objects detected at multiple scales receive implicitly higher
-reliability.
-
-**Best for:** Scenes with highly variable object sizes (near/far objects, drone
-footage).
-
----
-
-### 4. Test-Time Augmentation (TTA)
-
-Generates augmented versions of the input (horizontal flip, vertical flip, combined
-flip, optional brightness ±20%), runs inference on each, reverses the geometric
-transforms, and pools all detections using TTA-specific NMS with a voting mechanism
-for class labels.
-
-**Best for:** Objects with variable orientations, symmetric shapes (bottles, cans),
-challenging lighting.
-
----
-
-### 5. SuperResolution Preprocessing
-
-Applies image enhancement before standard single-pass inference. Supports three
-modes:
-
-| Mode | Technique | Effect |
-|------|-----------|--------|
-| `clahe` | Contrast Limited Adaptive Histogram Equalization on the L channel (LAB space) | Reveals objects in shadows and low-contrast areas |
-| `unsharp` | Gaussian blur subtraction with configurable strength | Sharpens edges and object boundaries |
-| `both` | Sequential CLAHE → Unsharp Mask | Maximum feature clarity |
-
-**Best for:** Compressed, underexposed, or low-contrast imagery.
-
----
-
-### 6. Hybrid
-
-Combines a full-image inference pass with a tiled inference pass (default: 6 crops)
-and merges both streams using **WBF**. The full-image stream captures large objects
-with global context; the crop stream captures small objects at higher effective
-resolution. WBF weights detections by confidence and produces coordinate-averaged
-boxes, boosting confidence for objects detected in both streams.
-
-**Best for:** Critical applications requiring maximum recall across all object sizes.
-
----
-
-### Performance Reference
-
-Benchmarked on YOLOv11x at 640×640 input resolution:
-
-| Method | Relative Speed | Small Objects | Large Objects | Recommended Use Case |
-|---|---|---|---|---|
-| Basic | 1.0× | ⭐⭐ Fair | ⭐⭐⭐⭐⭐ Excellent | Real-time, baseline |
-| Tiled | 1.5–2.5× | ⭐⭐⭐⭐ Good | ⭐⭐⭐ Good | High-res, dense scenes |
-| MultiScale | 3.0–4.0× | ⭐⭐⭐⭐⭐ Excellent | ⭐⭐⭐⭐ Good | Variable object sizes |
-| TTA | 4.0–6.0× | ⭐⭐ Fair | ⭐⭐⭐⭐ Good | Orientation/lighting variability |
-| SuperRes | 1.1–1.3× | ⭐⭐⭐ Good | ⭐⭐⭐⭐ Good | Low-quality imagery |
-| **Hybrid** | **2.5–3.5×** | **⭐⭐⭐⭐⭐ Excellent** | **⭐⭐⭐⭐⭐ Excellent** | **Research, validation** |
-
----
-
-## Deduplication System
-
-All methods support an optional post-inference deduplication step implemented in
-`utils.py`. When `prioritize_specific=True`, overlapping detections are resolved by
-keeping the most specific class over the generic `trash` class (ID 7). Among
-detections of equal priority, the highest-confidence detection wins.
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `deduplicate` | bool | method-dependent | Enable deduplication |
-| `dedup_iou` | float | 0.5 | IoU threshold to consider two detections as duplicates |
-| `trash_class_id` | int | 7 | ID of the generic fallback class |
-| `prioritize_specific` | bool | True | Specific classes take precedence over generic trash |
-
-Methods that generate redundancy (Tiled, MultiScale, TTA, Hybrid) have
-`deduplicate=True` by default; methods based on a single inference pass (Basic,
-SuperRes) default to `False`.
-
----
-
-## Usage
-
-### GUI Application
-
-Launch the interactive visualizer:
-
-```bash
-python run_visualizer.py
-```
+Automatic labelling pipeline using Meta's Segment Anything 3 (SAM3) for
+open-vocabulary trash detection. Outputs YOLO-format `.txt` labels.
 
 **Features:**
-- Load any `.pt` YOLO model
-- Load test images and configure method-specific parameters via GUI (⚙️ buttons)
-- Execute multiple methods simultaneously and compare side-by-side
-- Double-click zoom with pan and collapsible panels (v4+)
-- Adjustable confidence and IoU thresholds with real-time updates
-- Export annotated images
-
-### Command-Line Interface
-
-Run all inference methods on a single image and save results:
+- Batch processing of entire datasets
+- Per-class configurable prompts and confidence thresholds
+- Area filtering + NMS deduplication
+- Annotated PNG previews + JSON reports
 
 ```bash
-python test_methods.py image.jpg model.pt --output results/
+# Label a full dataset
+python autolabel/run_autolabel.py --images /path/to/images \
+  --output /path/to/labels --threshold 0.3
+
+# Download SAM3 model
+python autolabel/download_model.py
 ```
 
-### Programmatic API
+#### Docker
 
-```python
-from inference_methods import get_method
-from ultralytics import YOLO
-import cv2
-
-model = YOLO('yolo26x.pt')
-image = cv2.imread('test_image.jpg')
-
-hybrid = get_method('hybrid')
-
-params = {
-    'conf': 0.25,
-    'crops': 6,
-    'overlap': 0.25,
-    'merge_iou': 0.55,
-    'deduplicate': True,
-    'dedup_iou': 0.5,
-    'trash_class_id': 7,
-    'prioritize_specific': True
-}
-
-result = hybrid.run(image, model, params)
-
-print(f"Detections: {result.num_detections}")
-print(f"Elapsed time: {result.elapsed_time:.2f}s")
-
-cv2.imwrite('output.jpg', result.image)
+```bash
+docker build -f autolabel/Dockerfile -t autolabel:latest .
 ```
+
+---
+
+### Generator — Synthetic Data (`generator/`)
+
+Synthetic marine trash dataset generator using FLUX diffusion models. Inserts
+photorealistic trash objects into real harbour/ocean photographs, producing
+paired images and YOLO annotations.
+
+**Inpainting models:** Fill (text-conditioned), Canny (edge-guided),
+Redux (visual reference), Kontext (in-context editing).
+
+**Water detection:** HSV, Otsu, KMeans, Flood fill, SAM3.
+
+```bash
+# Generate dataset
+python generator/run.py fill --output outputs/ --num-instances 3
+
+# Compare models
+python generator/run.py test --model all --max-images 5
+```
+
+Requires NVIDIA GPU with 16+ GB VRAM. Full documentation in
+[generator/README.md](generator/README.md).
+
+#### Docker
+
+```bash
+docker build -f generator/Dockerfile -t trash_generator:latest .
+docker run --gpus all -it -v $(pwd)/generator:/app trash_generator
+```
+
+---
+
+### VLM Evaluation (`vlm/`)
+
+Benchmark framework evaluating 10 Vision-Language Models on trash detection
+accuracy, inference time, and VRAM usage.
+
+**Models evaluated:** SmolVLM, Qwen2.5-VL, Moondream, LLaVA, BLIP2,
+InstructBLIP, CLIP, PaliGemma, mPLUG-Owl3, VideoLLaMA3.
+
+```bash
+# Run all models
+python vlm/run.py --model all --images images/
+
+# Single model
+python vlm/run.py --model smolvlm --images images/
+
+# Evaluation report
+python vlm/evaluate.py --images images/ --results vlm/results/ --out eval.png
+```
+
+Requires two virtual environments (transformers 5.x and 4.46.x). Setup scripts
+and full documentation in [vlm/CONTEXT.md](vlm/CONTEXT.md).
+
+---
+
+## Requirements
+
+Each module has independent dependencies. Common baseline:
+
+- Python 3.8+
+- PyTorch with CUDA support
+- Docker with NVIDIA GPU support (recommended)
+
+| Module | Key Dependencies | GPU VRAM |
+|--------|-----------------|----------|
+| alpha5 | Ultralytics, OpenCV, Tkinter | 8+ GB |
+| autolabel | SAM3, transformers | 16+ GB |
+| generator | diffusers, FLUX models | 16+ GB |
+| vlm | transformers (5.x + 4.46) | 16+ GB |
 
 ---
 
 ## Citation
 
-If you use this work in your research, please cite:
-
 ```bibtex
 @misc{alpha5,
-  author       = {Rodríguez Ramírez, Juan Carlos},
-  title        = {Alpha5: Trash Detection System},
+  author       = {Rodr\'{i}guez Ram\'{i}rez, Juan Carlos},
+  title        = {Alpha5: Marine Waste Detection Platform},
   year         = {2026},
   publisher    = {GitHub},
   howpublished = {\url{https://github.com/Juanquirr/alpha5_trash_detector}}
