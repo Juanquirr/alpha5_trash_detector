@@ -1,0 +1,10 @@
+__pycache__/
+.claude/
+.venv*/
+*.pyc
+results/
+!results/*.csv
+images/*
+!images/.gitkeep
+alpha5*/
+.transformers*/
