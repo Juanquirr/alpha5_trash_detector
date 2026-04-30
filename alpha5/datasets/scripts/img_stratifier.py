@@ -28,6 +28,83 @@ def count_instances_yolo(annotation_path):
     return counts
 
 
+def is_split_folder(folder):
+    """True if folder has at least one train/val/test subdir with an images/ inside."""
+    for split in ("train", "val", "test"):
+        if os.path.isdir(os.path.join(folder, split, "images")):
+            return True
+    return False
+
+
+def load_dataset_from_split(split_folder):
+    """
+    Accepts an already-split YOLO dataset (train/, val/, test/ each with images/ and labels/).
+    Pools all splits together and returns the same format as load_dataset, plus a sources dict
+    mapping img_name -> (img_src_path, ann_src_path) for copy_split.
+    """
+    if not os.path.isdir(split_folder):
+        raise FileNotFoundError(f"Input folder not found: '{split_folder}'")
+
+    image_details = []
+    class_to_images = defaultdict(list)
+    total_counts = defaultdict(int)
+    skipped = []
+    sources = {}
+
+    found_splits = []
+    for split in ("train", "val", "test"):
+        img_dir = os.path.join(split_folder, split, "images")
+        lbl_dir = os.path.join(split_folder, split, "labels")
+        if not os.path.isdir(img_dir):
+            continue
+        found_splits.append(split)
+
+        for img in os.listdir(img_dir):
+            if not img.lower().endswith(EXT_IMGS):
+                continue
+            base, _ = os.path.splitext(img)
+            ann = base + ".txt"
+            img_path = os.path.join(img_dir, img)
+            ann_path = os.path.join(lbl_dir, ann)
+
+            if not os.path.exists(ann_path):
+                skipped.append((img, f"no annotation in {lbl_dir}"))
+                continue
+
+            counts = count_instances_yolo(ann_path)
+            if not counts:
+                skipped.append((img, "annotation file is empty"))
+                continue
+
+            if img in sources:
+                skipped.append((img, f"duplicate filename already loaded from another split"))
+                continue
+
+            idx = len(image_details)
+            image_details.append((img, ann, counts))
+            sources[img] = (img_path, ann_path)
+            for c, count in counts.items():
+                class_to_images[c].append(idx)
+                total_counts[c] += count
+
+    if not found_splits:
+        raise FileNotFoundError(
+            f"No train/val/test subdirs with images/ found in '{split_folder}'"
+        )
+
+    print(f"Loaded splits: {found_splits}")
+
+    if skipped:
+        print(f"[WARNING] Skipped {len(skipped)} image(s):")
+        for name, reason in skipped:
+            print(f"  - {name}: {reason}")
+
+    if not image_details:
+        raise ValueError(f"No valid image-annotation pairs found in '{split_folder}'")
+
+    return image_details, class_to_images, total_counts, sources
+
+
 def load_dataset(mixed_folder):
     """
     Returns:
@@ -173,18 +250,23 @@ def stratified_instance_split(image_details, class_to_images, total_counts,
     return train_set, val_set, test_set, (used_train, used_val, used_test), (target_train, target_val, target_test)
 
 
-def copy_split(mixed_folder, output_folder, split_name, dataset):
+def copy_split(mixed_folder, output_folder, split_name, dataset, sources=None):
     img_out = os.path.join(output_folder, split_name, "images")
     lab_out = os.path.join(output_folder, split_name, "labels")
     os.makedirs(img_out, exist_ok=True)
     os.makedirs(lab_out, exist_ok=True)
 
     for img, ann, _ in dataset:
-        shutil.copy(os.path.join(mixed_folder, img), os.path.join(img_out, img))
-        shutil.copy(os.path.join(mixed_folder, ann), os.path.join(lab_out, ann))
+        if sources and img in sources:
+            img_src, ann_src = sources[img]
+        else:
+            img_src = os.path.join(mixed_folder, img)
+            ann_src = os.path.join(mixed_folder, ann)
+        shutil.copy(img_src, os.path.join(img_out, img))
+        shutil.copy(ann_src, os.path.join(lab_out, ann))
 
 
-def balance_by_instance_splits(mixed_folder, output_folder, split_ratios=(0.7, 0.2, 0.1)):
+def balance_by_instance_splits(mixed_folder, output_folder, split_ratios=(0.7, 0.2, 0.1), sources=None):
     image_details, class_to_images, total_counts = load_dataset(mixed_folder)
     print("Total instances per class:", dict(total_counts))
 
@@ -193,7 +275,7 @@ def balance_by_instance_splits(mixed_folder, output_folder, split_ratios=(0.7, 0
     )
 
     for name, ds in [("train", train_set), ("val", val_set), ("test", test_set)]:
-        copy_split(mixed_folder, output_folder, name, ds)
+        copy_split(mixed_folder, output_folder, name, ds, sources)
 
     used_train, used_val, used_test = used_sets
     target_train, target_val, target_test = target_sets
@@ -213,16 +295,20 @@ def build_args():
     p = argparse.ArgumentParser(
         description="Stratified train/val/test split for a YOLO dataset, balancing instances per class."
     )
-    p.add_argument("mixed_folder",
-                   help="Folder containing images and their .txt YOLO annotation files side-by-side.")
+    p.add_argument("input_folder",
+                   help="Flat folder (images + .txt side-by-side) OR already-split YOLO folder "
+                        "(with train/val/test subdirs). Auto-detected unless --from-split is set.")
     p.add_argument("--output", "-o", default=None,
-                   help="Output folder. Defaults to <mixed_folder>/balanced_by_instances.")
+                   help="Output folder. Defaults to <input_folder>/balanced_by_instances.")
     p.add_argument("--train", type=float, default=0.7,
                    help="Fraction of instances to assign to train (default: 0.7).")
     p.add_argument("--val",   type=float, default=0.2,
                    help="Fraction of instances to assign to val (default: 0.2).")
     p.add_argument("--test",  type=float, default=0.1,
                    help="Fraction of instances to assign to test (default: 0.1).")
+    p.add_argument("--from-split", action="store_true",
+                   help="Force treating input as an already-split YOLO dataset. "
+                        "Auto-detected by default.")
     return p.parse_args()
 
 
@@ -235,14 +321,39 @@ def main():
             f"Split ratios must sum to 1.0, but got {args.train} + {args.val} + {args.test} = {total:.4f}"
         )
 
-    mixed_folder  = args.mixed_folder
-    output_folder = args.output or os.path.join(mixed_folder, "balanced_by_instances")
+    input_folder  = args.input_folder
+    output_folder = args.output or os.path.join(input_folder, "balanced_by_instances")
+    split_ratios  = (args.train, args.val, args.test)
 
-    stats = balance_by_instance_splits(
-        mixed_folder, output_folder,
-        split_ratios=(args.train, args.val, args.test)
-    )
-    print("Final instances per class and split:", stats)
+    use_split_loader = args.from_split or is_split_folder(input_folder)
+
+    if use_split_loader:
+        print(f"Detected split dataset structure in '{input_folder}'. Pooling all splits...")
+        image_details, class_to_images, total_counts, sources = load_dataset_from_split(input_folder)
+        print("Total instances per class:", dict(total_counts))
+
+        train_set, val_set, test_set, used_sets, target_sets = stratified_instance_split(
+            image_details, class_to_images, total_counts, split_ratios
+        )
+        for name, ds in [("train", train_set), ("val", val_set), ("test", test_set)]:
+            copy_split(input_folder, output_folder, name, ds, sources)
+
+        used_train, used_val, used_test = used_sets
+        target_train, target_val, target_test = target_sets
+    else:
+        print(f"Flat folder detected. Loading images from '{input_folder}'...")
+        stats = balance_by_instance_splits(input_folder, output_folder, split_ratios)
+        print("Final instances per class and split:", stats)
+        return
+
+    print("Target train:", target_train, "| Used:", dict(used_train))
+    print("Target val:  ", target_val,   "| Used:", dict(used_val))
+    print("Target test: ", target_test,  "| Used:", dict(used_test))
+    print("Final instances per class and split:", {
+        "train": dict(used_train),
+        "val":   dict(used_val),
+        "test":  dict(used_test),
+    })
 
 
 if __name__ == "__main__":
