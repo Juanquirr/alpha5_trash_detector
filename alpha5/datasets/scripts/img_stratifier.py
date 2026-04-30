@@ -39,8 +39,12 @@ def is_split_folder(folder):
 def load_dataset_from_split(split_folder):
     """
     Accepts an already-split YOLO dataset (train/, val/, test/ each with images/ and labels/).
-    Pools all splits together and returns the same format as load_dataset, plus a sources dict
-    mapping img_name -> (img_src_path, ann_src_path) for copy_split.
+    Pools annotated images for re-stratification. Hard negatives (empty labels) are collected
+    separately per split so they can be preserved in their original split on output.
+
+    Returns:
+      image_details, class_to_images, total_counts, sources, hard_negatives_by_split
+      hard_negatives_by_split: {split_name: [(img, ann, img_src, ann_src), ...]}
     """
     if not os.path.isdir(split_folder):
         raise FileNotFoundError(f"Input folder not found: '{split_folder}'")
@@ -50,6 +54,7 @@ def load_dataset_from_split(split_folder):
     total_counts = defaultdict(int)
     skipped = []
     sources = {}
+    hard_negatives_by_split = {"train": [], "val": [], "test": []}
 
     found_splits = []
     for split in ("train", "val", "test"):
@@ -73,11 +78,11 @@ def load_dataset_from_split(split_folder):
 
             counts = count_instances_yolo(ann_path)
             if not counts:
-                skipped.append((img, "annotation file is empty"))
+                hard_negatives_by_split[split].append((img, ann, img_path, ann_path))
                 continue
 
             if img in sources:
-                skipped.append((img, f"duplicate filename already loaded from another split"))
+                skipped.append((img, "duplicate filename already loaded from another split"))
                 continue
 
             idx = len(image_details)
@@ -94,23 +99,27 @@ def load_dataset_from_split(split_folder):
 
     print(f"Loaded splits: {found_splits}")
 
+    total_hn = sum(len(v) for v in hard_negatives_by_split.values())
+    if total_hn:
+        print(f"Hard negatives found (will be preserved in their original split): "
+              + ", ".join(f"{s}={len(hard_negatives_by_split[s])}" for s in found_splits))
+
     if skipped:
         print(f"[WARNING] Skipped {len(skipped)} image(s):")
         for name, reason in skipped:
             print(f"  - {name}: {reason}")
 
     if not image_details:
-        raise ValueError(f"No valid image-annotation pairs found in '{split_folder}'")
+        raise ValueError(f"No valid annotated image-annotation pairs found in '{split_folder}'")
 
-    return image_details, class_to_images, total_counts, sources
+    return image_details, class_to_images, total_counts, sources, hard_negatives_by_split
 
 
 def load_dataset(mixed_folder):
     """
     Returns:
-      - image_details: [(img_name, ann_name, counts_per_class), ...]
-      - class_to_images: {class_id: [indices into image_details that contain that class]}
-      - total_counts: total instances per class
+      image_details, class_to_images, total_counts, hard_negatives
+      hard_negatives: [(img, ann, img_src, ann_src)] — images with empty label files
     """
     if not os.path.isdir(mixed_folder):
         raise FileNotFoundError(f"Input folder not found: '{mixed_folder}'")
@@ -123,6 +132,7 @@ def load_dataset(mixed_folder):
     class_to_images = defaultdict(list)
     total_counts = defaultdict(int)
     skipped = []
+    hard_negatives = []
 
     for idx, img in enumerate(images):
         base, _ = os.path.splitext(img)
@@ -135,7 +145,11 @@ def load_dataset(mixed_folder):
 
         counts = count_instances_yolo(ann_path)
         if not counts:
-            skipped.append((img, "annotation file is empty"))
+            hard_negatives.append((
+                img, ann,
+                os.path.join(mixed_folder, img),
+                ann_path,
+            ))
             continue
 
         image_details.append((img, ann, counts))
@@ -144,6 +158,9 @@ def load_dataset(mixed_folder):
             class_to_images[c].append(idx)
             total_counts[c] += count
 
+    if hard_negatives:
+        print(f"Hard negatives found: {len(hard_negatives)} (will be distributed proportionally)")
+
     if skipped:
         print(f"[WARNING] Skipped {len(skipped)} image(s):")
         for name, reason in skipped:
@@ -151,11 +168,11 @@ def load_dataset(mixed_folder):
 
     if not image_details:
         raise ValueError(
-            f"No valid image-annotation pairs found in '{mixed_folder}'. "
+            f"No valid annotated image-annotation pairs found in '{mixed_folder}'. "
             f"Checked {len(images)} image(s), all were skipped."
         )
 
-    return image_details, class_to_images, total_counts
+    return image_details, class_to_images, total_counts, hard_negatives
 
 
 def stratified_instance_split(image_details, class_to_images, total_counts,
@@ -226,7 +243,6 @@ def stratified_instance_split(image_details, class_to_images, total_counts,
         if is_assigned(idx):
             continue
 
-        # Pick the split with the lowest average fulfillment ratio
         scores = {}
         for split in ("train", "val", "test"):
             ratios = [
@@ -240,7 +256,6 @@ def stratified_instance_split(image_details, class_to_images, total_counts,
         if can_add(idx, best_split):
             add(idx, best_split)
         else:
-            # Overflow: assign to train as a fallback
             add(idx, "train")
 
     train_set = [image_details[i] for i in split_assign["train"]]
@@ -266,8 +281,50 @@ def copy_split(mixed_folder, output_folder, split_name, dataset, sources=None):
         shutil.copy(ann_src, os.path.join(lab_out, ann))
 
 
+def copy_hard_negatives_split(output_folder, hard_negatives_by_split):
+    """Copy hard negatives into their original split, preserving the split assignment."""
+    for split_name, negatives in hard_negatives_by_split.items():
+        if not negatives:
+            continue
+        img_out = os.path.join(output_folder, split_name, "images")
+        lab_out = os.path.join(output_folder, split_name, "labels")
+        os.makedirs(img_out, exist_ok=True)
+        os.makedirs(lab_out, exist_ok=True)
+        for img, ann, img_src, ann_src in negatives:
+            shutil.copy(img_src, os.path.join(img_out, img))
+            shutil.copy(ann_src, os.path.join(lab_out, ann))
+        print(f"  Hard negatives → {split_name}: {len(negatives)}")
+
+
+def distribute_hard_negatives_flat(output_folder, hard_negatives, split_ratios):
+    """Distribute flat hard negatives proportionally across output splits."""
+    if not hard_negatives:
+        return
+    n = len(hard_negatives)
+    n_train = int(n * split_ratios[0])
+    n_val   = int(n * split_ratios[1])
+    shuffled = list(hard_negatives)
+    random.shuffle(shuffled)
+    distribution = {
+        "train": shuffled[:n_train],
+        "val":   shuffled[n_train:n_train + n_val],
+        "test":  shuffled[n_train + n_val:],
+    }
+    for split_name, negatives in distribution.items():
+        if not negatives:
+            continue
+        img_out = os.path.join(output_folder, split_name, "images")
+        lab_out = os.path.join(output_folder, split_name, "labels")
+        os.makedirs(img_out, exist_ok=True)
+        os.makedirs(lab_out, exist_ok=True)
+        for img, ann, img_src, ann_src in negatives:
+            shutil.copy(img_src, os.path.join(img_out, img))
+            shutil.copy(ann_src, os.path.join(lab_out, ann))
+        print(f"  Hard negatives → {split_name}: {len(negatives)}")
+
+
 def balance_by_instance_splits(mixed_folder, output_folder, split_ratios=(0.7, 0.2, 0.1), sources=None):
-    image_details, class_to_images, total_counts = load_dataset(mixed_folder)
+    image_details, class_to_images, total_counts, hard_negatives = load_dataset(mixed_folder)
     print("Total instances per class:", dict(total_counts))
 
     train_set, val_set, test_set, used_sets, target_sets = stratified_instance_split(
@@ -276,6 +333,8 @@ def balance_by_instance_splits(mixed_folder, output_folder, split_ratios=(0.7, 0
 
     for name, ds in [("train", train_set), ("val", val_set), ("test", test_set)]:
         copy_split(mixed_folder, output_folder, name, ds, sources)
+
+    distribute_hard_negatives_flat(output_folder, hard_negatives, split_ratios)
 
     used_train, used_val, used_test = used_sets
     target_train, target_val, target_test = target_sets
@@ -329,7 +388,8 @@ def main():
 
     if use_split_loader:
         print(f"Detected split dataset structure in '{input_folder}'. Pooling all splits...")
-        image_details, class_to_images, total_counts, sources = load_dataset_from_split(input_folder)
+        image_details, class_to_images, total_counts, sources, hard_negatives_by_split = \
+            load_dataset_from_split(input_folder)
         print("Total instances per class:", dict(total_counts))
 
         train_set, val_set, test_set, used_sets, target_sets = stratified_instance_split(
@@ -337,6 +397,8 @@ def main():
         )
         for name, ds in [("train", train_set), ("val", val_set), ("test", test_set)]:
             copy_split(input_folder, output_folder, name, ds, sources)
+
+        copy_hard_negatives_split(output_folder, hard_negatives_by_split)
 
         used_train, used_val, used_test = used_sets
         target_train, target_val, target_test = target_sets
