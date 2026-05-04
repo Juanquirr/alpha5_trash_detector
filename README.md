@@ -2,6 +2,7 @@
 
 <div align="center">
 
+[![ULPGC](https://img.shields.io/badge/ULPGC-TFG%202025--2026-004B97)](https://www.ulpgc.es/)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
 [![YOLOv26](https://img.shields.io/badge/Model-YOLOv26-purple)](https://github.com/ultralytics/ultralytics)
 [![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker)](https://www.docker.com/)
@@ -12,6 +13,34 @@ covering synthetic data generation, automatic labelling, multi-strategy YOLO
 inference, and Vision-Language Model evaluation.
 
 </div>
+
+---
+
+## Trabajo de Fin de Grado
+
+Este repositorio contiene el código del **Trabajo de Fin de Grado (TFG)**:
+
+> **Sistema basado en inteligencia artificial para la detección de residuos en entornos marítimos-costeros**
+
+| | |
+|---|---|
+| **Universidad** | [Universidad de Las Palmas de Gran Canaria (ULPGC)](https://www.ulpgc.es/) |
+| **Grado** | Grado en Ingeniería Informática |
+| **Escuela** | Escuela de Ingeniería Informática (EII) |
+| **Curso académico** | 2025–2026 |
+
+### Autor
+
+| Nombre | GitHub |
+|--------|--------|
+| Juan Carlos Rodríguez Ramírez | [@Juanquirr](https://github.com/Juanquirr) |
+
+### Cotutores
+
+| Nombre |
+|--------|
+| Nelson Monzón López |
+| Pablo Fernández Moniz |
 
 ---
 
@@ -248,12 +277,16 @@ Each module has independent dependencies. Common baseline:
 ## Citation
 
 ```bibtex
-@misc{alpha5,
-  author       = {Rodr\'{i}guez Ram\'{i}rez, Juan Carlos},
-  title        = {Alpha5: Marine Waste Detection Platform},
-  year         = {2026},
-  publisher    = {GitHub},
-  howpublished = {\url{https://github.com/Juanquirr/alpha5_trash_detector}}
+@thesis{alpha5_tfg_2026,
+  author      = {Rodr\'{i}guez Ram\'{i}rez, Juan Carlos},
+  title       = {Sistema basado en inteligencia artificial para la detecci\'{o}n
+                 de residuos en entornos mar\'{i}timos-costeros},
+  school      = {Universidad de Las Palmas de Gran Canaria},
+  year        = {2026},
+  type        = {Trabajo de Fin de Grado},
+  department  = {Escuela de Ingenier\'{i}a Inform\'{a}tica},
+  note        = {Grado en Ingenier\'{i}a Inform\'{a}tica.
+                 \url{https://github.com/Juanquirr/alpha5_trash_detector}}
 }
 ```
 
