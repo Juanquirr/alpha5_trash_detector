@@ -47,7 +47,11 @@ sam3_model/
 generator/outputs_*/
 generator/inputs/
 generator/models/
-generator/runs/
+generator/.planning/
+generator/.claude/
+generator/backgrounds/
 vlm/results/
 !vlm/results/*.csv
 vlm/images/
+alpha5/datasets/alpha5*/
+runs/
