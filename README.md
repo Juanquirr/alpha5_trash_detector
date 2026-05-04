@@ -16,29 +16,30 @@ inference, and Vision-Language Model evaluation.
 
 ---
 
-## Trabajo de Fin de Grado
+## Bachelor's Thesis (TFG)
 
-Este repositorio contiene el código del **Trabajo de Fin de Grado (TFG)**:
+This repository contains the source code of the following **Bachelor's Final Project (TFG)**:
 
-> **Sistema basado en inteligencia artificial para la detección de residuos en entornos marítimos-costeros**
+> **AI-Based System for Waste Detection in Maritime and Coastal Environments**
+> *(Sistema basado en inteligencia artificial para la detección de residuos en entornos marítimos-costeros)*
 
 | | |
 |---|---|
-| **Universidad** | [Universidad de Las Palmas de Gran Canaria (ULPGC)](https://www.ulpgc.es/) |
-| **Grado** | Grado en Ingeniería Informática |
-| **Escuela** | Escuela de Ingeniería Informática (EII) |
-| **Curso académico** | 2025–2026 |
+| **University** | [Universidad de Las Palmas de Gran Canaria (ULPGC)](https://www.ulpgc.es/) |
+| **Degree** | Bachelor's Degree in Computer Engineering (*Grado en Ingeniería Informática*) |
+| **School** | Escuela de Ingeniería Informática (EII) |
+| **Academic year** | 2025–2026 |
 
-### Autor
+### Author
 
-| Nombre | GitHub |
-|--------|--------|
+| Name | GitHub |
+|------|--------|
 | Juan Carlos Rodríguez Ramírez | [@Juanquirr](https://github.com/Juanquirr) |
 
-### Cotutores
+### Supervisors
 
-| Nombre |
-|--------|
+| Name |
+|------|
 | Nelson Monzón López |
 | Pablo Fernández Moniz |
 
