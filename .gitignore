@@ -49,7 +49,7 @@ generator/inputs/
 generator/models/
 generator/.planning/
 generator/.claude/
-generator/backgrounds/
+generator/backgrounds*/
 vlm/results/
 !vlm/results/*.csv
 vlm/images/
