@@ -1,919 +1,438 @@
 """
-Alpha5 Visualizer - Enhanced GUI with zoom and collapsible panels
-
-Enhanced version with:
-- Collapsible panels for more image space
-- Double-click zoom window with pan and zoom controls
-- Interactive image inspection
+Alpha5 Visualizer - Single-canvas viewer with zoom/pan and result tabs
 """
 
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 import cv2
-import numpy as np
 from pathlib import Path
 from ultralytics import YOLO
 import threading
 from inference_methods import get_available_methods, get_method
 
 
-class ZoomWindow:
-    """Interactive zoom window for detailed image inspection"""
+C = {
+    'bg':      '#111118',
+    'panel':   '#1a1a28',
+    'card':    '#252535',
+    'accent':  '#e94560',
+    'accent2': '#1a6b8a',
+    'fg':      '#e8e8f0',
+    'dim':     '#666680',
+    'border':  '#2a2a40',
+}
 
-    def __init__(self, parent, image, method_name, result_info):
-        self.window = tk.Toplevel(parent)
-        self.window.title(f"Zoom View - {method_name}")
-        self.window.geometry("900x700")
 
-        # Store image
-        self.original_image = image.copy()
-        self.method_name = method_name
-        self.result_info = result_info
+# ── Zoom/pan canvas ──────────────────────────────────────────────────────────
 
-        # Zoom parameters
-        self.zoom_level = 1.0
-        self.pan_x = 0
-        self.pan_y = 0
-        self.drag_start_x = 0
-        self.drag_start_y = 0
+class ImageViewer:
+    """Large canvas with mousewheel zoom-to-cursor and drag pan."""
 
-        self.setup_ui()
-        self.display_image()
-
-    def setup_ui(self):
-        # Top toolbar
-        toolbar = tk.Frame(self.window, bg='#2d2d2d', height=50)
-        toolbar.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
-
-        # Title
-        title = tk.Label(toolbar, text=f"{self.method_name}", 
-                        font=('Segoe UI', 12, 'bold'),
-                        bg='#2d2d2d', fg='#00ff88')
-        title.pack(side=tk.LEFT, padx=10)
-
-        # Zoom controls
-        controls_frame = tk.Frame(toolbar, bg='#2d2d2d')
-        controls_frame.pack(side=tk.RIGHT, padx=10)
-
-        tk.Button(controls_frame, text="🔍+", width=4, 
-                 command=lambda: self.adjust_zoom(1.2),
-                 bg='#3d3d3d', fg='#e0e0e0', font=('Segoe UI', 10, 'bold'),
-                 relief=tk.RAISED, bd=2).pack(side=tk.LEFT, padx=2)
-
-        tk.Button(controls_frame, text="🔍-", width=4,
-                 command=lambda: self.adjust_zoom(0.8),
-                 bg='#3d3d3d', fg='#e0e0e0', font=('Segoe UI', 10, 'bold'),
-                 relief=tk.RAISED, bd=2).pack(side=tk.LEFT, padx=2)
-
-        tk.Button(controls_frame, text="↺ Reset", width=8,
-                 command=self.reset_view,
-                 bg='#3d3d3d', fg='#e0e0e0', font=('Segoe UI', 10, 'bold'),
-                 relief=tk.RAISED, bd=2).pack(side=tk.LEFT, padx=2)
-
-        tk.Button(controls_frame, text="💾 Save", width=8,
-                 command=self.save_image,
-                 bg='#00aaff', fg='white', font=('Segoe UI', 10, 'bold'),
-                 relief=tk.RAISED, bd=2).pack(side=tk.LEFT, padx=2)
-
-        # Canvas for image
-        canvas_frame = tk.Frame(self.window, bg='#1e1e1e')
-        canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-        self.canvas = tk.Canvas(canvas_frame, bg='#3d3d3d', 
-                               highlightthickness=0, cursor="hand2")
+    def __init__(self, parent):
+        self.canvas = tk.Canvas(parent, bg='#0a0a10',
+                                highlightthickness=0, cursor='crosshair')
         self.canvas.pack(fill=tk.BOTH, expand=True)
 
-        # Bind events
-        self.canvas.bind("<MouseWheel>", self.on_mousewheel)
-        self.canvas.bind("<Button-1>", self.on_drag_start)
-        self.canvas.bind("<B1-Motion>", self.on_drag_motion)
-        self.window.bind("<Escape>", lambda e: self.window.destroy())
+        self._bgr = None
+        self._photo = None
+        self._zoom = 1.0
+        self._ox = 0.0   # offset from canvas center
+        self._oy = 0.0
+        self._drag = None
 
-        # Status bar
-        status_frame = tk.Frame(self.window, bg='#2d2d2d', relief=tk.SUNKEN, bd=1)
-        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        self.canvas.bind('<MouseWheel>',       self._wheel)
+        self.canvas.bind('<Button-4>',         self._wheel)
+        self.canvas.bind('<Button-5>',         self._wheel)
+        self.canvas.bind('<ButtonPress-1>',    self._drag_start)
+        self.canvas.bind('<B1-Motion>',        self._drag_move)
+        self.canvas.bind('<ButtonRelease-1>',  lambda e: setattr(self, '_drag', None))
+        self.canvas.bind('<Double-Button-1>',  lambda e: self.fit())
+        self.canvas.bind('<Configure>',        lambda e: self._draw())
 
-        self.zoom_label = tk.Label(status_frame, text="Zoom: 100%",
-                                   bg='#2d2d2d', fg='#e0e0e0',
-                                   font=('Segoe UI', 9), anchor=tk.W, padx=10)
-        self.zoom_label.pack(side=tk.LEFT)
+    def show(self, bgr):
+        self._bgr = bgr
+        self._zoom = 1.0
+        self._ox = self._oy = 0.0
+        self.canvas.after(20, self.fit)
 
-        info_label = tk.Label(status_frame, text=self.result_info,
-                             bg='#2d2d2d', fg='#00ff88',
-                             font=('Segoe UI', 9), anchor=tk.E, padx=10)
-        info_label.pack(side=tk.RIGHT)
+    def fit(self):
+        if self._bgr is None:
+            return
+        cw = self.canvas.winfo_width()
+        ch = self.canvas.winfo_height()
+        if cw < 2 or ch < 2:
+            return
+        ih, iw = self._bgr.shape[:2]
+        self._zoom = min(cw / iw, ch / ih)
+        self._ox = self._oy = 0.0
+        self._draw()
 
-    def display_image(self):
-        """Display image with current zoom and pan"""
-        h, w = self.original_image.shape[:2]
-
-        # Calculate zoomed size
-        new_w = int(w * self.zoom_level)
-        new_h = int(h * self.zoom_level)
-
-        # Resize image
-        if self.zoom_level != 1.0:
-            resized = cv2.resize(self.original_image, (new_w, new_h), 
-                               interpolation=cv2.INTER_LINEAR if self.zoom_level > 1 else cv2.INTER_AREA)
-        else:
-            resized = self.original_image.copy()
-
-        # Convert to PIL
-        img_rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
-        pil_image = Image.fromarray(img_rgb)
-
-        # Get canvas size
-        canvas_w = self.canvas.winfo_width()
-        canvas_h = self.canvas.winfo_height()
-
-        if canvas_w <= 1:  # Not yet rendered
-            self.window.after(100, self.display_image)
+    def _draw(self):
+        if self._bgr is None:
+            return
+        cw = self.canvas.winfo_width()
+        ch = self.canvas.winfo_height()
+        if cw < 2 or ch < 2:
             return
 
-        # Apply pan limits
-        max_pan_x = max(0, (new_w - canvas_w) / 2)
-        max_pan_y = max(0, (new_h - canvas_h) / 2)
-        self.pan_x = max(-max_pan_x, min(max_pan_x, self.pan_x))
-        self.pan_y = max(-max_pan_y, min(max_pan_y, self.pan_y))
+        ih, iw = self._bgr.shape[:2]
+        nw = max(1, int(iw * self._zoom))
+        nh = max(1, int(ih * self._zoom))
 
-        # Create PhotoImage
-        self.photo = ImageTk.PhotoImage(pil_image)
+        interp = cv2.INTER_LINEAR if self._zoom > 1 else cv2.INTER_AREA
+        resized = cv2.resize(self._bgr, (nw, nh), interpolation=interp)
+        rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
+        self._photo = ImageTk.PhotoImage(Image.fromarray(rgb))
 
-        # Display on canvas
-        self.canvas.delete("all")
-        x = canvas_w / 2 + self.pan_x
-        y = canvas_h / 2 + self.pan_y
-        self.canvas.create_image(x, y, image=self.photo, anchor=tk.CENTER)
-
-        # Update zoom label
-        self.zoom_label.config(text=f"Zoom: {int(self.zoom_level * 100)}%")
-
-    def adjust_zoom(self, factor):
-        """Adjust zoom level"""
-        new_zoom = self.zoom_level * factor
-        if 0.1 <= new_zoom <= 10.0:
-            self.zoom_level = new_zoom
-            self.display_image()
-
-    def reset_view(self):
-        """Reset zoom and pan"""
-        self.zoom_level = 1.0
-        self.pan_x = 0
-        self.pan_y = 0
-        self.display_image()
-
-    def on_mousewheel(self, event):
-        """Zoom with mouse wheel"""
-        if event.delta > 0:
-            self.adjust_zoom(1.1)
-        else:
-            self.adjust_zoom(0.9)
-
-    def on_drag_start(self, event):
-        """Start dragging"""
-        self.drag_start_x = event.x
-        self.drag_start_y = event.y
-
-    def on_drag_motion(self, event):
-        """Handle dragging"""
-        dx = event.x - self.drag_start_x
-        dy = event.y - self.drag_start_y
-        self.pan_x += dx
-        self.pan_y += dy
-        self.drag_start_x = event.x
-        self.drag_start_y = event.y
-        self.display_image()
-
-    def save_image(self):
-        """Save current image"""
-        filepath = filedialog.asksaveasfilename(
-            defaultextension=".jpg",
-            filetypes=[("JPEG", "*.jpg"), ("PNG", "*.png"), ("All files", "*.*")],
-            initialfile=f"{self.method_name}_zoom.jpg"
+        self.canvas.delete('all')
+        self.canvas.create_image(
+            cw / 2 + self._ox, ch / 2 + self._oy,
+            image=self._photo, anchor=tk.CENTER
         )
 
-        if filepath:
-            cv2.imwrite(filepath, self.original_image)
-            messagebox.showinfo("Success", f"Image saved to:\n{filepath}")
+    def _wheel(self, e):
+        factor = 1.15 if (getattr(e, 'delta', 0) > 0 or getattr(e, 'num', 0) == 4) else 1 / 1.15
+        new = self._zoom * factor
+        if not 0.04 <= new <= 25.0:
+            return
+        cw = self.canvas.winfo_width()
+        ch = self.canvas.winfo_height()
+        mx = e.x - cw / 2
+        my = e.y - ch / 2
+        self._ox = mx + (self._ox - mx) * factor
+        self._oy = my + (self._oy - my) * factor
+        self._zoom = new
+        self._draw()
+
+    def _drag_start(self, e):
+        self._drag = (e.x, e.y)
+
+    def _drag_move(self, e):
+        if self._drag:
+            self._ox += e.x - self._drag[0]
+            self._oy += e.y - self._drag[1]
+            self._drag = (e.x, e.y)
+            self._draw()
 
 
-class CollapsibleFrame(ttk.Frame):
-    """A frame that can be collapsed/expanded"""
-
-    def __init__(self, parent, text, *args, **kwargs):
-        ttk.Frame.__init__(self, parent, *args, **kwargs)
-
-        self.show = tk.BooleanVar(value=True)
-
-        # Header with toggle button
-        self.header_frame = tk.Frame(self, bg='#2d2d2d', relief=tk.RAISED, bd=1)
-        self.header_frame.pack(fill=tk.X, padx=2, pady=2)
-
-        self.toggle_button = tk.Label(
-            self.header_frame,
-            text="▼",
-            bg='#2d2d2d',
-            fg='#00ff88',
-            font=('Segoe UI', 10, 'bold'),
-            cursor="hand2",
-            width=2
-        )
-        self.toggle_button.pack(side=tk.LEFT, padx=5)
-        self.toggle_button.bind("<Button-1>", self.toggle)
-
-        self.title_label = tk.Label(
-            self.header_frame,
-            text=text,
-            bg='#2d2d2d',
-            fg='#00ff88',
-            font=('Segoe UI', 11, 'bold'),
-            anchor=tk.W
-        )
-        self.title_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5, pady=5)
-        self.title_label.bind("<Button-1>", self.toggle)
-
-        # Content frame
-        self.content_frame = ttk.Frame(self)
-        self.content_frame.pack(fill=tk.BOTH, expand=True)
-
-    def toggle(self, event=None):
-        """Toggle frame visibility"""
-        if self.show.get():
-            self.content_frame.pack_forget()
-            self.toggle_button.config(text="▶")
-            self.show.set(False)
-        else:
-            self.content_frame.pack(fill=tk.BOTH, expand=True)
-            self.toggle_button.config(text="▼")
-            self.show.set(True)
-
+# ── Main app ─────────────────────────────────────────────────────────────────
 
 class Alpha5Visualizer:
     def __init__(self, root):
         self.root = root
-        self.root.title("Alpha5 Visualizer - Advanced Detection System")
-        self.root.geometry("1200x800")
-
-        # Setup dark theme
-        self.setup_dark_theme()
+        self.root.title('Alpha5 Visualizer')
+        self.root.geometry('1400x820')
+        self.root.configure(bg=C['bg'])
+        self.root.minsize(900, 600)
 
         self.model = None
         self.image = None
-        self.results = {}
-        self.method_params = {}  # Method-specific parameters
+        self.results = []
+        self.selected = -1     # -1 = original
 
-        self.setup_ui()
+        self._build()
 
-    def setup_dark_theme(self):
-        """Setup custom dark theme"""
-        style = ttk.Style()
-        style.theme_use('clam')
+    # ── Layout ───────────────────────────────────────────────────────────────
 
-        # Dark theme colors
-        bg_dark = '#1e1e1e'
-        bg_medium = '#2d2d2d'
-        bg_light = '#3d3d3d'
-        fg_normal = '#e0e0e0'
-        fg_highlight = '#00ff88'
-        accent = '#00aaff'
+    def _build(self):
+        # Sidebar (left)
+        sidebar = tk.Frame(self.root, bg=C['panel'], width=270)
+        sidebar.pack(side=tk.LEFT, fill=tk.Y)
+        sidebar.pack_propagate(False)
+        self._build_sidebar(sidebar)
 
-        # Configure styles
-        style.configure('TFrame', background=bg_dark)
-        style.configure('TLabel', background=bg_dark, foreground=fg_normal, font=('Segoe UI', 11))
-        style.configure('Title.TLabel', background=bg_dark, foreground=fg_highlight,
-                       font=('Segoe UI', 14, 'bold'))
-        style.configure('TButton', background=bg_medium, foreground=fg_normal,
-                       font=('Segoe UI', 10, 'bold'), borderwidth=1)
-        style.map('TButton', background=[('active', bg_light)])
-        style.configure('Accent.TButton', background=accent, foreground='white',
-                       font=('Segoe UI', 11, 'bold'))
-        style.map('Accent.TButton', background=[('active', '#0088cc')])
-        style.configure('TCheckbutton', background=bg_dark, foreground=fg_normal,
-                       font=('Segoe UI', 10))
-        style.configure('TLabelframe', background=bg_dark, foreground=fg_highlight,
-                       font=('Segoe UI', 11, 'bold'))
-        style.configure('TLabelframe.Label', background=bg_dark, foreground=fg_highlight,
-                       font=('Segoe UI', 11, 'bold'))
-        style.configure('TEntry', fieldbackground=bg_medium, foreground=fg_normal,
-                       font=('Segoe UI', 10))
-        style.configure('TCombobox', fieldbackground=bg_medium, foreground=fg_normal,
-                       font=('Segoe UI', 10))
+        # Separator
+        tk.Frame(self.root, bg=C['border'], width=1).pack(side=tk.LEFT, fill=tk.Y)
 
-        self.root.configure(bg=bg_dark)
+        # Right: tabs + viewer + status
+        right = tk.Frame(self.root, bg=C['bg'])
+        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.colors = {
-            'bg_dark': bg_dark,
-            'bg_medium': bg_medium,
-            'bg_light': bg_light,
-            'fg_normal': fg_normal,
-            'fg_highlight': fg_highlight,
-            'accent': accent
-        }
+        # Tab bar
+        self.tab_bar = tk.Frame(right, bg=C['panel'], height=44)
+        self.tab_bar.pack(side=tk.TOP, fill=tk.X)
+        self.tab_bar.pack_propagate(False)
 
-    def setup_ui(self):
-        # ============= HEADER =============
-        header_frame = ttk.Frame(self.root, padding="10")
-        header_frame.pack(side=tk.TOP, fill=tk.X)
+        # Viewer
+        self.viewer = ImageViewer(right)
 
-        title_label = ttk.Label(header_frame, text="Alpha5 Visualizer",
-                               style='Title.TLabel')
-        title_label.pack(side=tk.LEFT, pady=(0, 5))
+        # Status bar
+        self.status = tk.StringVar(value='Load a model and an image to begin.')
+        tk.Label(right, textvariable=self.status,
+                 bg=C['panel'], fg=C['dim'],
+                 font=('Consolas', 9), anchor=tk.W, padx=10, pady=4
+                 ).pack(side=tk.BOTTOM, fill=tk.X)
 
-        # Hint label
-        hint_label = ttk.Label(header_frame, 
-                              text="💡 Tip: Double-click on images to zoom | Collapse panels for more space",
-                              foreground=self.colors['fg_highlight'])
-        hint_label.pack(side=tk.RIGHT, pady=(0, 5))
+    def _build_sidebar(self, sb):
+        def section(text):
+            tk.Frame(sb, bg=C['border'], height=1).pack(fill=tk.X, padx=10, pady=(14, 0))
+            tk.Label(sb, text=text, bg=C['panel'], fg=C['dim'],
+                     font=('Segoe UI', 8, 'bold')).pack(anchor=tk.W, padx=12, pady=(3, 0))
 
-        # ============= TOP CONTROLS (Collapsible) =============
-        controls_container = ttk.Frame(self.root)
-        controls_container.pack(side=tk.TOP, fill=tk.X, padx=10)
+        def btn(text, cmd, accent=False):
+            b = tk.Button(sb, text=text, command=cmd,
+                          bg=C['accent'] if accent else C['card'],
+                          fg=C['fg'], font=('Segoe UI', 10),
+                          relief=tk.FLAT, cursor='hand2',
+                          activebackground=C['accent2'], activeforeground=C['fg'],
+                          padx=8, pady=7)
+            b.pack(fill=tk.X, padx=12, pady=3)
+            return b
 
-        # Model and Image in collapsible frame
-        model_image_collapse = CollapsibleFrame(controls_container, "Model & Image")
-        model_image_collapse.pack(fill=tk.X, pady=2)
-
-        controls_frame = ttk.Frame(model_image_collapse.content_frame, padding="5")
-        controls_frame.pack(fill=tk.X)
+        # Title
+        tk.Label(sb, text='Alpha5', font=('Segoe UI', 18, 'bold'),
+                 bg=C['panel'], fg=C['accent']).pack(anchor=tk.W, padx=14, pady=(14, 4))
+        tk.Label(sb, text='Detection Visualizer', bg=C['panel'], fg=C['dim'],
+                 font=('Segoe UI', 9)).pack(anchor=tk.W, padx=14)
 
         # Model
-        model_frame = ttk.LabelFrame(controls_frame, text="Model", padding="10")
-        model_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
-
-        self.model_label = ttk.Label(model_frame, text="Not loaded",
-                                     foreground=self.colors['accent'])
-        self.model_label.pack(side=tk.TOP, pady=5)
-
-        ttk.Button(model_frame, text="Load Model (.pt)",
-                  command=self.load_model).pack(side=tk.TOP, fill=tk.X, pady=5)
+        section('MODEL')
+        self.model_lbl = tk.Label(sb, text='—', bg=C['panel'], fg=C['dim'],
+                                   font=('Segoe UI', 8), wraplength=230, anchor=tk.W)
+        self.model_lbl.pack(anchor=tk.W, padx=12, pady=2)
+        btn('Load Model (.pt)', self.load_model, accent=True)
 
         # Image
-        image_frame = ttk.LabelFrame(controls_frame, text="Image", padding="10")
-        image_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
+        section('IMAGE')
+        self.image_lbl = tk.Label(sb, text='—', bg=C['panel'], fg=C['dim'],
+                                   font=('Segoe UI', 8), wraplength=230, anchor=tk.W)
+        self.image_lbl.pack(anchor=tk.W, padx=12, pady=2)
+        btn('Load Image', self.load_image)
 
-        self.image_label = ttk.Label(image_frame, text="Not loaded",
-                                     foreground=self.colors['accent'])
-        self.image_label.pack(side=tk.TOP, pady=5)
+        # Method
+        section('METHOD')
+        methods = get_available_methods()
+        self.method_var = tk.StringVar(value=methods[0] if methods else '')
+        cb = ttk.Combobox(sb, textvariable=self.method_var,
+                          values=methods, state='readonly', width=28)
+        cb.pack(padx=12, pady=6, fill=tk.X)
+        cb.bind('<<ComboboxSelected>>', lambda _: self._refresh_params())
 
-        ttk.Button(image_frame, text="Load Image",
-                  command=self.load_image).pack(side=tk.TOP, fill=tk.X, pady=5)
+        # Params
+        section('PARAMETERS')
+        self.param_frame = tk.Frame(sb, bg=C['panel'])
+        self.param_frame.pack(fill=tk.X, padx=12, pady=4)
+        self.param_vars = {}
+        self._refresh_params()
 
-        # ============= MIDDLE: METHODS AND PARAMETERS (Collapsible) =============
-        middle_container = ttk.Frame(self.root)
-        middle_container.pack(side=tk.TOP, fill=tk.X, padx=10)
+        # Run
+        tk.Frame(sb, bg=C['panel'], height=6).pack()
+        btn('▶  Run Inference', self.run_inference, accent=True)
 
-        # Methods collapsible
-        methods_collapse = CollapsibleFrame(middle_container, "Inference Methods")
-        methods_collapse.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=2, pady=2)
+        # Spacer
+        tk.Frame(sb, bg=C['panel']).pack(fill=tk.Y, expand=True)
 
-        methods_inner = ttk.Frame(methods_collapse.content_frame, padding="5")
-        methods_inner.pack(fill=tk.BOTH, expand=True)
+        # Bottom actions
+        tk.Frame(sb, bg=C['border'], height=1).pack(fill=tk.X, padx=10)
+        btn('Save Current Image', self.save_current)
+        btn('Clear All Results', self.clear_results)
 
-        # Scroll for methods
-        methods_canvas = tk.Canvas(methods_inner, bg=self.colors['bg_dark'],
-                                  highlightthickness=0, height=150)
-        methods_scrollbar = ttk.Scrollbar(methods_inner, orient="vertical",
-                                         command=methods_canvas.yview)
-        methods_scrollable = ttk.Frame(methods_canvas)
+        tk.Label(sb, text='Scroll: zoom  ·  Drag: pan  ·  Dbl-click: fit',
+                 bg=C['panel'], fg=C['dim'], font=('Segoe UI', 7)
+                 ).pack(pady=(0, 10))
 
-        methods_scrollable.bind(
-            "<Configure>",
-            lambda e: methods_canvas.configure(scrollregion=methods_canvas.bbox("all"))
-        )
+    def _refresh_params(self):
+        for w in self.param_frame.winfo_children():
+            w.destroy()
+        self.param_vars.clear()
 
-        methods_canvas.create_window((0, 0), window=methods_scrollable, anchor="nw")
-        methods_canvas.configure(yscrollcommand=methods_scrollbar.set)
-
-        self.method_vars = {}
-        self.method_param_frames = {}
-
-        for i, method_name in enumerate(get_available_methods()):
-            method_obj = get_method(method_name)
-
-            # Frame for each method
-            method_container = ttk.Frame(methods_scrollable)
-            method_container.pack(fill=tk.X, pady=3, padx=5)
-
-            # Checkbox
-            var = tk.BooleanVar(value=False)
-            self.method_vars[method_name] = var
-
-            cb = ttk.Checkbutton(
-                method_container,
-                text=f"{method_obj.name}",
-                variable=var
-            )
-            cb.pack(side=tk.LEFT)
-
-            # Parameters button
-            ttk.Button(method_container, text="⚙️", width=3,
-                      command=lambda mn=method_name: self.show_method_params(mn)).pack(side=tk.LEFT, padx=5)
-
-            # Description
-            desc_label = ttk.Label(method_container, text=f"- {method_obj.description}",
-                                  foreground=self.colors['fg_normal'])
-            desc_label.pack(side=tk.LEFT)
-
-            # Initialize default parameters
-            self.method_params[method_name] = method_obj.default_params.copy()
-
-        methods_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        methods_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-        # Control buttons
-        control_buttons = ttk.Frame(methods_inner)
-        control_buttons.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
-
-        ttk.Button(control_buttons, text="Run Selected",
-                  command=self.run_methods,
-                  style='Accent.TButton').pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
-
-        ttk.Button(control_buttons, text="Clear Results",
-                  command=self.clear_results).pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
-
-        # Global parameters collapsible
-        params_collapse = CollapsibleFrame(middle_container, "Global Parameters")
-        params_collapse.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=2, pady=2)
-
-        params_inner = ttk.Frame(params_collapse.content_frame, padding="10")
-        params_inner.pack(fill=tk.BOTH, expand=True)
-
-        # Confidence with entry and slider
-        conf_container = ttk.Frame(params_inner)
-        conf_container.pack(fill=tk.X, pady=5)
-
-        ttk.Label(conf_container, text="Confidence:").pack(side=tk.LEFT, padx=5)
-
-        self.conf_var = tk.DoubleVar(value=0.25)
-        conf_entry = ttk.Entry(conf_container, textvariable=self.conf_var, width=8)
-        conf_entry.pack(side=tk.LEFT, padx=5)
-
-        conf_scale = ttk.Scale(conf_container, from_=0.0, to=1.0,
-                              variable=self.conf_var, orient=tk.HORIZONTAL,
-                              command=self.update_conf_display)
-        conf_scale.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-
-        self.conf_display = ttk.Label(conf_container, text="0.25")
-        self.conf_display.pack(side=tk.LEFT, padx=5)
-
-        # IoU with entry and slider
-        iou_container = ttk.Frame(params_inner)
-        iou_container.pack(fill=tk.X, pady=5)
-
-        ttk.Label(iou_container, text="IoU:").pack(side=tk.LEFT, padx=5)
-
-        self.iou_var = tk.DoubleVar(value=0.45)
-        iou_entry = ttk.Entry(iou_container, textvariable=self.iou_var, width=8)
-        iou_entry.pack(side=tk.LEFT, padx=5)
-
-        iou_scale = ttk.Scale(iou_container, from_=0.0, to=1.0,
-                             variable=self.iou_var, orient=tk.HORIZONTAL,
-                             command=self.update_iou_display)
-        iou_scale.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-
-        self.iou_display = ttk.Label(iou_container, text="0.45")
-        self.iou_display.pack(side=tk.LEFT, padx=5)
-
-        # Apply to all
-        ttk.Button(params_inner, text="Apply to All Methods",
-                  command=self.apply_global_params).pack(fill=tk.X, pady=10)
-
-        info_label = ttk.Label(params_inner,
-                              text="Use ⚙️ for method-specific parameters",
-                              foreground=self.colors['fg_highlight'])
-        info_label.pack(pady=5)
-
-        # ============= DISPLAY =============
-        display_frame = ttk.LabelFrame(self.root, text="Comparative Visualization (Double-click to zoom)", padding="10")
-        display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        # Method selectors
-        selector_frame = ttk.Frame(display_frame)
-        selector_frame.pack(side=tk.TOP, fill=tk.X, pady=10)
-
-        self.method_selectors = []
-        self.save_buttons = []
-
-        for i in range(3):
-            col_frame = ttk.Frame(selector_frame)
-            col_frame.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
-
-            ttk.Label(col_frame, text=f"Method {i+1}:").pack(side=tk.TOP, anchor=tk.W)
-
-            selector_controls = ttk.Frame(col_frame)
-            selector_controls.pack(side=tk.TOP, fill=tk.X)
-
-            selector = ttk.Combobox(selector_controls, state='readonly', width=30)
-            selector.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
-            selector.bind('<<ComboboxSelected>>', lambda e: self.update_display())
-            self.method_selectors.append(selector)
-
-            save_btn = ttk.Button(selector_controls, text="💾", width=4,
-                                 command=lambda idx=i: self.save_image(idx))
-            save_btn.pack(side=tk.LEFT)
-            self.save_buttons.append(save_btn)
-
-        # Canvas for images
-        canvas_container = ttk.Frame(display_frame)
-        canvas_container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        self.canvases = []
-        self.canvas_labels = []
-
-        for i in range(3):
-            frame = tk.Frame(canvas_container, bg=self.colors['bg_medium'],
-                           relief=tk.RAISED, borderwidth=2)
-            frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-            label = tk.Label(frame, text=f"Method {i+1}",
-                           font=('Segoe UI', 12, 'bold'),
-                           bg=self.colors['bg_medium'],
-                           fg=self.colors['fg_highlight'])
-            label.pack(side=tk.TOP, pady=5)
-            self.canvas_labels.append(label)
-
-            canvas = tk.Canvas(frame, bg=self.colors['bg_light'],
-                             highlightthickness=0, cursor="hand2")
-            canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-            # Bind double-click for zoom
-            canvas.bind("<Double-Button-1>", lambda e, idx=i: self.open_zoom_window(idx))
-
-            self.canvases.append(canvas)
-
-            stats = tk.Label(frame, text="", font=('Segoe UI', 9),
-                           bg=self.colors['bg_medium'],
-                           fg=self.colors['fg_normal'])
-            stats.pack(side=tk.BOTTOM, pady=5)
-            self.canvas_labels.append(stats)
-
-        # ============= STATUS BAR =============
-        status_frame = tk.Frame(self.root, bg=self.colors['bg_medium'],
-                               relief=tk.SUNKEN, borderwidth=1)
-        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
-        self.status_var = tk.StringVar(value="Ready to use")
-        status_label = tk.Label(status_frame, textvariable=self.status_var,
-                              anchor=tk.W, bg=self.colors['bg_medium'],
-                              fg=self.colors['fg_normal'], font=('Segoe UI', 10),
-                              padx=10, pady=5)
-        status_label.pack(fill=tk.X)
-
-    def open_zoom_window(self, canvas_idx):
-        """Open zoom window for detailed inspection"""
-        selector = self.method_selectors[canvas_idx]
-
-        if not selector.get():
-            messagebox.showinfo("Info", "No image to zoom")
+        method = get_method(self.method_var.get())
+        if not method:
             return
 
-        method_name = selector.get().split(" (")[0]
+        SHOW = {'conf', 'iou', 'crops', 'overlap', 'fusion', 'sr_method', 'imgsz'}
 
-        if method_name not in self.results:
-            messagebox.showwarning("Warning", "Image not found")
-            return
+        for key, val in method.default_params.items():
+            if key not in SHOW:
+                continue
 
-        result = self.results[method_name]
-        params = self.method_params[method_name]
+            row = tk.Frame(self.param_frame, bg=C['panel'])
+            row.pack(fill=tk.X, pady=2)
 
-        # Create info string
-        info = f"{result.num_detections} detections | {result.elapsed_time:.2f}s | Conf: {params.get('conf', 0.25):.2f}"
+            tk.Label(row, text=key, bg=C['panel'], fg=C['dim'],
+                     font=('Consolas', 9), width=10, anchor=tk.W).pack(side=tk.LEFT)
 
-        # Open zoom window
-        ZoomWindow(self.root, result.image, method_name, info)
-
-    def update_conf_display(self, value):
-        """Update confidence display with 2 decimals"""
-        rounded = round(float(value), 2)
-        self.conf_var.set(rounded)
-        self.conf_display.config(text=f"{rounded:.2f}")
-
-    def update_iou_display(self, value):
-        """Update IoU display with 2 decimals"""
-        rounded = round(float(value), 2)
-        self.iou_var.set(rounded)
-        self.iou_display.config(text=f"{rounded:.2f}")
-
-    def show_method_params(self, method_name):
-        """Show method-specific parameters window"""
-        method_obj = get_method(method_name)
-
-        # Create window
-        param_window = tk.Toplevel(self.root)
-        param_window.title(f"Parameters: {method_obj.name}")
-        param_window.geometry("500x400")
-        param_window.configure(bg=self.colors['bg_dark'])
-
-        # Header
-        header = tk.Label(param_window, text=f"⚙️ {method_obj.name}",
-                         font=('Segoe UI', 14, 'bold'),
-                         bg=self.colors['bg_dark'],
-                         fg=self.colors['fg_highlight'])
-        header.pack(pady=10)
-
-        desc = tk.Label(param_window, text=method_obj.description,
-                       font=('Segoe UI', 10),
-                       bg=self.colors['bg_dark'],
-                       fg=self.colors['fg_normal'])
-        desc.pack(pady=5)
-
-        # Frame for parameters
-        params_container = tk.Frame(param_window, bg=self.colors['bg_dark'])
-        params_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-
-        # Temporary variables
-        param_vars = {}
-        current_params = self.method_params.get(method_name, method_obj.default_params.copy())
-
-        for i, (param_name, param_value) in enumerate(current_params.items()):
-            row_frame = tk.Frame(params_container, bg=self.colors['bg_dark'])
-            row_frame.pack(fill=tk.X, pady=5)
-
-            label = tk.Label(row_frame, text=f"{param_name}:",
-                           font=('Segoe UI', 10),
-                           bg=self.colors['bg_dark'],
-                           fg=self.colors['fg_normal'],
-                           width=15, anchor=tk.W)
-            label.pack(side=tk.LEFT, padx=5)
-
-            if isinstance(param_value, bool):
-                var = tk.BooleanVar(value=param_value)
-                entry = ttk.Checkbutton(row_frame, variable=var)
-                entry.pack(side=tk.LEFT, padx=5)
-            elif isinstance(param_value, (int, float)):
-                var = tk.DoubleVar(value=param_value)
-                entry = ttk.Entry(row_frame, textvariable=var, width=10)
-                entry.pack(side=tk.LEFT, padx=5)
-            elif isinstance(param_value, list):
-                var = tk.StringVar(value=str(param_value))
-                entry = ttk.Entry(row_frame, textvariable=var, width=30)
-                entry.pack(side=tk.LEFT, padx=5)
-            elif isinstance(param_value, str):
-                var = tk.StringVar(value=param_value)
-                entry = ttk.Entry(row_frame, textvariable=var, width=20)
-                entry.pack(side=tk.LEFT, padx=5)
+            if isinstance(val, bool):
+                var = tk.BooleanVar(value=val)
+                tk.Checkbutton(row, variable=var, bg=C['panel'],
+                               fg=C['fg'], selectcolor=C['card'],
+                               activebackground=C['panel']).pack(side=tk.LEFT)
             else:
-                var = tk.StringVar(value=str(param_value))
-                entry = ttk.Entry(row_frame, textvariable=var, width=20)
-                entry.pack(side=tk.LEFT, padx=5)
+                var = tk.StringVar(value=str(val))
+                tk.Entry(row, textvariable=var, width=10,
+                         bg=C['card'], fg=C['fg'],
+                         insertbackground=C['fg'], relief=tk.FLAT,
+                         font=('Consolas', 9)).pack(side=tk.LEFT, padx=4)
 
-            param_vars[param_name] = (var, type(param_value))
+            self.param_vars[key] = (var, type(val))
 
-        def save_params():
-            """Save modified parameters"""
-            new_params = {}
-            for param_name, (var, param_type) in param_vars.items():
-                try:
-                    value = var.get()
-                    if param_type == list:
-                        import ast
-                        new_params[param_name] = ast.literal_eval(value)
-                    elif param_type == bool:
-                        new_params[param_name] = bool(value)
-                    elif param_type == int:
-                        new_params[param_name] = int(float(value))
-                    elif param_type == float:
-                        new_params[param_name] = round(float(value), 2)
-                    else:
-                        new_params[param_name] = value
-                except:
-                    new_params[param_name] = value
+    def _collect_params(self):
+        method = get_method(self.method_var.get())
+        params = method.default_params.copy()
+        for key, (var, typ) in self.param_vars.items():
+            try:
+                raw = var.get()
+                if typ is bool:
+                    params[key] = bool(raw)
+                elif typ is int:
+                    params[key] = int(float(raw))
+                elif typ is float:
+                    params[key] = float(raw)
+                else:
+                    params[key] = raw
+            except Exception:
+                pass
+        return params
 
-            self.method_params[method_name] = new_params
-            messagebox.showinfo("Success", f"Parameters for {method_obj.name} updated")
-            param_window.destroy()
+    # ── Tab bar ──────────────────────────────────────────────────────────────
 
-        # Buttons
-        button_frame = tk.Frame(param_window, bg=self.colors['bg_dark'])
-        button_frame.pack(side=tk.BOTTOM, pady=10)
+    def _rebuild_tabs(self):
+        for w in self.tab_bar.winfo_children():
+            w.destroy()
 
-        ttk.Button(button_frame, text="Save",
-                  command=save_params,
-                  style='Accent.TButton').pack(side=tk.LEFT, padx=5)
+        def tab_btn(text, cmd, active):
+            bg = C['accent'] if active else C['card']
+            fg = C['fg']
+            b = tk.Button(self.tab_bar, text=text, command=cmd,
+                          bg=bg, fg=fg, font=('Segoe UI', 9),
+                          relief=tk.FLAT, cursor='hand2',
+                          activebackground=C['accent2'], activeforeground=C['fg'],
+                          padx=10, pady=6, bd=0)
+            b.pack(side=tk.LEFT, padx=2, pady=5)
 
-        ttk.Button(button_frame, text="Cancel",
-                  command=param_window.destroy).pack(side=tk.LEFT, padx=5)
+        tab_btn('Original', self._show_original, self.selected == -1)
 
-    def apply_global_params(self):
-        """Apply global parameters to all methods"""
-        conf = round(self.conf_var.get(), 2)
-        iou = round(self.iou_var.get(), 2)
+        for i, r in enumerate(self.results):
+            label = f'{r.method_name}  ·  {r.num_detections} det  ·  {r.elapsed_time:.1f}s'
+            tab_btn(label, lambda i=i: self._show_result(i), self.selected == i)
 
-        for method_name in self.method_params:
-            if 'conf' in self.method_params[method_name]:
-                self.method_params[method_name]['conf'] = conf
-            if 'iou' in self.method_params[method_name]:
-                self.method_params[method_name]['iou'] = iou
-
-        messagebox.showinfo("Applied",
-                          f"Global parameters applied:\nConf: {conf:.2f}\nIoU: {iou:.2f}")
-
-    def clear_results(self):
-        """Clear results and reset display"""
-        self.results = {}
-
-        for canvas in self.canvases:
-            canvas.delete("all")
-
-        for selector in self.method_selectors:
-            selector.set('')
-            selector['values'] = []
-
-        for i, label in enumerate(self.canvas_labels):
-            if i % 2 == 0:
-                label.config(text=f"Method {i//2 + 1}")
-            else:
-                label.config(text="")
-
-        self.status_var.set("Results cleared")
-
-    def save_image(self, canvas_idx):
-        """Save image from specified canvas"""
-        selector = self.method_selectors[canvas_idx]
-
-        if not selector.get():
-            messagebox.showwarning("Warning", "No image to save")
-            return
-
-        method_name = selector.get().split(" (")[0]
-
-        if method_name not in self.results:
-            messagebox.showwarning("Warning", "Image not found")
-            return
-
-        result = self.results[method_name]
-
-        filepath = filedialog.asksaveasfilename(
-            defaultextension=".jpg",
-            filetypes=[("JPEG", "*.jpg"), ("PNG", "*.png"), ("All files", "*.*")],
-            initialfile=f"{method_name}_result.jpg"
-        )
-
-        if filepath:
-            cv2.imwrite(filepath, result.image)
-            self.status_var.set(f"Image saved: {Path(filepath).name}")
-            messagebox.showinfo("Success", f"Image saved to:\n{filepath}")
+    # ── Actions ──────────────────────────────────────────────────────────────
 
     def load_model(self):
-        filepath = filedialog.askopenfilename(title="Select YOLO model",
-                                             filetypes=[("YOLO weights", "*.pt")])
-
-        if not filepath:
+        path = filedialog.askopenfilename(
+            title='Select YOLO model',
+            filetypes=[('YOLO weights', '*.pt'), ('All files', '*.*')]
+        )
+        if not path:
             return
-
         try:
-            self.status_var.set("Loading model...")
-            self.root.update()
-
-            self.model = YOLO(filepath)
-            self.model_label.config(text=f"{Path(filepath).name}")
-            self.status_var.set(f"Model loaded: {Path(filepath).name}")
-            messagebox.showinfo("Success", "Model loaded successfully")
-
+            self.status.set('Loading model…')
+            self.root.update_idletasks()
+            self.model = YOLO(path)
+            name = Path(path).name
+            self.model_lbl.config(text=name, fg=C['fg'])
+            self.status.set(f'Model ready: {name}')
         except Exception as e:
-            messagebox.showerror("Error", f"Error loading model:\n{str(e)}")
-            self.status_var.set("Error loading model")
+            messagebox.showerror('Model Error', str(e))
+            self.status.set('Model load failed.')
 
     def load_image(self):
-        filepath = filedialog.askopenfilename(title="Select image",
-                                             filetypes=[("Images", "*.jpg *.jpeg *.png *.bmp")])
-
-        if not filepath:
+        path = filedialog.askopenfilename(
+            title='Select image',
+            filetypes=[('Images', '*.jpg *.jpeg *.png *.bmp *.tiff *.webp'),
+                       ('All files', '*.*')]
+        )
+        if not path:
             return
+        img = cv2.imread(path)
+        if img is None:
+            messagebox.showerror('Image Error', 'Could not read image.')
+            return
+        self.image = img
+        h, w = img.shape[:2]
+        name = Path(path).name
+        self.image_lbl.config(text=f'{name}  ({w}×{h})', fg=C['fg'])
+        self.results.clear()
+        self.selected = -1
+        self._rebuild_tabs()
+        self.viewer.show(img)
+        self.status.set(f'Image: {name}  {w}×{h} px')
 
-        try:
-            self.image = cv2.imread(filepath)
-            if self.image is None:
-                raise ValueError("Could not read image")
-
-            self.image_label.config(text=f"{Path(filepath).name}")
-            self.status_var.set(f"Image loaded: {Path(filepath).name}")
-            self.results = {}
-            self.update_method_dropdowns()
-            messagebox.showinfo("Success", "Image loaded successfully")
-
-        except Exception as e:
-            messagebox.showerror("Error", f"Error loading image:\n{str(e)}")
-
-    def run_methods(self):
+    def run_inference(self):
         if self.model is None:
-            messagebox.showwarning("Warning", "Load a model first")
+            messagebox.showwarning('', 'Load a model first.')
             return
-
         if self.image is None:
-            messagebox.showwarning("Warning", "Load an image first")
+            messagebox.showwarning('', 'Load an image first.')
             return
+        method_name = self.method_var.get()
+        params = self._collect_params()
+        self.status.set(f'Running {method_name}…')
+        threading.Thread(
+            target=self._infer_thread,
+            args=(method_name, params),
+            daemon=True
+        ).start()
 
-        selected = [name for name, var in self.method_vars.items() if var.get()]
+    def _infer_thread(self, method_name, params):
+        try:
+            result = get_method(method_name).run(self.image.copy(), self.model, params)
+            self.root.after(0, self._on_result, result)
+        except Exception as e:
+            self.root.after(0, lambda: self.status.set(f'Error: {e}'))
+            self.root.after(0, lambda: messagebox.showerror('Inference Error', str(e)))
 
-        if not selected:
-            messagebox.showwarning("Warning", "Select at least one method")
+    def _on_result(self, result):
+        self.results.append(result)
+        self._show_result(len(self.results) - 1)
+
+    def _show_original(self):
+        if self.image is None:
             return
+        self.selected = -1
+        self.viewer.show(self.image)
+        self._rebuild_tabs()
+        self.status.set('Original image')
 
-        self.status_var.set("Running inferences...")
-        self.root.update()
+    def _show_result(self, idx):
+        if not (0 <= idx < len(self.results)):
+            return
+        self.selected = idx
+        r = self.results[idx]
+        self.viewer.show(r.image)
+        self._rebuild_tabs()
+        self.status.set(
+            f'{r.method_name}  ·  {r.num_detections} detections  ·  '
+            f'{r.elapsed_time:.2f}s  ·  conf={r.params.get("conf", "?")}  ·  '
+            f'iou={r.params.get("iou", "?")}'
+        )
 
-        thread = threading.Thread(target=self._run_thread, args=(selected,))
-        thread.start()
+    def clear_results(self):
+        self.results.clear()
+        self.selected = -1
+        self._rebuild_tabs()
+        if self.image is not None:
+            self.viewer.show(self.image)
+        self.status.set('Results cleared.')
 
-    def _run_thread(self, selected_methods):
-        for method_name in selected_methods:
-            try:
-                method_obj = get_method(method_name)
-                params = self.method_params[method_name].copy()
-
-                self.status_var.set(f"Running {method_obj.name}...")
-                self.root.update()
-
-                result = method_obj.run(self.image.copy(), self.model, params)
-                self.results[method_name] = result
-
-                self.status_var.set(
-                    f"{method_obj.name}: {result.num_detections} detections ({result.elapsed_time:.2f}s)"
-                )
-                self.root.update()
-
-            except Exception as e:
-                messagebox.showerror("Error", f"Error in {method_name}:\n{str(e)}")
-
-        self.root.after(0, self.update_method_dropdowns)
-        self.root.after(0, self.update_display)
-        self.status_var.set(f"Completed: {len(selected_methods)} methods executed")
-
-    def update_method_dropdowns(self):
-        """Update dropdowns with executed methods and their parameters"""
-        available = []
-
-        for method_name in self.results.keys():
-            method_obj = get_method(method_name)
-            params = self.method_params[method_name]
-
-            # Create string with key parameters
-            param_str = f"conf={params.get('conf', 0.25):.2f}"
-            if 'iou' in params:
-                param_str += f", iou={params.get('iou', 0.45):.2f}"
-
-            display_name = f"{method_name} ({param_str})"
-            available.append(display_name)
-
-        for selector in self.method_selectors:
-            current = selector.get()
-            selector['values'] = available
-
-            if available and not current:
-                idx = self.method_selectors.index(selector)
-                if idx < len(available):
-                    selector.current(idx)
-
-    def update_display(self):
-        for i in range(3):
-            selector = self.method_selectors[i]
-
-            if not selector.get():
-                continue
-
-            # Extract method name (before parenthesis)
-            display_name = selector.get()
-            method_name = display_name.split(" (")[0]
-
-            if method_name not in self.results:
-                continue
-
-            result = self.results[method_name]
-            canvas = self.canvases[i]
-
-            img_rgb = cv2.cvtColor(result.image, cv2.COLOR_BGR2RGB)
-            img_pil = Image.fromarray(img_rgb)
-
-            canvas_width = canvas.winfo_width()
-            canvas_height = canvas.winfo_height()
-
-            if canvas_width > 1 and canvas_height > 1:
-                img_pil.thumbnail((canvas_width, canvas_height), Image.Resampling.LANCZOS)
-                img_tk = ImageTk.PhotoImage(img_pil)
-
-                canvas.delete("all")
-                canvas.create_image(canvas_width // 2, canvas_height // 2,
-                                  image=img_tk, anchor=tk.CENTER)
-                canvas.image = img_tk
-
-                method_obj = get_method(method_name)
-                params = self.method_params[method_name]
-
-                self.canvas_labels[i * 2].config(text=f"{method_obj.name}")
-                self.canvas_labels[i * 2 + 1].config(
-                    text=f"Detections: {result.num_detections} | "
-                         f"Time: {result.elapsed_time:.2f}s | "
-                         f"Conf: {params.get('conf', 0.25):.2f}"
-                )
+    def save_current(self):
+        if self.selected == -1:
+            img, name = self.image, 'original.jpg'
+        elif 0 <= self.selected < len(self.results):
+            img = self.results[self.selected].image
+            name = f'{self.results[self.selected].method_name}_result.jpg'
+        else:
+            messagebox.showwarning('', 'Nothing to save.')
+            return
+        if img is None:
+            messagebox.showwarning('', 'No image loaded.')
+            return
+        path = filedialog.asksaveasfilename(
+            defaultextension='.jpg',
+            filetypes=[('JPEG', '*.jpg'), ('PNG', '*.png'), ('All files', '*.*')],
+            initialfile=name
+        )
+        if path:
+            cv2.imwrite(path, img)
+            self.status.set(f'Saved: {Path(path).name}')
 
 
 def main():
     root = tk.Tk()
-    app = Alpha5Visualizer(root)
+    Alpha5Visualizer(root)
     root.mainloop()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
