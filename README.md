@@ -269,8 +269,8 @@ Each module has independent dependencies. Common baseline:
 |--------|-----------------|----------|
 | alpha5 | Ultralytics, OpenCV, Tkinter | 8+ GB |
 | autolabel | SAM3, transformers | 16+ GB |
-| generator | diffusers, FLUX models | 16+ GB |
-| vlm | transformers (5.x + 4.46) | 16+ GB |
+| generator | diffusers, FLUX models | ~32 GB |
+| vlm | transformers (5.x + 4.46) | 1-24 GB |
 
 ---
 
