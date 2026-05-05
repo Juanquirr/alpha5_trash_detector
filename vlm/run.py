@@ -1,12 +1,17 @@
 """
 Usage:
     python run.py --model smolvlm --images images/
+    python run.py --model smolvlm --images images/ --mode json
     python run.py --model all --images images/          # auto-switches venv per model
     python run.py --model moondream --images images/foto1.jpg
     python run.py --model smolvlm --images images/ --limit 200
 
+Modes:
+    text (default)  DETECTED/CLEAN label parsed with longest-match regex
+    json            model fills a fixed JSON schema with per-class counts
+
 Venv reference:
-    .transformers-5.X-venv  (transformers 5.x) : smolvlm, qwen_vl, videollama3
+    .transformers-5.X-venv  (transformers 5.x) : smolvlm, qwen_vl
     .transformers-4.46-venv (transformers 4.46): moondream, llava, blip2, instructblip,
                                                  clip, paligemma, idefics, mplug_owl3
 
@@ -56,7 +61,7 @@ def collect_images(path: str) -> list[Path]:
 
 # ── Single-model runner (called when --model is a specific key) ───────────────
 
-def run_model(model_key: str, images: list[Path]) -> None:
+def run_model(model_key: str, images: list[Path], mode: str = "text") -> None:
     csv_path = f"results/detections_{model_key}.csv"
 
     done    = already_processed(csv_path)
@@ -72,11 +77,11 @@ def run_model(model_key: str, images: list[Path]) -> None:
     vlm = cls()
     print(f"\n[{model_key}] Loading model...  (venv: {VENV[model_key]})")
     vlm.load()
-    print(f"[{model_key}] Processing {len(pending)} image(s)...")
+    print(f"[{model_key}] Processing {len(pending)} image(s) in '{mode}' mode...")
 
     t_start = time.perf_counter()
     for i, img in enumerate(pending, 1):
-        row = vlm.detect_garbage(str(img))
+        row = vlm.detect_garbage(str(img), mode=mode)
         append_row(row, csv_path=csv_path)
 
         status  = "YES" if row["garbage_detected"] else "NO "
@@ -96,7 +101,12 @@ def run_model(model_key: str, images: list[Path]) -> None:
 
 # ── All-models orchestrator (spawns subprocesses) ─────────────────────────────
 
-def run_all(images_arg: str, limit: int | None, keys: list[str] | None = None) -> None:
+def run_all(
+    images_arg: str,
+    limit: int | None,
+    mode: str = "text",
+    keys: list[str] | None = None,
+) -> None:
     script = Path(__file__).resolve()
     keys   = keys if keys is not None else list(REGISTRY)
     total  = len(keys)
@@ -104,6 +114,7 @@ def run_all(images_arg: str, limit: int | None, keys: list[str] | None = None) -
 
     print(f"\n{'═'*62}")
     print(f"  {total} model(s) queued: {', '.join(keys)}")
+    print(f"  Mode: {mode}")
     print(f"  Each model runs in its own venv via subprocess.")
     print(f"  Resume supported: already-processed images are skipped.")
     print(f"{'═'*62}\n")
@@ -119,7 +130,7 @@ def run_all(images_arg: str, limit: int | None, keys: list[str] | None = None) -
             errors.append((key, "venv not found"))
             continue
 
-        cmd = [str(python), str(script), "--model", key, "--images", images_arg]
+        cmd = [str(python), str(script), "--model", key, "--images", images_arg, "--mode", mode]
         if limit:
             cmd += ["--limit", str(limit)]
 
@@ -166,11 +177,13 @@ def main():
                         help="Image file or directory")
     parser.add_argument("--limit",  type=int, default=None,
                         help="Process only first N images (useful for testing)")
+    parser.add_argument("--mode",   choices=["text", "json"], default="text",
+                        help="Prompt mode: 'text' (DETECTED/CLEAN label) or 'json' (structured JSON output)")
     args = parser.parse_args()
 
     # ── --model all or comma-separated: orchestrate via subprocesses ──────────
     if args.model == "all":
-        run_all(args.images, args.limit)
+        run_all(args.images, args.limit, mode=args.mode)
         return
 
     keys = [k.strip() for k in args.model.split(",")]
@@ -180,7 +193,7 @@ def main():
         sys.exit(1)
 
     if len(keys) > 1:
-        run_all(args.images, args.limit, keys=keys)
+        run_all(args.images, args.limit, mode=args.mode, keys=keys)
         return
 
     # ── single model: run directly in current process ─────────────────────────
@@ -192,7 +205,7 @@ def main():
         images = images[: args.limit]
         print(f"Limit: using first {len(images)} images.")
 
-    run_model(keys[0], images)
+    run_model(keys[0], images, mode=args.mode)
 
 
 if __name__ == "__main__":

@@ -1,13 +1,8 @@
-# venv: .venv-compat (transformers 4.46.x)
+# venv: .transformers-4.46-venv (transformers 4.46.x)
 # Requires HuggingFace token: set HF_TOKEN env var or run `huggingface-cli login`
-# PaliGemma is a prefix-completion model, not chat. Prompt is the prefix.
-from .base import BaseVLM, DETECTION_PROMPT
+# PaliGemma is a prefix-completion model, not chat. Uses shorter prompts than the default.
+from .base import BaseVLM
 
-
-# PaliGemma uses shorter, prefix-style prompts better than long instructions.
-# Override with a compact prompt.
-# PaliGemma is a prefix-completion model — short prompts work better.
-# Describe-first still applies: ask for scene description then classification.
 _PALI_PROMPT = (
     "Describe visible waste. Classes: "
     "plastic bottle=plastic container with cap; "
@@ -21,10 +16,19 @@ _PALI_PROMPT = (
     "End with DETECTED: <classes> or CLEAN."
 )
 
+_PALI_PROMPT_JSON = (
+    "Examine for waste. Return only JSON with counts (0 if absent): "
+    '{"plastic_bottle":0,"glass":0,"can":0,"plastic_bag":0,'
+    '"metal_scrap":0,"plastic_wrapper":0,"trash_pile":0,"trash":0}'
+)
+
 
 class PaliGemma(BaseVLM):
     name = "paligemma"
     variant = "google/paligemma-3b-mix-448"
+
+    def _get_prompt(self, mode: str) -> str:
+        return _PALI_PROMPT_JSON if mode == "json" else _PALI_PROMPT
 
     def load(self) -> None:
         import os
@@ -46,9 +50,8 @@ class PaliGemma(BaseVLM):
         from PIL import Image
 
         image = Image.open(image_path).convert("RGB")
-        # PaliGemma uses its own prompt, not the shared one
         inputs = self.processor(
-            text=_PALI_PROMPT,
+            text=prompt,
             images=image,
             return_tensors="pt",
         ).to(self.device)

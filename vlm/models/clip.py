@@ -40,8 +40,8 @@ class CLIP(BaseVLM):
         scored = sorted(zip(CANDIDATES, probs.tolist()), key=lambda x: -x[1])
         return " | ".join(f"{c}: {s:.2f}" for c, s in scored)
 
-    def detect_garbage(self, image_path: str) -> dict:
-        """Override: CLIP does classification directly, no text prompt needed."""
+    def detect_garbage(self, image_path: str, mode: str = "text") -> dict:
+        """Override: CLIP uses zero-shot classification; mode param is ignored."""
         from PIL import Image
 
         image = Image.open(image_path).convert("RGB")

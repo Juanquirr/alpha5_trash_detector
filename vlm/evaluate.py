@@ -139,14 +139,17 @@ def compute_metrics(dfs: dict[str, pd.DataFrame], gt: pd.DataFrame) -> tuple[dic
         m["recall"]    = tp / (tp + fn) * 100 if (tp + fn) > 0 else 0.0
         m["f1"]        = 2 * tp / (2 * tp + fp + fn) * 100 if (2 * tp + fp + fn) > 0 else 0.0
 
+        def _parse_classes(s: str) -> frozenset:
+            return frozenset(c.strip().lower() for c in s.split(",") if c.strip())
+
+        pred_class_sets = merged["classes_detected"].fillna("").apply(_parse_classes)
+
         class_recall = {}
         for cls in VLM_COMPARABLE_CLASSES:
             gt_has = merged["gt_classes"].apply(lambda s: cls in s)
             if gt_has.sum() == 0:
                 continue
-            pred_has = merged["classes_detected"].str.lower().str.contains(
-                re.escape(cls), na=False
-            )
+            pred_has = pred_class_sets.apply(lambda s: cls in s)
             class_recall[cls] = (pred_has & gt_has).sum() / gt_has.sum() * 100
         m["class_recall"] = class_recall
 

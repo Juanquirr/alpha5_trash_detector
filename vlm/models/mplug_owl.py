@@ -1,4 +1,4 @@
-# venv: .venv-compat (transformers 4.46.x)
+# venv: .transformers-4.46-venv (transformers 4.46.x)
 # Uses trust_remote_code. ~14GB for 7B variant.
 from .base import BaseVLM
 

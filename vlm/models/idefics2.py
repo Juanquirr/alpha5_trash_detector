@@ -1,4 +1,4 @@
-# venv: .venv-compat (transformers 4.46.x)
+# venv: .transformers-4.46-venv (transformers 4.46.x)
 # Uses IDEFICS2 (successor to IDEFICS). ~8GB.
 from .base import BaseVLM
 

@@ -1,3 +1,5 @@
+import json
+import re
 import time
 import torch
 from abc import ABC, abstractmethod
@@ -13,6 +15,8 @@ CLASSES = [
     "trash pile",
     "trash",
 ]
+
+# ── Prompts ────────────────────────────────────────────────────────────────────
 
 DETECTION_PROMPT = (
     "Examine this image carefully and describe what you see, paying attention to any waste, "
@@ -43,38 +47,90 @@ DETECTION_PROMPT = (
     "DETECTED: plastic bottle, plastic wrapper, trash pile"
 )
 
+DETECTION_PROMPT_JSON = (
+    "Examine this image for waste or litter.\n\n"
+    "Return ONLY a JSON object. Each value is the count of that item visible (0 if absent):\n\n"
+    "{\n"
+    '  "plastic_bottle": 0,\n'
+    '  "glass": 0,\n'
+    '  "can": 0,\n'
+    '  "plastic_bag": 0,\n'
+    '  "metal_scrap": 0,\n'
+    '  "plastic_wrapper": 0,\n'
+    '  "trash_pile": 0,\n'
+    '  "trash": 0\n'
+    "}\n\n"
+    "Definitions:\n"
+    "- plastic_bottle: plastic CONTAINER with a visible CAP or LID (bottles, jugs, flasks)\n"
+    "- glass: glass BOTTLE with NECK shape (beer, wine, spirits — NOT jars)\n"
+    "- can: metal beverage/food can — cylindrical, whole or crushed\n"
+    "- plastic_bag: BAG shape — grocery, garbage, zip-lock\n"
+    "- metal_scrap: small metal/aluminium litter — tuna cans, foil, spray cans\n"
+    "- plastic_wrapper: small snack/candy wrapping — smaller and flatter than a bag\n"
+    "- trash_pile: ACCUMULATION of mixed garbage — visible pile or heap\n"
+    "- trash: any other unclassifiable waste\n\n"
+    "Output only the JSON object, no explanation."
+)
+
+# ── Parsers ────────────────────────────────────────────────────────────────────
+
+_JSON_KEY_TO_CLASS = {
+    "plastic_bottle":  "plastic bottle",
+    "glass":           "glass",
+    "can":             "can",
+    "plastic_bag":     "plastic bag",
+    "metal_scrap":     "metal scrap",
+    "plastic_wrapper": "plastic wrapper",
+    "trash_pile":      "trash pile",
+    "trash":           "trash",
+}
+
+
+def _extract_classes(text: str) -> list[str]:
+    """Longest-match-first with consume: prevents 'trash' matching inside 'trash pile'."""
+    lower = text.lower()
+    found = []
+    for cls in sorted(CLASSES, key=len, reverse=True):
+        pattern = r"\b" + re.escape(cls) + r"\b"
+        if re.search(pattern, lower):
+            found.append(cls)
+            lower = re.sub(pattern, " " * len(cls), lower)
+    return found
+
 
 def parse_response(response: str) -> tuple[bool, list[str]]:
-    """Parse DETECTED/CLEAN label and class names from model response.
-
-    Strategy:
-    1. Look for DETECTED: or CLEAN at end of response (expected format).
-    2. Fallback: scan full text for class names if label missing.
-    """
     text = response.strip()
     upper = text.upper()
 
-    # Primary: structured label at end
     if "DETECTED:" in upper:
-        detected = True
-        # Extract everything after last DETECTED:
         after = text[upper.rfind("DETECTED:") + len("DETECTED:"):].strip()
-        lower = after.lower()
-        classes = [c for c in CLASSES if c in lower]
-        # Fallback to full text scan if nothing matched after label
-        if not classes:
-            classes = [c for c in CLASSES if c in text.lower()]
-        return detected, classes
+        classes = _extract_classes(after) or _extract_classes(text)
+        return True, classes
 
     if upper.endswith("CLEAN") or "\nCLEAN" in upper:
         return False, []
 
-    # Fallback: no structured label — scan full response for class names
-    lower = text.lower()
-    classes = [c for c in CLASSES if c in lower]
-    detected = len(classes) > 0
-    return detected, classes
+    classes = _extract_classes(text)
+    return len(classes) > 0, classes
 
+
+def parse_json_response(response: str) -> tuple[bool, list[str]]:
+    match = re.search(r"\{[^{}]*\}", response, re.DOTALL)
+    if not match:
+        return False, []
+    try:
+        data = json.loads(match.group())
+    except json.JSONDecodeError:
+        return False, []
+    classes = [
+        cls
+        for key, cls in _JSON_KEY_TO_CLASS.items()
+        if int(data.get(key, 0) or 0) > 0
+    ]
+    return len(classes) > 0, classes
+
+
+# ── Base class ─────────────────────────────────────────────────────────────────
 
 class BaseVLM(ABC):
     name: str = ""
@@ -86,21 +142,24 @@ class BaseVLM(ABC):
         self.processor = None
 
     @abstractmethod
-    def load(self) -> None:
-        """Load model and processor into memory."""
-        ...
+    def load(self) -> None: ...
 
     @abstractmethod
-    def describe(self, image_path: str, prompt: str) -> str:
-        """Return raw text response for given image and prompt."""
-        ...
+    def describe(self, image_path: str, prompt: str) -> str: ...
 
-    def detect_garbage(self, image_path: str) -> dict:
+    def _get_prompt(self, mode: str) -> str:
+        return DETECTION_PROMPT_JSON if mode == "json" else DETECTION_PROMPT
+
+    def detect_garbage(self, image_path: str, mode: str = "text") -> dict:
+        prompt = self._get_prompt(mode)
         t0 = time.perf_counter()
-        response = self.describe(image_path, DETECTION_PROMPT)
+        response = self.describe(image_path, prompt)
         elapsed = round(time.perf_counter() - t0, 3)
 
-        detected, classes = parse_response(response)
+        if mode == "json":
+            detected, classes = parse_json_response(response)
+        else:
+            detected, classes = parse_response(response)
 
         vram_mb = 0
         if self.device == "cuda" and torch.cuda.is_available():
@@ -111,7 +170,7 @@ class BaseVLM(ABC):
             "image": Path(image_path).name,
             "model": self.name,
             "variant": self.variant,
-            "prompt": DETECTION_PROMPT,
+            "prompt": prompt,
             "response": response.strip(),
             "garbage_detected": detected,
             "classes_detected": ", ".join(classes),
