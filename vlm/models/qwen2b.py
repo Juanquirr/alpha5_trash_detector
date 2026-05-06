@@ -1,27 +1,26 @@
 # venv: .transformers-5.X-venv (transformers 5.x)
 #
-# NOTE: User requested "Qwen3-VL-2B-Instruct" but Qwen3-VL does not exist on
-# HuggingFace as of now. Using Qwen2.5-VL-2B-Instruct which is the 2B variant
-# of the same series. If Qwen3-VL is released, update `variant` below and
-# replace Qwen2_5_VLForConditionalGeneration with the appropriate class.
+# Qwen3-VL-2B-Instruct: 2B vision-language model from Qwen3 series.
+# Uses AutoModelForVision2Seq (generic) instead of series-specific class
+# so it works regardless of the exact Transformers class name for Qwen3-VL.
 #
 # Variant options:
-#   Qwen/Qwen2.5-VL-2B-Instruct  (~4GB)  ← active
-#   Qwen/Qwen2.5-VL-3B-Instruct  (~6GB)  ← see qwen_vl.py
+#   Qwen/Qwen3-VL-2B-Instruct  (~4GB)  ← active
+#   Qwen/Qwen3-VL-7B-Instruct  (~14GB)
 from .base import BaseVLM
 
 
 class QwenVL2B(BaseVLM):
     name = "qwen_2b"
-    variant = "Qwen/Qwen2.5-VL-2B-Instruct"
+    variant = "Qwen/Qwen3-VL-2B-Instruct"
 
     def load(self) -> None:
         import torch
-        from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
+        from transformers import AutoProcessor, AutoModelForVision2Seq
 
         self._torch = torch
         self.processor = AutoProcessor.from_pretrained(self.variant)
-        self.model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+        self.model = AutoModelForVision2Seq.from_pretrained(
             self.variant,
             torch_dtype=torch.bfloat16,
             device_map=self.device,
