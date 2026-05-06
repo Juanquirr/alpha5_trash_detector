@@ -294,11 +294,23 @@ def main() -> None:
                         help="Tier: random / popular / adversarial / all (default: all)")
     parser.add_argument("--questions", default="pope_questions",
                         help="Directory with pope_*.jsonl files (from pope_build.py)")
-    parser.add_argument("--images",    default="images",
-                        help="Directory containing the image files")
+    parser.add_argument("--images",    default=None,
+                        help="Directory containing image files. "
+                             "Defaults to images_dir stored in pope_questions/metadata.json.")
     parser.add_argument("--out",       default="pope_results",
                         help="Output directory for CSV result files")
     args = parser.parse_args()
+
+    # Resolve images dir: explicit arg > metadata.json > fallback "images/"
+    if args.images is None:
+        meta_path = Path(args.questions) / "metadata.json"
+        if meta_path.exists():
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            args.images = meta["images_dir"]
+            print(f"[pope_run] images dir from metadata: {args.images}")
+        else:
+            args.images = "images"
+            print(f"[pope_run] metadata.json not found, using default: {args.images}")
 
     tiers = list(TIERS) if args.tier == "all" else [args.tier]
 
