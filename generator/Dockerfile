@@ -25,6 +25,7 @@ EXPOSE 8001
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
+ENV HF_HOME=/app/models
 
 # Run the FastAPI app with Uvicorn
 CMD ["/bin/bash"]
