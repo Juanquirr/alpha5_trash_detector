@@ -1,7 +1,7 @@
-# venv: .venv-compat (transformers 4.46.x)
+# venv: .transformers-4.46-venv (transformers 4.46.x)
 # CLIP is different: zero-shot classification, no text generation.
 # Returns top matching classes from CLASSES list + "no garbage".
-# garbage_detected = True if top-1 is not "no garbage" AND score > threshold.
+# garbage_detected = True if any class score >= THRESHOLD.
 import time
 import torch
 from pathlib import Path
@@ -20,7 +20,6 @@ class CLIP(BaseVLM):
     def load(self) -> None:
         from transformers import CLIPModel, CLIPProcessor
 
-        self._torch_module = torch
         self.processor = CLIPProcessor.from_pretrained(self.variant)
         self.model = CLIPModel.from_pretrained(self.variant).to(self.device)
         self.model.eval()
@@ -44,14 +43,23 @@ class CLIP(BaseVLM):
         """Override: CLIP uses zero-shot classification; mode param is ignored."""
         from PIL import Image
 
+        is_cuda = self.device == "cuda" and torch.cuda.is_available()
+
         image = Image.open(image_path).convert("RGB")
         texts = [f"a photo of {c}" for c in CANDIDATES]
-        inputs = self.processor(text=texts, images=image, return_tensors="pt", padding=True).to(self.device)
+        inputs = self.processor(
+            text=texts, images=image, return_tensors="pt", padding=True
+        ).to(self.device)
+
+        if is_cuda:
+            torch.cuda.reset_peak_memory_stats()
 
         t0 = time.perf_counter()
         with torch.no_grad():
             outputs = self.model(**inputs)
             probs = outputs.logits_per_image.softmax(dim=1)[0]
+        if is_cuda:
+            torch.cuda.synchronize()
         elapsed = round(time.perf_counter() - t0, 3)
 
         scored = list(zip(CANDIDATES, probs.tolist()))
@@ -61,12 +69,13 @@ class CLIP(BaseVLM):
         ]
         detected = len(garbage_classes) > 0
 
-        response = " | ".join(f"{c}: {s:.3f}" for c, s in sorted(scored, key=lambda x: -x[1]))
+        response = " | ".join(
+            f"{c}: {s:.3f}" for c, s in sorted(scored, key=lambda x: -x[1])
+        )
 
         vram_mb = 0
-        if self.device == "cuda" and torch.cuda.is_available():
+        if is_cuda:
             vram_mb = round(torch.cuda.max_memory_allocated() / 1024**2, 1)
-            torch.cuda.reset_peak_memory_stats()
 
         return {
             "image": Path(image_path).name,

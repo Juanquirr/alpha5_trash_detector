@@ -152,8 +152,19 @@ class BaseVLM(ABC):
 
     def detect_garbage(self, image_path: str, mode: str = "text") -> dict:
         prompt = self._get_prompt(mode)
+        is_cuda = self.device == "cuda" and torch.cuda.is_available()
+
+        # Reset peak BEFORE inference so measurement captures only this forward pass,
+        # not model loading or previous images.
+        if is_cuda:
+            torch.cuda.reset_peak_memory_stats()
+
         t0 = time.perf_counter()
         response = self.describe(image_path, prompt)
+        # Synchronize before stopping timer: GPU ops are async, without this
+        # perf_counter() returns before the kernel finishes.
+        if is_cuda:
+            torch.cuda.synchronize()
         elapsed = round(time.perf_counter() - t0, 3)
 
         if mode == "json":
@@ -162,9 +173,8 @@ class BaseVLM(ABC):
             detected, classes = parse_response(response)
 
         vram_mb = 0
-        if self.device == "cuda" and torch.cuda.is_available():
+        if is_cuda:
             vram_mb = round(torch.cuda.max_memory_allocated() / 1024**2, 1)
-            torch.cuda.reset_peak_memory_stats()
 
         return {
             "image": Path(image_path).name,

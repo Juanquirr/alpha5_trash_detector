@@ -1,5 +1,5 @@
 # .transformers-5.X-venv dependencies
-# Models: smolvlm, qwen_vl, videollama3
+# Models: smolvlm, smolvlm_500m, qwen_vl, qwen_2b, llava_ov
 # PyTorch installed separately in setup.ps1 (needs --index-url for CUDA)
 
 transformers>=5.0.0
@@ -7,8 +7,3 @@ accelerate
 Pillow
 pandas
 matplotlib
-# VideoLLaMA3 video processing deps (required even for static images)
-opencv-python
-decord
-ffmpeg-python
-imageio

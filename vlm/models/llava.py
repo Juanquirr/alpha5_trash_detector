@@ -1,5 +1,8 @@
-# venv: .venv-compat (transformers 4.46.x)
-# Default variant: ~14GB. Smaller: llava-hf/llava-1.5-7b-hf (~14GB)
+# venv: .transformers-4.46-venv (transformers 4.46.x)
+# LLaVA 1.5 7B. Requires <image> token injected into prompt.
+# Variant options:
+#   llava-hf/llava-1.5-7b-hf   (~14GB) ← active
+#   llava-hf/llava-1.5-13b-hf  (~26GB)
 from .base import BaseVLM
 
 
@@ -26,7 +29,9 @@ class LLaVA(BaseVLM):
         image = Image.open(image_path).convert("RGB")
         # LLaVA 1.5 requires <image> token in prompt
         full_prompt = f"USER: <image>\n{prompt}\nASSISTANT:"
-        inputs = self.processor(text=full_prompt, images=image, return_tensors="pt").to(self.device)
+        inputs = self.processor(
+            text=full_prompt, images=image, return_tensors="pt"
+        ).to(self.device)
 
         with self._torch.no_grad():
             output_ids = self.model.generate(**inputs, max_new_tokens=200)

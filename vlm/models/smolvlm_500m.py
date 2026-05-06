@@ -1,15 +1,20 @@
-# venv: .transformers-4.46-venv (transformers 4.46.x)
-# Uses IDEFICS2 (successor to IDEFICS). ~8GB.
+# venv: .transformers-5.X-venv (transformers 5.x)
+# SmolVLM-500M: lighter variant of SmolVLM-2B. Same API, ~4x smaller.
+# Useful for speed/accuracy tradeoff comparison.
 from .base import BaseVLM
 
 
-class IDEFICS(BaseVLM):
-    name = "idefics"
-    variant = "HuggingFaceM4/idefics2-8b"
+class SmolVLM500M(BaseVLM):
+    name = "smolvlm_500m"
+    variant = "HuggingFaceTB/SmolVLM-500M-Instruct"
 
     def load(self) -> None:
+        from PIL import Image  # noqa: F401 — ensure Pillow available early
         import torch
-        from transformers import AutoModelForVision2Seq, AutoProcessor
+        try:
+            from transformers import AutoProcessor, AutoModelForImageTextToText as AutoModelForVision2Seq
+        except ImportError:
+            from transformers import AutoProcessor, AutoModelForVision2Seq
 
         self._torch = torch
         self.processor = AutoProcessor.from_pretrained(self.variant)
@@ -22,6 +27,7 @@ class IDEFICS(BaseVLM):
 
     def describe(self, image_path: str, prompt: str) -> str:
         from PIL import Image
+        import torch
 
         image = Image.open(image_path).convert("RGB")
         messages = [
@@ -40,4 +46,4 @@ class IDEFICS(BaseVLM):
             output_ids = self.model.generate(**inputs, max_new_tokens=200)
 
         generated = output_ids[:, inputs["input_ids"].shape[1]:]
-        return self.processor.decode(generated[0], skip_special_tokens=True).strip()
+        return self.processor.decode(generated[0], skip_special_tokens=True)
