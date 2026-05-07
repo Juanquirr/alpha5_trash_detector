@@ -99,9 +99,10 @@ def compute_metrics(dfs: dict[tuple[str, str], pd.DataFrame]) -> dict:
     """
     Returns nested dict:
         metrics[model][tier] = {
-            "overall":   {precision, recall, f1, accuracy, yes_ratio, n, tp, fp, fn, tn},
-            "per_class": {cls: {precision, recall, f1, yes_ratio, n}}
+            "overall":    {precision, recall, f1, accuracy, yes_ratio, n, n_timeout, ...},
+            "per_class":  {cls: {precision, recall, f1, yes_ratio, n, n_timeout}}
         }
+    Rows with pred="timeout" are excluded from metric computation but counted.
     """
     models = sorted({m for m, _ in dfs})
     metrics: dict = {m: {} for m in models}
@@ -112,12 +113,22 @@ def compute_metrics(dfs: dict[tuple[str, str], pd.DataFrame]) -> dict:
                 continue
             df = dfs[(model, tier)]
 
-            overall   = _cell(df)
+            # Separate valid rows from timed-out rows
+            n_timeout = int((df["pred"] == "timeout").sum())
+            valid     = df[df["pred"] != "timeout"].copy()
+
+            overall             = _cell(valid)
+            overall["n_timeout"] = n_timeout
+            overall["n_total"]   = len(df)   # including timeouts
+
             per_class = {}
             for cls in CLASSES:
-                sub = df[df["cls"] == cls]
-                if not sub.empty:
-                    per_class[cls] = _cell(sub)
+                sub_all   = df[df["cls"] == cls]
+                sub_valid = sub_all[sub_all["pred"] != "timeout"]
+                if not sub_all.empty:
+                    cell               = _cell(sub_valid)
+                    cell["n_timeout"]  = int((sub_all["pred"] == "timeout").sum())
+                    per_class[cls]     = cell
 
             metrics[model][tier] = {"overall": overall, "per_class": per_class}
 
@@ -133,19 +144,20 @@ def print_summary(metrics: dict) -> None:
     for tier in TIERS:
         if not any(tier in metrics[m] for m in models):
             continue
-        sep = "─" * (col_w + 54)
-        print(f"\n{'═'*62}")
+        sep = "─" * (col_w + 66)
+        print(f"\n{'═'*70}")
         print(f"  POPE tier: {tier.upper()}")
-        print(f"{'═'*62}")
-        print(f"{'Model':<{col_w}}  {'N':>5}  {'Prec%':>6}  {'Rec%':>5}  "
+        print(f"{'═'*70}")
+        print(f"{'Model':<{col_w}}  {'N':>5}  {'Skip':>4}  {'Prec%':>6}  {'Rec%':>5}  "
               f"{'F1%':>5}  {'Acc%':>5}  {'Yes%':>5}")
         print(sep)
         for model in models:
             if tier not in metrics[model]:
                 continue
             o = metrics[model][tier]["overall"]
+            skip_note = f"{o['n_timeout']}" if o.get("n_timeout", 0) else "-"
             print(
-                f"{model:<{col_w}}  {o['n']:>5}  "
+                f"{model:<{col_w}}  {o['n']:>5}  {skip_note:>4}  "
                 f"{o['precision']:>5.1f}  {o['recall']:>5.1f}  "
                 f"{o['f1']:>5.1f}  {o['accuracy']:>5.1f}  {o['yes_ratio']:>5.1f}"
             )

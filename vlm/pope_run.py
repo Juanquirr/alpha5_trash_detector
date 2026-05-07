@@ -10,8 +10,11 @@ Usage:
     python pope_run.py --model all --tier all
     python pope_run.py --model smolvlm,llava_ov --tier popular
 
---model all   spawns one subprocess per model (auto-selects correct venv)
---tier  all   runs random + popular + adversarial
+--model all          spawns one subprocess per model (auto-selects correct venv)
+--tier  all          runs random + popular + adversarial
+--without smolvlm    exclude specific models when using --model all
+--timeout 20         skip question if inference exceeds N seconds (0 = disabled)
+                     timed-out rows written with pred="timeout" and excluded from metrics
 
 CLIP special case:
     CLIP.describe() ignores the prompt and returns scored lines:
@@ -31,6 +34,7 @@ import json
 import re
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -63,6 +67,39 @@ def parse_clip_score(response: str, cls: str) -> str:
     if not match:
         return "no"
     return "yes" if float(match.group(1)) >= 0.25 else "no"
+
+
+# ── Timeout wrapper ───────────────────────────────────────────────────────────
+
+def _describe_with_timeout(vlm, image_path: str, prompt: str, timeout_s: float):
+    """
+    Call vlm.describe() in a daemon thread. Returns (response, timed_out).
+
+    On timeout the thread keeps running in background (GPU op can't be killed
+    from Python), but we stop waiting and mark the question as skipped.
+    timeout_s=0 disables the timeout (waits indefinitely).
+    """
+    result:   list = [None]
+    exc:      list = [None]
+
+    def _run():
+        try:
+            result[0] = vlm.describe(image_path, prompt)
+        except Exception as e:
+            exc[0] = e
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+    wait = timeout_s if timeout_s > 0 else None
+    t.join(timeout=wait)
+
+    if t.is_alive():
+        return None, True   # timed out
+
+    if exc[0] is not None:
+        raise exc[0]
+
+    return result[0], False
 
 
 # ── CSV I/O ───────────────────────────────────────────────────────────────────
@@ -110,6 +147,7 @@ def run_model_tier(
     questions_dir: Path,
     images_dir:    Path,
     out_dir:       Path,
+    timeout_s:     float = 20.0,
 ) -> None:
     import torch
 
@@ -132,15 +170,17 @@ def run_model_tier(
         print(f"[{model_key}/{tier}] All questions already processed. Nothing to do.")
         return
 
+    timeout_label = f"{timeout_s}s" if timeout_s > 0 else "disabled"
     vlm_cls = REGISTRY[model_key]
     vlm     = vlm_cls()
-    print(f"\n[{model_key}/{tier}] Loading model...  (venv: {VENV[model_key]})")
+    print(f"\n[{model_key}/{tier}] Loading model...  (venv: {VENV[model_key]}, timeout: {timeout_label})")
     vlm.load()
     print(f"[{model_key}/{tier}] Processing {len(pending)} questions...")
 
-    is_cuda = vlm.device == "cuda" and torch.cuda.is_available()
-    is_clip = model_key == "clip"
-    t_start = time.perf_counter()
+    is_cuda   = vlm.device == "cuda" and torch.cuda.is_available()
+    is_clip   = model_key == "clip"
+    t_start   = time.perf_counter()
+    n_timeout = 0
 
     for i, q in enumerate(pending, 1):
         # Resolve image path (try original name, then alternate extensions)
@@ -160,8 +200,28 @@ def run_model_tier(
         if is_cuda:
             torch.cuda.reset_peak_memory_stats()
 
-        t0       = time.perf_counter()
-        response = vlm.describe(str(image_path), q["text"])
+        t0                  = time.perf_counter()
+        response, timed_out = _describe_with_timeout(vlm, str(image_path), q["text"], timeout_s)
+
+        if timed_out:
+            elapsed = round(time.perf_counter() - t0, 3)
+            n_timeout += 1
+            _append_row({
+                "question_id": q["question_id"],
+                "image":       q["image"],
+                "cls":         q["cls"],
+                "label":       q["label"],
+                "pred":        "timeout",
+                "response":    "TIMEOUT",
+                "inference_s": elapsed,
+                "vram_mb":     0,
+            }, csv_path)
+            print(
+                f"  [{i}/{len(pending)}] ⏱ q{q['question_id']:05d}  "
+                f"{q['image'][:20]:<20s}  {q['cls']:<16s}  TIMEOUT ({elapsed}s)"
+            )
+            continue
+
         if is_cuda:
             torch.cuda.synchronize()
         elapsed = round(time.perf_counter() - t0, 3)
@@ -183,9 +243,9 @@ def run_model_tier(
             "vram_mb":     vram_mb,
         }, csv_path)
 
-        ok      = "✓" if pred == q["label"] else "✗"
+        ok            = "✓" if pred == q["label"] else "✗"
         elapsed_total = time.perf_counter() - t_start
-        eta     = _fmt_time(elapsed_total / i * (len(pending) - i))
+        eta           = _fmt_time(elapsed_total / i * (len(pending) - i))
         print(
             f"  [{i}/{len(pending)}] {ok} q{q['question_id']:05d}  "
             f"{q['image'][:20]:<20s}  {q['cls']:<16s}  "
@@ -193,7 +253,9 @@ def run_model_tier(
         )
 
     vlm.unload()
-    print(f"[{model_key}/{tier}] Done in {_fmt_time(time.perf_counter() - t_start)}.")
+    total_time = _fmt_time(time.perf_counter() - t_start)
+    timeout_note = f"  ({n_timeout} timeouts)" if n_timeout else ""
+    print(f"[{model_key}/{tier}] Done in {total_time}.{timeout_note}")
 
 
 # ── Venv resolver ─────────────────────────────────────────────────────────────
@@ -220,15 +282,18 @@ def run_all(
     questions_arg: str,
     images_arg:    str,
     out_arg:       str,
+    timeout_s:     float = 20.0,
 ) -> None:
     script  = Path(__file__).resolve()
     combos  = [(k, t) for k in model_keys for t in tiers]
     errors: list[tuple[str, str]] = []
 
+    timeout_label = f"{timeout_s}s" if timeout_s > 0 else "disabled"
     print(f"\n{'═'*62}")
     print(f"  {len(model_keys)} model(s) × {len(tiers)} tier(s) = {len(combos)} runs")
-    print(f"  Models: {', '.join(model_keys)}")
-    print(f"  Tiers:  {', '.join(tiers)}")
+    print(f"  Models:  {', '.join(model_keys)}")
+    print(f"  Tiers:   {', '.join(tiers)}")
+    print(f"  Timeout: {timeout_label} per question")
     print(f"  Each model runs in its own venv via subprocess.")
     print(f"{'═'*62}\n")
 
@@ -249,6 +314,7 @@ def run_all(
             "--questions", questions_arg,
             "--images",    images_arg,
             "--out",       out_arg,
+            "--timeout",   str(timeout_s),
         ]
         t0     = time.perf_counter()
         result = subprocess.run(cmd)
@@ -289,6 +355,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run POPE binary questions through VLM models")
     parser.add_argument("--model",     required=True,
                         help=f"Model key, 'all', or comma-separated list. Options: {list(REGISTRY)}")
+    parser.add_argument("--without",   default="",
+                        help="Comma-separated model keys to exclude (only used with --model all). "
+                             "Example: --without smolvlm,llava")
     parser.add_argument("--tier",      default="all",
                         choices=list(TIERS) + ["all"],
                         help="Tier: random / popular / adversarial / all (default: all)")
@@ -299,6 +368,8 @@ def main() -> None:
                              "Defaults to images_dir stored in pope_questions/metadata.json.")
     parser.add_argument("--out",       default="pope_results",
                         help="Output directory for CSV result files")
+    parser.add_argument("--timeout",   type=float, default=20.0,
+                        help="Max seconds per inference question (0 = disabled, default: 20)")
     args = parser.parse_args()
 
     # Resolve images dir: explicit arg > metadata.json > fallback "images/"
@@ -312,11 +383,15 @@ def main() -> None:
             args.images = "images"
             print(f"[pope_run] metadata.json not found, using default: {args.images}")
 
-    tiers = list(TIERS) if args.tier == "all" else [args.tier]
+    tiers   = list(TIERS) if args.tier == "all" else [args.tier]
+    exclude = {k.strip() for k in args.without.split(",") if k.strip()}
 
     # ── Multi-model path: spawn subprocesses (one per model for venv isolation) ──
     if args.model == "all":
-        run_all(list(REGISTRY), tiers, args.questions, args.images, args.out)
+        keys = [k for k in REGISTRY if k not in exclude]
+        if exclude:
+            print(f"[pope_run] Excluding: {', '.join(sorted(exclude))}")
+        run_all(keys, tiers, args.questions, args.images, args.out, timeout_s=args.timeout)
         return
 
     keys    = [k.strip() for k in args.model.split(",")]
@@ -326,7 +401,8 @@ def main() -> None:
         sys.exit(1)
 
     if len(keys) > 1:
-        run_all(keys, tiers, args.questions, args.images, args.out)
+        keys = [k for k in keys if k not in exclude]
+        run_all(keys, tiers, args.questions, args.images, args.out, timeout_s=args.timeout)
         return
 
     # ── Single model: run all tiers in current process (correct venv already) ──
@@ -338,6 +414,7 @@ def main() -> None:
             questions_dir=Path(args.questions),
             images_dir=Path(args.images),
             out_dir=Path(args.out),
+            timeout_s=args.timeout,
         )
 
 
