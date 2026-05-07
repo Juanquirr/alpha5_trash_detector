@@ -22,6 +22,7 @@ Usage:
 """
 
 import argparse
+import datetime
 import json
 import random
 from collections import defaultdict
@@ -158,6 +159,17 @@ def main() -> None:
     n_labeled = sum(1 for r in records if r["gt_classes"])
     n_clean   = n_images - n_labeled
     print(f"  {n_images} images  |  {n_labeled} with labels  |  {n_clean} clean\n")
+
+    # Write metadata so pope_run.py can locate images without --images flag
+    meta = {
+        "images_dir": str(images_dir.resolve()),
+        "built_at":   datetime.datetime.now().isoformat(timespec="seconds"),
+        "n_images":   n_images,
+        "seed":       args.seed,
+    }
+    meta_path = out_dir / "metadata.json"
+    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+    print(f"  [metadata  ]  images_dir = {meta['images_dir']}  →  {meta_path}\n")
 
     for tier in ("random", "popular", "adversarial"):
         questions = build_questions(records, tier=tier, seed=args.seed)
