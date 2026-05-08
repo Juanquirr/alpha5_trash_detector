@@ -2,13 +2,13 @@
 # Usage: python run.py batch --config experiments.yaml
 
 input: backgrounds/
-base_output: results/
+base_output: results_close_backgrounds/
 
 # Shared params (can be overridden per experiment)
 model: fill           # fill | canny  (default: fill; each experiment can override)
-classes: [0, 2, 3, 4, 5, 6, 7]
-num_instances: 1
-max_images: 5
+classes: [0, 1, 2, 3, 4, 5, 6, 7]
+num_instances: 2
+max_images: 21
 water_method: sam
 min_water_coverage: 0.40
 crop: false
