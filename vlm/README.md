@@ -1,8 +1,6 @@
-# vlm — Vision-Language Model Benchmark
+# Vision-Language Model Benchmark
 
 Evaluates 9 VLMs on trash detection: accuracy, inference time, VRAM usage, and hallucination analysis via POPE. Outputs per-image CSVs and comparative evaluation plots.
-
-For implementation notes and architecture decisions see [CONTEXT.md](CONTEXT.md).
 
 ---
 
@@ -20,8 +18,8 @@ For implementation notes and architecture decisions see [CONTEXT.md](CONTEXT.md)
 Run once on the execution machine:
 
 ```powershell
-.\vlm\setup.ps1          # creates .transformers-5.X-venv
-.\vlm\setup_compat.ps1   # creates .transformers-4.46-venv
+.\vlm\setup_5.x.ps1          # creates .transformers-5.X-venv
+.\vlm\setup_4.46.ps1   # creates .transformers-4.46-venv
 ```
 
 | Venv | transformers | Models |
