@@ -15,7 +15,6 @@ sam3_model/
 
 # Archives
 *.zip
-*.txt
 *.cache
 
 # IDE & tools
@@ -32,17 +31,25 @@ sam3_model/
 # Secrets
 .env
 
-# Images (large binaries, not for git)
+# YOLO annotation label files (dataset .txt labels, not requirements/configs)
+*.txt
+!requirements*.txt
+!**/requirements*.txt
+!**/*.md
+
+# Images (large binaries)
 *.jpg
 *.jpeg
 *.JPG
 *.png
+
+# Data / result files
 *.csv
+!generator/config/*.csv
 *.json
 *.jsonl
 
-
-# Data files at root (not in subdirectories)
+# Data files at root
 /*.json
 /*.yaml
 
