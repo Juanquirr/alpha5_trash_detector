@@ -298,9 +298,8 @@ vlm/
 ├── pope_build.py              Build POPE binary question JSONL files
 ├── pope_run.py                POPE inference runner (venv-aware, timeout, resume)
 ├── pope_evaluate.py           POPE metrics + hallucination analysis plots
-├── setup.ps1                  Creates .transformers-5.X-venv
-├── setup_compat.ps1           Creates .transformers-4.46-venv
-├── VLMs.tsv                   Model metadata reference table
+├── setup_5.x.ps1              Creates .transformers-5.X-venv
+├── setup_4.46.ps1             Creates .transformers-4.46-venv
 ├── envs/
 │   ├── requirements-5x.txt    transformers 5.x deps
 │   └── requirements-compat.txt transformers 4.46.3 deps
