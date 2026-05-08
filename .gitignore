@@ -50,11 +50,12 @@ sam3_model/
 generator/outputs_*/
 generator/inputs/
 generator/models/
-generator/.planning/
 generator/.claude/
 generator/backgrounds*/
 vlm/results/
 !vlm/results/*.csv
 vlm/images/
+vlm/pope_questions/
+vlm/pope_results/
 alpha5/datasets/alpha5*/
 runs/
