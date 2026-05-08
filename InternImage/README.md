@@ -11,23 +11,24 @@ metal_scrap, plastic_wrapper, trash_pile, trash
 ```
 
 ## Requirements
-- Linux / WSL2
-- Conda (miniconda or anaconda)
+- Windows 11 + conda (miniconda or anaconda)
+- WSL2 enabled (for DCNv3 CUDA compilation)
 - CUDA 11.8 or 12.1 driver installed
 - ~20 GB disk (repo + weights + data)
 
 ## 1. Environment setup
 
-```bash
-cd InternImage/
-bash setup.sh 121    # CUDA 12.1 — change to 118 for CUDA 11.8
+```powershell
+cd InternImage\
+.\setup.ps1           # CUDA 12.1 (default)
+.\setup.ps1 -CudaVer 118   # CUDA 11.8
 ```
 
 This will:
 1. Create conda env `internimage_alpha5`
 2. Install PyTorch 2.1.0 + mmcv-full 1.7.2 + mmdet 2.28.2
 3. Clone [OpenGVLab/InternImage](https://github.com/OpenGVLab/InternImage)
-4. Compile DCNv3 CUDA ops
+4. Compile DCNv3 CUDA ops via WSL2
 5. Copy custom configs and dataset class
 6. Create data directory scaffold
 
