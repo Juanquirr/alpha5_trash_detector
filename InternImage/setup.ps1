@@ -74,7 +74,7 @@ $opsDir = (Join-Path $DetectDir "ops_dcnv3") -replace '\\', '/'
 $wslOpsDir = wsl wslpath -u $opsDir.Replace('\', '/')
 Write-Host "==> Compiling DCNv3 in WSL2 at $wslOpsDir"
 wsl bash -c "cd '$wslOpsDir' && conda run -n $EnvName --no-capture-output sh ./make.sh"
-if ($LASTEXITCODE -ne 0) { throw "DCNv3 compilation failed — check WSL2 and CUDA toolkit" }
+if ($LASTEXITCODE -ne 0) { throw "DCNv3 compilation failed - check WSL2 and CUDA toolkit" }
 
 # ── 8. Overlay our custom files ───────────────────────────────────────────────
 $dstDatasets = Join-Path $DetectDir "mmdet_custom\datasets"
