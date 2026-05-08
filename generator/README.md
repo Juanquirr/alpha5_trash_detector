@@ -142,8 +142,8 @@ Redux produces better results when reference images show the object already in a
 Uses SAM3 to cut objects out of background-cluttered photos, saving transparent RGBA PNGs.
 
 ```bash
-python segment_references.py
-python segment_references.py --class can --det-threshold 0.2
+python scripts/segment_references.py
+python scripts/segment_references.py --class can --det-threshold 0.2
 ```
 
 Output: `inputs/references/{class}/*.png` (RGBA, transparent background)
@@ -153,8 +153,8 @@ Output: `inputs/references/{class}/*.png` (RGBA, transparent background)
 Pastes segmented objects onto real water patches extracted from the input images, producing RGB reference images that show each object floating in a contextually realistic scene.
 
 ```bash
-python prepare_redux_references.py
-python prepare_redux_references.py --class can --n 8
+python scripts/prepare_redux_references.py
+python scripts/prepare_redux_references.py --class can --n 8
 ```
 
 Output: `inputs/references_composed/{class}/*.jpg`
@@ -189,10 +189,9 @@ inputs/*.jpeg
 ## Project Structure
 
 ```
-trash_generator/
+generator/
 ├── run.py                        CLI entry point
-├── segment_references.py         SAM3 object segmentation helper
-├── prepare_redux_references.py   Water-background compositing helper
+├── requirements.txt
 ├── config/
 │   └── prompts.csv               Text prompts per class (4–5 per class)
 ├── core/
@@ -205,6 +204,10 @@ trash_generator/
 │       ├── flux_canny.py         FLUX Canny inpainter
 │       ├── flux_redux.py         FLUX Redux inpainter
 │       └── flux_kontext.py       FLUX Kontext inpainter
+├── scripts/
+│   ├── segment_references.py     SAM3 object segmentation helper
+│   ├── prepare_redux_references.py  Water-background compositing helper
+│   └── water_masks.py            Debug: generate water masks for all inputs
 └── inputs/
     ├── *.jpeg                    Source harbour/ocean images
     └── references/               Per-class reference images
