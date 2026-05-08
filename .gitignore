@@ -37,6 +37,9 @@ sam3_model/
 *.jpeg
 *.JPG
 *.png
+*.csv
+*.json
+*.jsonl
 
 
 # Data files at root (not in subdirectories)
