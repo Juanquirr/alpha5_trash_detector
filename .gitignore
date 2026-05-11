@@ -62,8 +62,8 @@ generator/backgrounds*/
 vlm/results/
 !vlm/results/*.csv
 vlm/images/
-vlm/pope_questions/
-!vlm/pope_results/
+!vlm/pope_results/**
+!vlm/pope_questions/**
 alpha5/datasets/alpha5*/
 runs/
 InternImage/
