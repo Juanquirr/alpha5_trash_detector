@@ -19,8 +19,11 @@ RUN pip install --no-cache-dir mmcv-full==1.7.2 \
 WORKDIR /workspace
 RUN git clone https://github.com/OpenGVLab/InternImage.git
 
-WORKDIR /workspace/InternImage/detection/ops_dcnv3
-RUN sh ./make.sh
-
 WORKDIR /workspace/InternImage/detection
 RUN pip install --no-cache-dir -e .
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bash"]
