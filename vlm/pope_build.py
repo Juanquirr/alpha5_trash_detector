@@ -2,18 +2,22 @@
 pope_build.py  —  Build POPE-style binary question files from YOLO annotations.
 
 Reads YOLO .txt labels from images/ and writes three JSONL question files,
-one per tier (random, popular, adversarial). All 8 classes are queried for
-every image; tiers differ only in the order negative questions appear.
+one per tier (random, popular, adversarial).
+
+Balance: n_neg = n_pos per image (POPE standard ~50/50 yes/no ratio).
+Negatives are ordered by tier strategy, then sliced to n_pos — so each tier
+selects a DIFFERENT subset of negatives, making tier difficulty meaningful.
+Clean images (0 GT classes) get CLEAN_IMAGE_NEGATIVES=3 negative questions.
 
 Output line format:
     {"question_id": 1, "image": "foto1.jpg", "cls": "plastic bottle",
      "text": "Is there a plastic bottle in this image? Answer with yes or no.",
      "label": "yes"}
 
-Tier ordering of negative questions:
-    random      — shuffled randomly per image (seeded, reproducible)
-    popular     — most-frequent classes first (model tempted by common classes)
-    adversarial — classes that co-occur most with GT classes first (hardest)
+Tier negative selection:
+    random      — negatives shuffled randomly per image (seeded, reproducible)
+    popular     — most-frequent classes in dataset selected first
+    adversarial — classes that co-occur most with GT classes selected first (hardest)
 
 Usage:
     python pope_build.py
@@ -76,12 +80,17 @@ def load_yolo_labels(images_dir: Path) -> list[dict]:
 
 # ── Question builders ─────────────────────────────────────────────────────────
 
+CLEAN_IMAGE_NEGATIVES = 3   # negatives asked per clean image (0 GT classes)
+
+
 def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict]:
     """
     Generate POPE binary questions for one tier.
 
-    All 8 classes queried per image.
-    Positives (GT classes) always first; negatives ordered by tier strategy.
+    Balance: n_neg = n_pos per image (POPE standard 50/50 yes/no).
+    Clean images (0 GT classes): CLEAN_IMAGE_NEGATIVES negatives, 0 positives.
+    Negatives are ordered by tier strategy before slicing, so each tier
+    selects a different subset → tier difficulty is meaningful.
     """
     # Class frequency across dataset (for popular/adversarial tiers)
     class_freq: dict[str, int] = defaultdict(int)
@@ -119,7 +128,12 @@ def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict
                 return sum(class_cooccur[c].get(gt_cls, 0) for gt_cls in gt_classes)
             negatives.sort(key=_cooccur_score, reverse=True)
 
-        for cls in positives + negatives:
+        # Select balanced subset: n_neg == n_pos.
+        # Clean images use a fixed quota so they still test hallucination.
+        n_neg = len(positives) if positives else CLEAN_IMAGE_NEGATIVES
+        selected_negatives = negatives[:n_neg]
+
+        for cls in positives + selected_negatives:
             label = "yes" if cls in gt_classes else "no"
             questions.append({
                 "question_id": qid,
