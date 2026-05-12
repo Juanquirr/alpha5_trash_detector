@@ -175,34 +175,6 @@ docker run -it --gpus all --shm-size=8g \
 
 ---
 
-### Autolabel — SAM3 Labelling (`autolabel/`)
-
-Automatic labelling pipeline using Meta's Segment Anything 3 (SAM3) for
-open-vocabulary trash detection. Outputs YOLO-format `.txt` labels.
-
-**Features:**
-- Batch processing of entire datasets
-- Per-class configurable prompts and confidence thresholds
-- Area filtering + NMS deduplication
-- Annotated PNG previews + JSON reports
-
-```bash
-# Label a full dataset
-python autolabel/run_autolabel.py --images /path/to/images \
-  --output /path/to/labels --threshold 0.3
-
-# Download SAM3 model
-python autolabel/download_model.py
-```
-
-#### Docker
-
-```bash
-docker build -f autolabel/Dockerfile -t autolabel:latest .
-```
-
----
-
 ### Generator — Synthetic Data (`generator/`)
 
 Synthetic marine trash dataset generator using FLUX diffusion models. Inserts
