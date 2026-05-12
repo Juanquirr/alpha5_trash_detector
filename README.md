@@ -241,9 +241,8 @@ Each module has independent dependencies. Common baseline:
 | Module | Key Dependencies | GPU VRAM |
 |--------|-----------------|----------|
 | alpha5 | Ultralytics, OpenCV, Tkinter | 8+ GB |
-| autolabel | SAM3, transformers | 16+ GB |
 | generator | diffusers, FLUX models | ~32 GB |
-| vlm | transformers (5.x + 4.46) | 1-24 GB |
+| vlm | transformers (5.x + 4.46) | 1-16 GB |
 
 ---
 
