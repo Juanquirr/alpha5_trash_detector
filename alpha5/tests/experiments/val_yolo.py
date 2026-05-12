@@ -101,7 +101,9 @@ def _build_per_class_rows(model: YOLO, metrics) -> list[dict]:
     # Build lookup: class_id -> index in the above arrays
     idx_map = {int(cid): i for i, cid in enumerate(ap_class_index)}
 
-    global_map = float(metrics.box.map) or 1e-9  # avoid div/0
+    # Total AP pool = sum of per-class AP@0.50-95 (classes absent in val contribute 0).
+    # contrib_% = ap_class / total_ap * 100  → sums to 100 %, equal share = 100/N %.
+    total_ap = sum(float(v) for v in ap_arr) or 1e-9
 
     rows = []
     for class_id, class_name in sorted(model.names.items()):
@@ -122,7 +124,7 @@ def _build_per_class_rows(model: YOLO, metrics) -> list[dict]:
             "F1":         round(f1,   4),
             "mAP50":      round(ap50, 4),
             "mAP50-95":   round(ap,   4),
-            "contrib_%":  round(ap / global_map * 100, 2),
+            "contrib_%":  round(ap / total_ap * 100, 2),
         })
     return rows
 
