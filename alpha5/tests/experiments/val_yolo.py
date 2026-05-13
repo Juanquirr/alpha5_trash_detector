@@ -32,6 +32,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--plots", action="store_true", help="Save validation plots (incl. confusion matrix).")
 
     p.add_argument("--per_class_csv", action="store_true", help="Export per-class metrics CSV (P, R, F1, mAP50, mAP50-95, contrib%).")
+    p.add_argument("--global_csv", action="store_true", help="Export global metrics CSV (mAP50, mAP50-95, mAP75, P, R, F1).")
     p.add_argument("--plot_classes", action="store_true", help="Save bar chart PNG with per-class mAP50-95 and contribution.")
     p.add_argument("--predict_val", action="store_true", help="Run prediction over val images after validation.")
     p.add_argument("--val_images", type=str, default=None, help="Override val images dir (optional).")
@@ -162,6 +163,24 @@ def print_per_class_table(model: YOLO, metrics):
     print(sep)
 
 
+def export_global_csv(metrics, out_dir: Path):
+    mp = float(metrics.box.mp)
+    mr = float(metrics.box.mr)
+    f1 = (2 * mp * mr / (mp + mr)) if (mp + mr) > 0 else 0.0
+    row = {
+        "mAP50":     round(float(metrics.box.map50), 4),
+        "mAP50-95":  round(float(metrics.box.map),   4),
+        "mAP75":     round(float(metrics.box.map75),  4),
+        "Precision": round(mp,  4),
+        "Recall":    round(mr,  4),
+        "F1":        round(f1,  4),
+    }
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "metrics_global.csv"
+    pd.DataFrame([row]).to_csv(out_path, index=False)
+    print(f"Global metrics CSV saved: {out_path}")
+
+
 def export_per_class_csv(model: YOLO, metrics, out_dir: Path):
     rows = _build_per_class_rows(model, metrics)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -284,6 +303,9 @@ def main():
     print_per_class_table(model, metrics)
 
     run_dir = Path(args.project) / args.name
+
+    if args.global_csv:
+        export_global_csv(metrics, out_dir=run_dir)
 
     if args.per_class_csv:
         export_per_class_csv(model, metrics, out_dir=run_dir)
