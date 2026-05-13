@@ -18,7 +18,10 @@ BAR_FORMAT = (
 )
 
 def build_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="SAHI sliced inference (Ultralytics) with a single tqdm bar.")
+    p = argparse.ArgumentParser(
+        description="SAHI sliced inference (Ultralytics) with a single tqdm bar.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
     p.add_argument("source", type=str, help="Input image file or directory.")
     p.add_argument("model_path", type=str, help="Path to YOLO .pt weights.")

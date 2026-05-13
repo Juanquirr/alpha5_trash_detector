@@ -259,7 +259,8 @@ def iter_images(source: Path, recursive: bool = False):
 def build_args():
     """Build argument parser"""
     p = argparse.ArgumentParser(
-        description="Test-Time Augmentation for YOLO object detection"
+        description="Test-Time Augmentation for YOLO object detection",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     
     p.add_argument("source", type=str, help="Input image or directory")

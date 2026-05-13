@@ -100,7 +100,8 @@ def test_image(model, img_path, out_dir, conf, device, iou_dedup, trash_id):
 
 def build_args():
     p = argparse.ArgumentParser(
-        description="Test deduplication logic with visual comparison"
+        description="Test deduplication logic with visual comparison",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("source", help="Input image path")
     p.add_argument("model", help="Path to YOLO weights (.pt)")

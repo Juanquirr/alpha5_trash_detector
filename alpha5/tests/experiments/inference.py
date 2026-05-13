@@ -18,7 +18,10 @@ def list_images(source: Path):
     return []
 
 def build_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Run Ultralytics YOLO inference and log time/memory per image.")
+    p = argparse.ArgumentParser(
+        description="Run Ultralytics YOLO inference and log time/memory per image.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     p.add_argument("source", type=str, help="Input image path or directory containing images.")
     p.add_argument("model", type=str, help="Path to YOLO .pt weights.")
     p.add_argument("out_dir", type=str, help="Output directory for annotated images.")

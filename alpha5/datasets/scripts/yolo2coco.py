@@ -88,7 +88,8 @@ def convert_split(split_name, input_dir, output_dir, categories):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert a YOLO dataset to COCO format."
+        description="Convert a YOLO dataset to COCO format.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--input",  "-i", required=True,
                         help="Path to the YOLO dataset root (must contain data.yaml and train/val/test splits).")

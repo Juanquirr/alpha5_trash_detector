@@ -110,7 +110,8 @@ def check_dataset_structure(dataset_path: Path):
 def build_args():
     """Build argument parser"""
     p = argparse.ArgumentParser(
-        description="Create empty label files for negative samples in YOLO dataset."
+        description="Create empty label files for negative samples in YOLO dataset.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     
     p.add_argument("dataset_path", type=str,

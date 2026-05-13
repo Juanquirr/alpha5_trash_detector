@@ -36,7 +36,10 @@ def find_best_epoch(csv_path: str):
     print(best_row.to_string())
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Find the best YOLO model epoch from a training CSV file.")
+    parser = argparse.ArgumentParser(
+        description="Find the best YOLO model epoch from a training CSV file.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument("csv_path", type=str, help="Path to the YOLO results.csv file")
     args = parser.parse_args()
 

@@ -140,14 +140,15 @@ def iter_images(source: Path, recursive: bool = False):
 def build_args():
     """Build argument parser"""
     p = argparse.ArgumentParser(
-        description="Multi-scale inference for YOLO detection"
+        description="Multi-scale inference for YOLO detection",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     
     p.add_argument("source", type=str, help="Input image or directory")
     p.add_argument("model", type=str, help="Path to YOLO model (.pt)")
     p.add_argument("--out_dir", type=str, default="multiscale_results", help="Output directory")
     p.add_argument("--scales", type=int, nargs='+', default=[640, 960, 1280],
-                   help="Scales for multi-scale inference (default: 640 960 1280)")
+                   help="Image sizes to run inference at (one forward pass per scale).")
     p.add_argument("--conf", type=float, default=0.25, help="Confidence threshold")
     p.add_argument("--iou", type=float, default=0.5, help="IoU threshold")
     p.add_argument("--nms_thresh", type=float, default=0.5, help="NMS threshold for fusion")

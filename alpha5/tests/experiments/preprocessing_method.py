@@ -171,7 +171,8 @@ def iter_images(source: Path, recursive: bool = False):
 def build_args():
     """Build argument parser"""
     p = argparse.ArgumentParser(
-        description="Super Resolution preprocessing for YOLO detection"
+        description="Super Resolution preprocessing for YOLO detection",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     
     p.add_argument("source", type=str, help="Input image or directory")

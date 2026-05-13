@@ -174,7 +174,8 @@ def process_image(img_path: Path, out_dir: Path, crops_number: int, overlap: flo
 
 def build_args():
     p = argparse.ArgumentParser(
-        description="Extract uniform overlapping crops from images without inference."
+        description="Extract uniform overlapping crops from images without inference.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("source", type=str, help="Input image path or directory.")
     

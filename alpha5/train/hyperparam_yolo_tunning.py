@@ -12,7 +12,10 @@ RESERVED_TUNE_KEYS = {
 
 
 def build_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Ultralytics YOLO hyperparameter tuning (model.tune)")
+    p = argparse.ArgumentParser(
+        description="Ultralytics YOLO hyperparameter tuning (model.tune)",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
     p.add_argument("data", type=str, help="Path to dataset data.yaml")
     p.add_argument("model", type=str, help="Model spec or weights path (e.g., yolo11x.pt)")

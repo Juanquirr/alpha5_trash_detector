@@ -131,7 +131,8 @@ def concat_pairs_by_order(left_dir: Path, right_dir: Path, out_dir: Path, suffix
 
 def build_args():
     p = argparse.ArgumentParser(
-        description="Concatenate paired images from two folders by alphabetical order (no matching required)"
+        description="Concatenate paired images from two folders by alphabetical order (no matching required)",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("left_dir", type=str, help="Directory with left/original images")
     p.add_argument("right_dir", type=str, help="Directory with right/predicted images")

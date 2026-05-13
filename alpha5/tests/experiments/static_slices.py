@@ -275,7 +275,10 @@ def process_image(model: YOLO, img_path: Path, out_dir: Path, conf: float, iou: 
     cv2.imwrite(str(out_dir / f"output_{img_path.stem}_{crops_number}.jpg"), img_out)
 
 def build_args():
-    p = argparse.ArgumentParser(description="Tiled inference with Ultralytics YOLO using a custom uniform cropper.")
+    p = argparse.ArgumentParser(
+        description="Tiled inference with Ultralytics YOLO using a custom uniform cropper.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     p.add_argument("source", type=str, help="Input image path or directory.")
     p.add_argument("model", type=str, help="Path to YOLO weights (.pt).")
 

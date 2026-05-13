@@ -326,7 +326,8 @@ def process_image_hybrid(model: YOLO, img_path: Path, out_dir: Path,
 
 def build_args():
     p = argparse.ArgumentParser(
-        description="Hybrid two-stage detection: full + crops with smart filtering"
+        description="Hybrid two-stage detection: full + crops with smart filtering",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("source", help="Input image path or directory")
     p.add_argument("model", help="Path to YOLO weights (.pt)")

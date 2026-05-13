@@ -151,7 +151,8 @@ def build_args() -> argparse.Namespace:
         description=(
             "Collapse all YOLO class IDs to a single target ID. "
             "Outputs a new dataset folder with the same structure."
-        )
+        ),
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument(
         "dataset",

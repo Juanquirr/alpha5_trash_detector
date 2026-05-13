@@ -171,7 +171,8 @@ def iter_images(source: Path, recursive: bool = False):
 def build_args():
     """Build argument parser"""
     p = argparse.ArgumentParser(
-        description="Patched inference with YOLO using patched-yolo-infer library."
+        description="Patched inference with YOLO using patched-yolo-infer library.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     
     # Required arguments
@@ -186,25 +187,25 @@ def build_args():
     
     # Detection parameters
     p.add_argument("--conf", type=float, default=0.3,
-                   help="Confidence threshold (default: 0.3).")
+                   help="Confidence threshold.")
     p.add_argument("--iou", type=float, default=0.5,
-                   help="IoU threshold for internal NMS (default: 0.5).")
+                   help="IoU threshold for internal NMS.")
     p.add_argument("--device", type=str, default="cuda:0",
-                   help="Device (e.g., cpu, cuda:0) (default: cuda:0).")
-    
+                   help="Device (e.g., cpu, cuda:0).")
+
     # Patch parameters
     p.add_argument("--patch_size", type=int, default=640,
-                   help="Size of each patch in pixels (default: 640).")
+                   help="Size of each patch in pixels.")
     p.add_argument("--overlap", type=float, default=0.25,
-                   help="Overlap ratio between patches [0, 1) (default: 0.25).")
+                   help="Overlap ratio between patches [0, 1).")
     p.add_argument("--nms_threshold", type=float, default=0.25,
-                   help="IoU threshold for final NMS across patches (default: 0.25).")
-    
+                   help="IoU threshold for final NMS across patches.")
+
     # Comparison options
     p.add_argument("--save_comparison", action="store_true",
                    help="Save baseline comparison images.")
     p.add_argument("--imgsz", type=int, default=640,
-                   help="Input size for baseline comparison (default: 640).")
+                   help="Input size for baseline comparison.")
     
     # Directory options
     p.add_argument("--recursive", action="store_true",

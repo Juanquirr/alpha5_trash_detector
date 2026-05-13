@@ -13,7 +13,8 @@ def build_arguments() -> argparse.Namespace:
         argparse.Namespace: Parsed command-line arguments.
     """
     parser = argparse.ArgumentParser(
-        description="Train an Ultralytics YOLO model."
+        description="Train an Ultralytics YOLO model.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     # Required arguments

@@ -9,7 +9,10 @@ from ultralytics import YOLO
 IMG_EXTS = {".jpg", ".jpeg", ".png"}
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Full YOLO validation + optional val predictions concat export.")
+    p = argparse.ArgumentParser(
+        description="Full YOLO validation + optional val predictions concat export.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
     p.add_argument("data", type=str, help="Path to data.yaml.")
     p.add_argument("model", type=str, help="Path to YOLO weights (.pt).")

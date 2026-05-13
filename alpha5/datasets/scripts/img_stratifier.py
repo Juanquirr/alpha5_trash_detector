@@ -352,7 +352,8 @@ def balance_by_instance_splits(mixed_folder, output_folder, split_ratios=(0.7, 0
 
 def build_args():
     p = argparse.ArgumentParser(
-        description="Stratified train/val/test split for a YOLO dataset, balancing instances per class."
+        description="Stratified train/val/test split for a YOLO dataset, balancing instances per class.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     p.add_argument("input_folder",
                    help="Flat folder (images + .txt side-by-side) OR already-split YOLO folder "
@@ -360,11 +361,11 @@ def build_args():
     p.add_argument("--output", "-o", default=None,
                    help="Output folder. Defaults to <input_folder>/balanced_by_instances.")
     p.add_argument("--train", type=float, default=0.7,
-                   help="Fraction of instances to assign to train (default: 0.7).")
+                   help="Fraction of instances to assign to train.")
     p.add_argument("--val",   type=float, default=0.2,
-                   help="Fraction of instances to assign to val (default: 0.2).")
+                   help="Fraction of instances to assign to val.")
     p.add_argument("--test",  type=float, default=0.1,
-                   help="Fraction of instances to assign to test (default: 0.1).")
+                   help="Fraction of instances to assign to test.")
     p.add_argument("--from-split", action="store_true",
                    help="Force treating input as an already-split YOLO dataset. "
                         "Auto-detected by default.")
