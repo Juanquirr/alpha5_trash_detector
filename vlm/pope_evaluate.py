@@ -26,6 +26,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from pope_run import derive_pred
+
 CLASSES = [
     "plastic bottle",
     "glass",
@@ -60,8 +62,12 @@ def load_results(results_dir: Path) -> dict[tuple[str, str], pd.DataFrame]:
             if stem.endswith(f"_{tier}"):
                 model = stem[: -(len(tier) + 1)]
                 df    = pd.read_csv(f)
-                df["label"] = df["label"].astype(str).str.strip().str.lower()
-                df["pred"]  = df["pred"].astype(str).str.strip().str.lower()
+                df["label"]    = df["label"].astype(str).str.strip().str.lower()
+                df["response"] = df["response"].astype(str).str.strip()
+                # Derive pred from raw response (pred column no longer stored)
+                df["pred"] = df.apply(
+                    lambda r: derive_pred(r["response"], r["cls"]), axis=1
+                )
                 dfs[(model, tier)] = df
                 break
     if not dfs:
@@ -113,9 +119,9 @@ def compute_metrics(dfs: dict[tuple[str, str], pd.DataFrame]) -> dict:
                 continue
             df = dfs[(model, tier)]
 
-            # Separate valid rows from timed-out rows
-            n_timeout = int((df["pred"] == "timeout").sum())
-            valid     = df[df["pred"] != "timeout"].copy()
+            # Separate valid rows from timed-out rows (response=="TIMEOUT" is sentinel)
+            n_timeout = int((df["response"] == "TIMEOUT").sum())
+            valid     = df[df["response"] != "TIMEOUT"].copy()
 
             overall             = _cell(valid)
             overall["n_timeout"] = n_timeout
@@ -124,10 +130,10 @@ def compute_metrics(dfs: dict[tuple[str, str], pd.DataFrame]) -> dict:
             per_class = {}
             for cls in CLASSES:
                 sub_all   = df[df["cls"] == cls]
-                sub_valid = sub_all[sub_all["pred"] != "timeout"]
+                sub_valid = sub_all[sub_all["response"] != "TIMEOUT"]
                 if not sub_all.empty:
                     cell               = _cell(sub_valid)
-                    cell["n_timeout"]  = int((sub_all["pred"] == "timeout").sum())
+                    cell["n_timeout"]  = int((sub_all["response"] == "TIMEOUT").sum())
                     per_class[cls]     = cell
 
             metrics[model][tier] = {"overall": overall, "per_class": per_class}

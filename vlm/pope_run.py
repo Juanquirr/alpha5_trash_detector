@@ -45,7 +45,7 @@ IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 
 POPE_CSV_FIELDS = [
     "question_id", "image", "cls",
-    "label", "pred", "response",
+    "label", "response",
     "inference_s", "vram_mb",
 ]
 
@@ -67,6 +67,20 @@ def parse_clip_score(response: str, cls: str) -> str:
     if not match:
         return "no"
     return "yes" if float(match.group(1)) >= 0.25 else "no"
+
+
+def derive_pred(response: str, cls: str) -> str:
+    """
+    Derive yes/no prediction from raw response text.
+    CLIP responses contain scored candidates ("class: 0.XX | ..."); all others
+    are parsed with parse_yesno(). Timeout rows (response=="TIMEOUT") return
+    "timeout" so callers can filter them out of metrics.
+    """
+    if response.strip() == "TIMEOUT":
+        return "timeout"
+    if re.search(r"[\w\s]+:\s*0\.\d+", response):   # CLIP scored format
+        return parse_clip_score(response, cls)
+    return parse_yesno(response)
 
 
 # ── Timeout wrapper ───────────────────────────────────────────────────────────
@@ -211,7 +225,6 @@ def run_model_tier(
                 "image":       q["image"],
                 "cls":         q["cls"],
                 "label":       q["label"],
-                "pred":        "timeout",
                 "response":    "TIMEOUT",
                 "inference_s": elapsed,
                 "vram_mb":     0,
@@ -237,7 +250,6 @@ def run_model_tier(
             "image":       q["image"],
             "cls":         q["cls"],
             "label":       q["label"],
-            "pred":        pred,
             "response":    response.strip()[:300],
             "inference_s": elapsed,
             "vram_mb":     vram_mb,

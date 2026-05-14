@@ -57,6 +57,7 @@ from pope_run import (
     _append_row,
     parse_yesno,
     parse_clip_score,
+    derive_pred,
     _describe_with_timeout,
     _fmt_time,
     POPE_CSV_FIELDS,
@@ -163,7 +164,7 @@ def _run_eval_phase(
                 _append_row({
                     "question_id": q["question_id"], "image": q["image"],
                     "cls": q["cls"],   "label": q["label"],
-                    "pred": "timeout", "response": "TIMEOUT",
+                    "response":    "TIMEOUT",
                     "inference_s": round(time.perf_counter() - t0, 3), "vram_mb": 0,
                 }, csv_path)
                 continue
@@ -180,7 +181,7 @@ def _run_eval_phase(
             _append_row({
                 "question_id": q["question_id"], "image": q["image"],
                 "cls": q["cls"],   "label": q["label"],
-                "pred": pred,      "response": response.strip()[:300],
+                "response":    response.strip()[:300],
                 "inference_s": elapsed, "vram_mb": vram_mb,
             }, csv_path)
 
@@ -437,8 +438,10 @@ def compute_metrics_from_csv(csv_path: Path) -> dict:
     rows: list[dict] = []
     with csv_path.open(encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            if row.get("pred", "").strip() == "timeout":
+            if row.get("response", "").strip() == "TIMEOUT":
                 continue
+            # Derive pred from raw response (pred column no longer stored)
+            row["pred"] = derive_pred(row.get("response", ""), row.get("cls", ""))
             rows.append(row)
 
     if not rows:
