@@ -43,6 +43,37 @@ CLASSES = [
     "trash",
 ]
 
+# Per-class descriptive prompts — more informative than bare class name.
+# Each prompt ends with "Answer yes or no." for consistent parsing.
+CLASS_PROMPTS: dict[str, str] = {
+    "plastic bottle":
+        "Is there a plastic bottle or plastic container with a visible cap or lid"
+        " in this image? Answer yes or no.",
+    "glass":
+        "Is there a glass bottle with a visible neck shape, such as a beer, wine"
+        " or spirits bottle, in this image? Answer yes or no.",
+    "can":
+        "Is there a fizzy drink can, cylindrical, whole or crushed, identifiable"
+        " by its metallic surface, in this image? Answer yes or no.",
+    "plastic bag":
+        "Is there a plastic bag such as a grocery bag, garbage bag or zip-lock bag"
+        " in this image? Answer yes or no.",
+    "metal scrap":
+        "Is there metal scrap or small aluminium litter such as aluminium foil,"
+        " tuna cans, spray cans or small scattered metal pieces"
+        " in this image? Answer yes or no.",
+    "plastic wrapper":
+        "Is there a plastic wrapper, usually colorful, such as a snack bag, chips"
+        " packet, candy or chocolate bar wrapper in this image? Answer yes or no.",
+    "trash pile":
+        "Is there a visible pile or accumulation of mixed garbage — a heap of waste"
+        " where individual items are mixed together — in this image? Answer yes or no.",
+    "trash":
+        "Is there any waste or litter in this image that cannot be clearly identified"
+        " as a plastic bottle, glass bottle, can, plastic bag, metal scrap, plastic"
+        " wrapper, or pile of garbage? Answer yes or no.",
+}
+
 YOLO_ID_TO_CLASS = {i: c for i, c in enumerate(CLASSES)}
 IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".bmp")
 
@@ -139,7 +170,7 @@ def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict
                 "question_id": qid,
                 "image":       r["image"],
                 "cls":         cls,
-                "text":        f"Is there a {cls} in this image? Answer with yes or no.",
+                "text":        CLASS_PROMPTS[cls],
                 "label":       label,
             })
             qid += 1
