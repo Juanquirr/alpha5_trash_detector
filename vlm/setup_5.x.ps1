@@ -19,4 +19,4 @@ pip install -r envs/requirements-5x.txt
 
 Write-Host ""
 Write-Host "Done. Activate: .\$VENV\Scripts\Activate.ps1"
-Write-Host "Models: smolvlm, qwen_vl, videollama3"
+Write-Host "Models: smolvlm, smolvlm_500m, qwen_vl, qwen_2b, llava_ov"

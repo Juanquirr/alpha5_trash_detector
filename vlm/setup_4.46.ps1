@@ -19,4 +19,4 @@ pip install -r envs/requirements-compat.txt
 
 Write-Host ""
 Write-Host "Done. Activate: .\$VENV\Scripts\Activate.ps1"
-Write-Host "Models: moondream, llava, blip2, instructblip, clip, paligemma, idefics, mplug_owl3"
+Write-Host "Models: llava, moondream, clip, internvl2"
