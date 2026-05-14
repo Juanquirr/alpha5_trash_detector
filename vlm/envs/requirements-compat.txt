@@ -1,9 +1,10 @@
 # .transformers-4.46-venv dependencies
-# Models: moondream, clip, internvl2
+# Models: llava, moondream, clip, internvl2
 # PyTorch installed separately in setup_compat.ps1 (needs --index-url for CUDA)
 
 transformers==4.46.3
 accelerate
+peft
 Pillow
 timm
 sentencepiece

@@ -4,6 +4,7 @@
 
 transformers>=5.0.0
 accelerate
+peft
 Pillow
 pandas
 matplotlib
