@@ -31,17 +31,17 @@ Run once on the execution machine:
 
 ## Model Lineup
 
-| Key | Model | Params | VRAM |
-|-----|-------|--------|------|
-| `smolvlm` | HuggingFaceTB/SmolVLM-Instruct | 2B | ~4 GB |
-| `smolvlm_500m` | HuggingFaceTB/SmolVLM-500M-Instruct | 500M | ~1 GB |
-| `qwen_vl` | Qwen/Qwen2.5-VL-3B-Instruct | 3B | ~6 GB |
-| `qwen_2b` | Qwen/Qwen3-VL-2B-Instruct | 2B | ~4 GB |
-| `llava_ov` | lmms-lab/llava-onevision-qwen2-0.5b-ov | 500M | ~1 GB |
-| `llava` | llava-hf/llava-1.5-7b-hf | 7B | ~14 GB |
-| `moondream` | vikhyatk/moondream2 | 2B | ~4 GB |
-| `clip` | openai/clip-vit-large-patch14 | 307M | ~1 GB |
-| `internvl2` | OpenGVLab/InternVL2-2B | 2B | ~4 GB |
+| Key | Model | Params | VRAM | Fine-tunable |
+|-----|-------|--------|------|-------------|
+| `smolvlm` | HuggingFaceTB/SmolVLM-Instruct | 2B | ~4 GB | ✅ LoRA SFT |
+| `smolvlm_500m` | HuggingFaceTB/SmolVLM-500M-Instruct | 500M | ~1 GB | ✅ LoRA SFT |
+| `qwen_vl` | Qwen/Qwen2.5-VL-3B-Instruct | 3B | ~6 GB | ✅ LoRA SFT |
+| `qwen_2b` | Qwen/Qwen3-VL-2B-Instruct | 2B | ~4 GB | ✅ LoRA SFT |
+| `llava_ov` | lmms-lab/llava-onevision-qwen2-0.5b-ov | 500M | ~1 GB | ✅ LoRA SFT |
+| `llava` | llava-hf/llava-1.5-7b-hf | 7B | ~14 GB | ✅ LoRA SFT |
+| `moondream` | vikhyatk/moondream2 | 2B | ~4 GB | ❌ trust_remote_code |
+| `clip` | openai/clip-vit-large-patch14 | 307M | ~1 GB | ❌ zero-shot classifier |
+| `internvl2` | OpenGVLab/InternVL2-2B | 2B | ~4 GB | ❌ trust_remote_code |
 
 ---
 
