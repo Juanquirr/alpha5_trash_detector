@@ -26,8 +26,8 @@ Flags
 ─────
     --skip-pre      skip pre-eval if CSVs already exist
     --skip-ft       skip fine-tuning (chart shows pre-eval only if no post CSVs)
-    --epochs N      LoRA training epochs            (default 3)
-    --lr LR         learning rate                   (default 2e-4)
+    --epochs N      LoRA training epochs            (default 1)
+    --lr LR         learning rate                   (default 5e-5)
     --lora-r R      LoRA rank                       (default 8)
     --lora-alpha A  LoRA alpha                      (default 16)
     --accum N       gradient accumulation steps     (default 4)
@@ -271,14 +271,38 @@ def _build_sample(vlm, model_key: str, image, question: str, answer: str) -> dic
     return None
 
 
+def _get_lora_target_modules(model) -> list[str]:
+    """
+    Return the set of Linear module name-suffixes found in the model,
+    excluding the language-model head and embedding layers.
+
+    Using 'all-linear' in LoraConfig hits lm_head, which controls the full
+    vocabulary distribution. Fine-tuning it at high LR collapses the output
+    to a single token ('no'). This helper targets only attention + MLP
+    projection layers, which are safe to adapt.
+    """
+    _EXCLUDE = {"lm_head", "embed_tokens", "wte", "wpe", "shared", "decoder"}
+    seen: set[str] = set()
+    for name, module in model.named_modules():
+        if module.__class__.__name__ == "Linear":
+            suffix = name.split(".")[-1]
+            if suffix not in _EXCLUDE:
+                seen.add(suffix)
+    targets = sorted(seen)
+    if not targets:
+        # Fallback: use all-linear (better than nothing)
+        return "all-linear"
+    return targets
+
+
 def finetune_lora(
     vlm,
     model_key:   str,
     questions_dir: Path,
     images_dir:  Path,
     tiers:       list[str],
-    epochs:      int   = 3,
-    lr:          float = 2e-4,
+    epochs:      int   = 1,
+    lr:          float = 5e-5,
     lora_r:      int   = 8,
     lora_alpha:  int   = 16,
     accum_steps: int   = 4,
@@ -322,14 +346,17 @@ def finetune_lora(
 
     print(f"[{model_key}] Training samples: {len(samples_meta)}")
 
-    # Apply LoRA
+    # Apply LoRA — target attention/MLP projections only; skip lm_head to
+    # prevent scrambling the output vocabulary distribution.
+    target_mods = _get_lora_target_modules(vlm.model)
+    print(f"[{model_key}] LoRA target modules: {target_mods}")
     lora_cfg = LoraConfig(
-        r            = lora_r,
-        lora_alpha   = lora_alpha,
-        lora_dropout = 0.05,
-        bias         = "none",
-        target_modules = "all-linear",
-        task_type    = TaskType.CAUSAL_LM,
+        r              = lora_r,
+        lora_alpha     = lora_alpha,
+        lora_dropout   = 0.05,
+        bias           = "none",
+        target_modules = target_mods,
+        task_type      = TaskType.CAUSAL_LM,
     )
     peft_model = get_peft_model(vlm.model, lora_cfg)
     peft_model.print_trainable_parameters()
@@ -800,8 +827,8 @@ def main() -> None:
     parser.add_argument("--images",     default=None)
     parser.add_argument("--out",        default="pope_results")
     parser.add_argument("--timeout",    type=float, default=15.0)
-    parser.add_argument("--epochs",     type=int,   default=3)
-    parser.add_argument("--lr",         type=float, default=2e-4)
+    parser.add_argument("--epochs",     type=int,   default=1)
+    parser.add_argument("--lr",         type=float, default=5e-5)
     parser.add_argument("--lora-r",     type=int,   default=8,  dest="lora_r")
     parser.add_argument("--lora-alpha", type=int,   default=16, dest="lora_alpha")
     parser.add_argument("--accum",      type=int,   default=4)
