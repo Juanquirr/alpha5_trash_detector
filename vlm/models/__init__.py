@@ -18,7 +18,7 @@ VENV = {
     "smolvlm_500m": ".transformers-5.X-venv",
     "qwen_vl":      ".transformers-5.X-venv",
     "qwen_2b":      ".transformers-5.X-venv",
-    "llava_ov":     ".transformers-5.X-venv",
+    "llava_ov":     ".transformers-4.46-venv",
     "llava":        ".transformers-4.46-venv",
     "moondream":    ".transformers-4.46-venv",
     "clip":         ".transformers-4.46-venv",

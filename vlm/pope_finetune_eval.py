@@ -75,7 +75,9 @@ CLASSES = [
 
 # Models that support LoRA SFT via PEFT
 FINETUNE_CAPABLE = frozenset({
-    "smolvlm", "smolvlm_500m", "qwen_vl", "qwen_2b", "llava_ov", "llava",
+    "smolvlm", "smolvlm_500m", "qwen_vl", "qwen_2b", "llava",
+    # llava_ov excluded: checkpoint uses transformers 4.46 key structure;
+    # fine-tuning via PEFT in that venv is untested.
 })
 
 # Chart colours

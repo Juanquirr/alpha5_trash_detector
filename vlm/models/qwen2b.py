@@ -16,11 +16,14 @@ class QwenVL2B(BaseVLM):
 
     def load(self) -> None:
         import torch
-        from transformers import AutoProcessor, AutoModelForVision2Seq
+        try:
+            from transformers import AutoProcessor, AutoModelForImageTextToText as _ModelCls
+        except ImportError:
+            from transformers import AutoProcessor, AutoModelForVision2Seq as _ModelCls
 
         self._torch = torch
         self.processor = AutoProcessor.from_pretrained(self.variant)
-        self.model = AutoModelForVision2Seq.from_pretrained(
+        self.model = _ModelCls.from_pretrained(
             self.variant,
             torch_dtype=torch.bfloat16,
             device_map=self.device,
