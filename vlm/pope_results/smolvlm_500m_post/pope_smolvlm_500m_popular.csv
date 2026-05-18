@@ -1,0 +1,2837 @@
+question_id,image,cls,label,response,inference_s,vram_mb
+1,close_distance_trash10.jpg,plastic wrapper,yes,no,0.532,1342.5
+2,close_distance_trash10.jpg,trash pile,yes,no,0.664,1342.5
+3,close_distance_trash10.jpg,trash,yes,no,0.534,1342.5
+4,close_distance_trash10.jpg,plastic bottle,no,no,0.6,1342.5
+5,close_distance_trash10.jpg,plastic bag,no,no,0.559,1342.5
+6,close_distance_trash10.jpg,can,no,no,0.577,1342.5
+7,close_distance_trash1006.jpg,plastic bag,yes,no,0.602,1342.5
+8,close_distance_trash1006.jpg,trash pile,yes,no,0.637,1342.5
+9,close_distance_trash1006.jpg,trash,no,no,0.619,1342.5
+10,close_distance_trash1006.jpg,plastic bottle,no,no,0.567,1342.5
+11,close_distance_trash101.jpg,glass,yes,no,0.549,1342.5
+12,close_distance_trash101.jpg,trash,no,no,0.527,1342.5
+13,close_distance_trash1019.jpg,plastic bottle,yes,no,0.644,1342.5
+14,close_distance_trash1019.jpg,trash,no,no,0.706,1342.5
+15,close_distance_trash102.jpg,plastic wrapper,yes,no,0.512,1342.5
+16,close_distance_trash102.jpg,trash,yes,no,0.537,1342.5
+17,close_distance_trash102.jpg,plastic bottle,no,no,0.557,1342.5
+18,close_distance_trash102.jpg,plastic bag,no,no,0.538,1342.5
+19,close_distance_trash1022.jpg,plastic bottle,yes,no,0.75,1445.9
+20,close_distance_trash1022.jpg,trash pile,yes,no,0.724,1445.9
+21,close_distance_trash1022.jpg,trash,yes,no,0.738,1445.9
+22,close_distance_trash1022.jpg,plastic wrapper,no,no,0.654,1445.9
+23,close_distance_trash1022.jpg,plastic bag,no,no,0.751,1445.9
+24,close_distance_trash1022.jpg,can,no,no,0.735,1445.9
+25,close_distance_trash1031.jpg,plastic bottle,yes,no,0.701,1445.9
+26,close_distance_trash1031.jpg,plastic bag,yes,no,0.727,1445.9
+27,close_distance_trash1031.jpg,trash,no,no,0.769,1445.9
+28,close_distance_trash1031.jpg,plastic wrapper,no,no,0.734,1445.9
+29,close_distance_trash104.jpg,plastic bag,yes,no,0.564,1342.5
+30,close_distance_trash104.jpg,trash,no,no,0.549,1342.5
+31,close_distance_trash1047.jpg,can,yes,no,0.661,1445.9
+32,close_distance_trash1047.jpg,trash,no,no,0.761,1445.9
+33,close_distance_trash105.jpg,plastic bottle,yes,no,0.539,1342.5
+34,close_distance_trash105.jpg,trash,no,no,0.531,1342.5
+35,close_distance_trash106.jpg,plastic bag,yes,no,0.517,1342.5
+36,close_distance_trash106.jpg,trash,no,no,0.469,1342.5
+37,close_distance_trash1062.jpg,plastic bottle,yes,no,0.697,1445.9
+38,close_distance_trash1062.jpg,trash pile,yes,no,0.699,1445.9
+39,close_distance_trash1062.jpg,trash,no,no,0.814,1445.9
+40,close_distance_trash1062.jpg,plastic wrapper,no,no,0.763,1445.9
+41,close_distance_trash1097.jpg,plastic bottle,yes,no,0.724,1445.9
+42,close_distance_trash1097.jpg,trash,no,no,0.78,1445.9
+43,close_distance_trash11.jpg,trash pile,yes,no,0.584,1342.5
+44,close_distance_trash11.jpg,trash,no,no,0.51,1342.5
+45,close_distance_trash1100.jpg,plastic bag,yes,no,0.713,1445.9
+46,close_distance_trash1100.jpg,trash,no,no,0.745,1445.9
+47,close_distance_trash1109.jpg,trash pile,yes,no,0.596,1342.5
+48,close_distance_trash1109.jpg,trash,yes,no,0.586,1342.5
+49,close_distance_trash1109.jpg,plastic bottle,no,no,0.636,1342.5
+50,close_distance_trash1109.jpg,plastic wrapper,no,no,0.552,1342.5
+51,close_distance_trash1122.jpg,trash,yes,no,0.619,1342.5
+52,close_distance_trash1122.jpg,plastic bottle,no,no,0.528,1342.5
+53,close_distance_trash1126.jpg,glass,yes,no,0.626,1445.9
+54,close_distance_trash1126.jpg,trash,no,no,0.659,1445.9
+55,close_distance_trash1129.jpg,plastic bottle,yes,no,0.667,1445.9
+56,close_distance_trash1129.jpg,trash pile,yes,no,0.632,1445.9
+57,close_distance_trash1129.jpg,trash,yes,no,0.659,1445.9
+58,close_distance_trash1129.jpg,plastic wrapper,no,no,0.735,1445.9
+59,close_distance_trash1129.jpg,plastic bag,no,no,0.695,1445.9
+60,close_distance_trash1129.jpg,can,no,no,0.697,1445.9
+61,close_distance_trash113.jpg,plastic bag,yes,no,0.534,1342.5
+62,close_distance_trash113.jpg,trash,no,no,0.569,1342.5
+63,close_distance_trash1136.jpg,plastic bag,yes,no,0.709,1445.9
+64,close_distance_trash1136.jpg,trash,no,no,0.76,1445.9
+65,close_distance_trash1137.jpg,plastic bottle,yes,no,0.737,1445.9
+66,close_distance_trash1137.jpg,can,yes,no,0.719,1445.9
+67,close_distance_trash1137.jpg,trash pile,yes,no,0.732,1445.9
+68,close_distance_trash1137.jpg,trash,yes,no,0.748,1445.9
+69,close_distance_trash1137.jpg,plastic wrapper,no,no,0.741,1445.9
+70,close_distance_trash1137.jpg,plastic bag,no,no,0.751,1445.9
+71,close_distance_trash1137.jpg,glass,no,no,0.691,1445.9
+72,close_distance_trash1137.jpg,metal scrap,no,no,0.695,1445.9
+73,close_distance_trash1139.jpg,plastic bottle,yes,no,0.725,1445.9
+74,close_distance_trash1139.jpg,trash,no,no,0.75,1445.9
+75,close_distance_trash1150.jpg,plastic wrapper,yes,no,0.739,1445.9
+76,close_distance_trash1150.jpg,trash,no,no,0.756,1445.9
+77,close_distance_trash116.jpg,plastic bottle,yes,no,0.539,1342.5
+78,close_distance_trash116.jpg,trash,yes,no,0.626,1342.5
+79,close_distance_trash116.jpg,plastic wrapper,no,no,0.54,1342.5
+80,close_distance_trash116.jpg,plastic bag,no,no,0.523,1342.5
+81,close_distance_trash119.jpg,trash,yes,no,0.566,1342.5
+82,close_distance_trash119.jpg,plastic bottle,no,no,0.535,1342.5
+83,close_distance_trash12.jpg,plastic bottle,yes,no,0.585,1342.5
+84,close_distance_trash12.jpg,can,yes,no,0.522,1342.5
+85,close_distance_trash12.jpg,trash pile,yes,no,0.517,1342.5
+86,close_distance_trash12.jpg,trash,yes,no,0.554,1342.5
+87,close_distance_trash12.jpg,plastic wrapper,no,no,0.561,1342.5
+88,close_distance_trash12.jpg,plastic bag,no,no,0.595,1342.5
+89,close_distance_trash12.jpg,glass,no,no,0.595,1342.5
+90,close_distance_trash12.jpg,metal scrap,no,no,0.552,1342.5
+91,close_distance_trash1201.jpg,can,yes,no,0.728,1445.9
+92,close_distance_trash1201.jpg,trash,no,no,0.749,1445.9
+93,close_distance_trash1208.jpg,can,yes,no,0.656,1445.9
+94,close_distance_trash1208.jpg,trash,no,no,0.652,1445.9
+95,close_distance_trash1219.jpg,plastic bottle,yes,no,0.642,1445.9
+96,close_distance_trash1219.jpg,can,yes,no,0.655,1445.9
+97,close_distance_trash1219.jpg,trash pile,yes,no,0.634,1445.9
+98,close_distance_trash1219.jpg,trash,yes,no,0.702,1445.9
+99,close_distance_trash1219.jpg,plastic wrapper,no,no,0.723,1445.9
+100,close_distance_trash1219.jpg,plastic bag,no,no,0.753,1445.9
+101,close_distance_trash1219.jpg,glass,no,no,0.801,1445.9
+102,close_distance_trash1219.jpg,metal scrap,no,no,0.748,1445.9
+103,close_distance_trash122.jpg,plastic bag,yes,no,0.552,1342.5
+104,close_distance_trash122.jpg,trash,yes,no,0.519,1342.5
+105,close_distance_trash122.jpg,plastic bottle,no,no,0.525,1342.5
+106,close_distance_trash122.jpg,plastic wrapper,no,no,0.521,1342.5
+107,close_distance_trash1223.jpg,plastic bottle,yes,no,0.608,1342.5
+108,close_distance_trash1223.jpg,trash,no,no,0.61,1342.5
+109,close_distance_trash1226.jpg,trash,yes,no,0.626,1342.5
+110,close_distance_trash1226.jpg,plastic bottle,no,no,0.627,1342.5
+111,close_distance_trash1227.jpg,plastic bag,yes,no,0.581,1342.5
+112,close_distance_trash1227.jpg,trash,yes,no,0.628,1342.5
+113,close_distance_trash1227.jpg,plastic bottle,no,no,0.607,1342.5
+114,close_distance_trash1227.jpg,plastic wrapper,no,no,0.564,1342.5
+115,close_distance_trash1229.jpg,trash,yes,no,0.563,1342.5
+116,close_distance_trash1229.jpg,plastic bottle,no,no,0.612,1342.5
+117,close_distance_trash123.jpg,plastic bottle,yes,no,0.585,1342.5
+118,close_distance_trash123.jpg,plastic wrapper,yes,no,0.542,1342.5
+119,close_distance_trash123.jpg,trash,yes,no,0.559,1342.5
+120,close_distance_trash123.jpg,plastic bag,no,no,0.551,1342.5
+121,close_distance_trash123.jpg,can,no,no,0.566,1342.5
+122,close_distance_trash123.jpg,trash pile,no,no,0.528,1342.5
+123,close_distance_trash1230.jpg,plastic bottle,yes,no,0.626,1342.5
+124,close_distance_trash1230.jpg,plastic bag,yes,no,0.569,1342.5
+125,close_distance_trash1230.jpg,plastic wrapper,yes,no,0.633,1342.5
+126,close_distance_trash1230.jpg,trash pile,yes,no,0.608,1342.5
+127,close_distance_trash1230.jpg,trash,no,no,0.583,1342.5
+128,close_distance_trash1230.jpg,can,no,no,0.561,1342.5
+129,close_distance_trash1230.jpg,glass,no,no,0.56,1342.5
+130,close_distance_trash1230.jpg,metal scrap,no,no,0.579,1342.5
+131,close_distance_trash1232.jpg,plastic wrapper,yes,no,0.592,1342.5
+132,close_distance_trash1232.jpg,trash,yes,no,0.595,1342.5
+133,close_distance_trash1232.jpg,plastic bottle,no,no,0.602,1342.5
+134,close_distance_trash1232.jpg,plastic bag,no,no,0.602,1342.5
+135,close_distance_trash1234.jpg,plastic bottle,yes,no,0.586,1342.5
+136,close_distance_trash1234.jpg,plastic wrapper,yes,no,0.58,1342.5
+137,close_distance_trash1234.jpg,trash,no,no,0.586,1342.5
+138,close_distance_trash1234.jpg,plastic bag,no,no,0.558,1342.5
+139,close_distance_trash1235.jpg,plastic bottle,yes,no,0.572,1342.5
+140,close_distance_trash1235.jpg,trash,no,no,0.593,1342.5
+141,close_distance_trash1236.jpg,plastic wrapper,yes,no,0.536,1342.5
+142,close_distance_trash1236.jpg,trash pile,yes,no,0.551,1342.5
+143,close_distance_trash1236.jpg,trash,no,no,0.605,1342.5
+144,close_distance_trash1236.jpg,plastic bottle,no,no,0.645,1342.5
+145,close_distance_trash1237.jpg,plastic bottle,yes,no,0.547,1342.5
+146,close_distance_trash1237.jpg,can,yes,no,0.573,1342.5
+147,close_distance_trash1237.jpg,plastic wrapper,yes,no,0.579,1342.5
+148,close_distance_trash1237.jpg,trash,yes,no,0.584,1342.5
+149,close_distance_trash1237.jpg,plastic bag,no,no,0.59,1342.5
+150,close_distance_trash1237.jpg,trash pile,no,no,0.559,1342.5
+151,close_distance_trash1237.jpg,glass,no,no,0.59,1342.5
+152,close_distance_trash1237.jpg,metal scrap,no,no,0.511,1342.5
+153,close_distance_trash1239.jpg,trash pile,yes,no,0.552,1342.5
+154,close_distance_trash1239.jpg,trash,no,no,0.561,1342.5
+155,close_distance_trash1240.jpg,plastic wrapper,yes,no,0.583,1342.5
+156,close_distance_trash1240.jpg,trash pile,yes,no,0.554,1342.5
+157,close_distance_trash1240.jpg,trash,yes,no,0.571,1342.5
+158,close_distance_trash1240.jpg,plastic bottle,no,no,0.57,1342.5
+159,close_distance_trash1240.jpg,plastic bag,no,no,0.572,1342.5
+160,close_distance_trash1240.jpg,can,no,no,0.633,1342.5
+161,close_distance_trash1241.jpg,plastic wrapper,yes,no,0.577,1342.5
+162,close_distance_trash1241.jpg,trash,no,no,0.599,1342.5
+163,close_distance_trash1242.jpg,plastic wrapper,yes,no,0.657,1342.5
+164,close_distance_trash1242.jpg,trash pile,yes,no,0.589,1342.5
+165,close_distance_trash1242.jpg,trash,yes,no,0.575,1342.5
+166,close_distance_trash1242.jpg,plastic bottle,no,no,0.593,1342.5
+167,close_distance_trash1242.jpg,plastic bag,no,no,0.518,1342.5
+168,close_distance_trash1242.jpg,can,no,no,0.641,1342.5
+169,close_distance_trash1244.jpg,plastic wrapper,yes,no,0.584,1342.5
+170,close_distance_trash1244.jpg,trash pile,yes,no,0.551,1342.5
+171,close_distance_trash1244.jpg,trash,no,no,0.613,1342.5
+172,close_distance_trash1244.jpg,plastic bottle,no,no,0.554,1342.5
+173,close_distance_trash1245.jpg,trash pile,yes,no,0.676,1342.5
+174,close_distance_trash1245.jpg,trash,yes,no,0.564,1342.5
+175,close_distance_trash1245.jpg,plastic bottle,no,no,0.572,1342.5
+176,close_distance_trash1245.jpg,plastic wrapper,no,no,0.562,1342.5
+177,close_distance_trash1246.jpg,plastic wrapper,yes,no,0.587,1342.5
+178,close_distance_trash1246.jpg,trash pile,yes,no,0.573,1342.5
+179,close_distance_trash1246.jpg,trash,no,no,0.611,1342.5
+180,close_distance_trash1246.jpg,plastic bottle,no,no,0.559,1342.5
+181,close_distance_trash1247.jpg,plastic bag,yes,no,0.6,1342.5
+182,close_distance_trash1247.jpg,plastic wrapper,yes,no,0.501,1342.5
+183,close_distance_trash1247.jpg,trash pile,yes,no,0.574,1342.5
+184,close_distance_trash1247.jpg,trash,no,no,0.676,1342.5
+185,close_distance_trash1247.jpg,plastic bottle,no,no,0.538,1342.5
+186,close_distance_trash1247.jpg,can,no,no,0.571,1342.5
+187,close_distance_trash1248.jpg,plastic bag,yes,no,0.633,1342.5
+188,close_distance_trash1248.jpg,trash pile,yes,no,0.547,1342.5
+189,close_distance_trash1248.jpg,trash,yes,no,0.534,1342.5
+190,close_distance_trash1248.jpg,plastic bottle,no,no,0.553,1342.5
+191,close_distance_trash1248.jpg,plastic wrapper,no,no,0.576,1342.5
+192,close_distance_trash1248.jpg,can,no,no,0.576,1342.5
+193,close_distance_trash125.jpg,trash,yes,no,0.531,1342.5
+194,close_distance_trash125.jpg,plastic bottle,no,no,0.538,1342.5
+195,close_distance_trash1252.jpg,plastic wrapper,yes,no,0.552,1342.5
+196,close_distance_trash1252.jpg,trash pile,yes,no,0.578,1342.5
+197,close_distance_trash1252.jpg,trash,yes,no,0.57,1342.5
+198,close_distance_trash1252.jpg,plastic bottle,no,no,0.55,1342.5
+199,close_distance_trash1252.jpg,plastic bag,no,no,0.559,1342.5
+200,close_distance_trash1252.jpg,can,no,no,0.556,1342.5
+201,close_distance_trash1253.jpg,plastic wrapper,yes,no,0.573,1342.5
+202,close_distance_trash1253.jpg,trash pile,yes,no,0.631,1342.5
+203,close_distance_trash1253.jpg,trash,no,no,0.649,1342.5
+204,close_distance_trash1253.jpg,plastic bottle,no,no,0.606,1342.5
+205,close_distance_trash1255.jpg,trash pile,yes,no,0.581,1342.5
+206,close_distance_trash1255.jpg,trash,no,no,0.764,1342.5
+207,close_distance_trash1256.jpg,plastic bag,yes,no,0.684,1342.5
+208,close_distance_trash1256.jpg,plastic wrapper,yes,no,0.611,1342.5
+209,close_distance_trash1256.jpg,trash pile,yes,no,0.574,1342.5
+210,close_distance_trash1256.jpg,trash,no,no,0.64,1342.5
+211,close_distance_trash1256.jpg,plastic bottle,no,no,0.589,1342.5
+212,close_distance_trash1256.jpg,can,no,no,0.574,1342.5
+213,close_distance_trash1257.jpg,plastic bag,yes,no,0.615,1342.5
+214,close_distance_trash1257.jpg,plastic wrapper,yes,no,0.648,1342.5
+215,close_distance_trash1257.jpg,trash pile,yes,no,0.66,1342.5
+216,close_distance_trash1257.jpg,trash,no,no,0.598,1342.5
+217,close_distance_trash1257.jpg,plastic bottle,no,no,0.568,1342.5
+218,close_distance_trash1257.jpg,can,no,no,0.611,1342.5
+219,close_distance_trash1258.jpg,plastic bag,yes,no,0.602,1342.5
+220,close_distance_trash1258.jpg,trash pile,yes,no,0.552,1342.5
+221,close_distance_trash1258.jpg,trash,no,no,0.617,1342.5
+222,close_distance_trash1258.jpg,plastic bottle,no,no,0.541,1342.5
+223,close_distance_trash1259.jpg,plastic bag,yes,no,0.511,1342.5
+224,close_distance_trash1259.jpg,trash pile,yes,no,0.565,1342.5
+225,close_distance_trash1259.jpg,trash,no,no,0.602,1342.5
+226,close_distance_trash1259.jpg,plastic bottle,no,no,0.564,1342.5
+227,close_distance_trash1261.jpg,trash,yes,no,0.553,1342.5
+228,close_distance_trash1261.jpg,plastic bottle,no,no,0.558,1342.5
+229,close_distance_trash1262.jpg,plastic bag,yes,no,0.622,1342.5
+230,close_distance_trash1262.jpg,plastic wrapper,yes,no,0.635,1342.5
+231,close_distance_trash1262.jpg,trash pile,yes,no,0.546,1342.5
+232,close_distance_trash1262.jpg,trash,no,no,0.525,1342.5
+233,close_distance_trash1262.jpg,plastic bottle,no,no,0.56,1342.5
+234,close_distance_trash1262.jpg,can,no,no,0.561,1342.5
+235,close_distance_trash1263.jpg,plastic bag,yes,no,0.577,1342.5
+236,close_distance_trash1263.jpg,plastic wrapper,yes,no,0.56,1342.5
+237,close_distance_trash1263.jpg,trash pile,yes,no,0.572,1342.5
+238,close_distance_trash1263.jpg,trash,no,no,0.564,1342.5
+239,close_distance_trash1263.jpg,plastic bottle,no,no,0.625,1342.5
+240,close_distance_trash1263.jpg,can,no,no,0.564,1342.5
+241,close_distance_trash1267.jpg,plastic bag,yes,no,0.642,1342.5
+242,close_distance_trash1267.jpg,trash pile,yes,no,0.671,1342.5
+243,close_distance_trash1267.jpg,trash,no,no,0.601,1342.5
+244,close_distance_trash1267.jpg,plastic bottle,no,no,0.614,1342.5
+245,close_distance_trash1268.jpg,plastic wrapper,yes,no,0.602,1342.5
+246,close_distance_trash1268.jpg,trash pile,yes,no,0.582,1342.5
+247,close_distance_trash1268.jpg,trash,no,no,0.607,1342.5
+248,close_distance_trash1268.jpg,plastic bottle,no,no,0.62,1342.5
+249,close_distance_trash1269.jpg,trash pile,yes,no,0.532,1342.5
+250,close_distance_trash1269.jpg,trash,no,no,0.547,1342.5
+251,close_distance_trash1272.jpg,plastic bag,yes,no,0.6,1342.5
+252,close_distance_trash1272.jpg,plastic wrapper,yes,no,0.648,1342.5
+253,close_distance_trash1272.jpg,trash pile,yes,no,0.6,1342.5
+254,close_distance_trash1272.jpg,trash,yes,no,0.626,1342.5
+255,close_distance_trash1272.jpg,plastic bottle,no,no,0.613,1342.5
+256,close_distance_trash1272.jpg,can,no,no,0.598,1342.5
+257,close_distance_trash1272.jpg,glass,no,no,0.619,1342.5
+258,close_distance_trash1272.jpg,metal scrap,no,no,0.613,1342.5
+259,close_distance_trash1274.jpg,plastic bag,yes,no,0.526,1342.5
+260,close_distance_trash1274.jpg,plastic wrapper,yes,no,0.588,1342.5
+261,close_distance_trash1274.jpg,trash pile,yes,no,0.618,1342.5
+262,close_distance_trash1274.jpg,trash,no,no,0.563,1342.5
+263,close_distance_trash1274.jpg,plastic bottle,no,no,0.528,1342.5
+264,close_distance_trash1274.jpg,can,no,no,0.584,1342.5
+265,close_distance_trash1279.jpg,plastic bag,yes,no,0.558,1342.5
+266,close_distance_trash1279.jpg,plastic wrapper,yes,no,0.57,1342.5
+267,close_distance_trash1279.jpg,trash pile,yes,no,0.552,1342.5
+268,close_distance_trash1279.jpg,trash,no,no,0.545,1342.5
+269,close_distance_trash1279.jpg,plastic bottle,no,no,0.558,1342.5
+270,close_distance_trash1279.jpg,can,no,no,0.564,1342.5
+271,close_distance_trash1283.jpg,plastic bag,yes,no,0.589,1342.5
+272,close_distance_trash1283.jpg,trash,no,no,0.554,1342.5
+273,close_distance_trash1287.jpg,plastic bag,yes,no,0.559,1342.5
+274,close_distance_trash1287.jpg,plastic wrapper,yes,no,0.587,1342.5
+275,close_distance_trash1287.jpg,trash pile,yes,no,0.563,1342.5
+276,close_distance_trash1287.jpg,trash,yes,no,0.648,1342.5
+277,close_distance_trash1287.jpg,plastic bottle,no,no,0.56,1342.5
+278,close_distance_trash1287.jpg,can,no,no,0.563,1342.5
+279,close_distance_trash1287.jpg,glass,no,no,0.604,1342.5
+280,close_distance_trash1287.jpg,metal scrap,no,no,0.585,1342.5
+281,close_distance_trash1288.jpg,plastic bag,yes,no,0.6,1342.5
+282,close_distance_trash1288.jpg,plastic wrapper,yes,no,0.639,1342.5
+283,close_distance_trash1288.jpg,trash pile,yes,no,0.539,1342.5
+284,close_distance_trash1288.jpg,trash,no,no,0.565,1342.5
+285,close_distance_trash1288.jpg,plastic bottle,no,no,0.597,1342.5
+286,close_distance_trash1288.jpg,can,no,no,0.599,1342.5
+287,close_distance_trash1293.jpg,plastic bottle,yes,no,0.581,1342.5
+288,close_distance_trash1293.jpg,plastic bag,yes,no,0.56,1342.5
+289,close_distance_trash1293.jpg,metal scrap,yes,no,0.603,1342.5
+290,close_distance_trash1293.jpg,plastic wrapper,yes,no,0.617,1342.5
+291,close_distance_trash1293.jpg,trash,yes,no,0.582,1342.5
+292,close_distance_trash1293.jpg,can,no,no,0.564,1342.5
+293,close_distance_trash1293.jpg,trash pile,no,no,0.561,1342.5
+294,close_distance_trash1293.jpg,glass,no,no,0.618,1342.5
+295,close_distance_trash1295.jpg,plastic bag,yes,no,0.801,1342.5
+296,close_distance_trash1295.jpg,trash,no,no,0.86,1342.5
+297,close_distance_trash1296.jpg,plastic bottle,yes,no,0.575,1342.5
+298,close_distance_trash1296.jpg,trash,no,no,0.617,1342.5
+299,close_distance_trash1298.jpg,metal scrap,yes,no,0.543,1342.5
+300,close_distance_trash1298.jpg,trash,no,no,0.522,1342.5
+301,close_distance_trash13.jpg,trash,yes,no,0.509,1342.5
+302,close_distance_trash13.jpg,plastic bottle,no,no,0.505,1342.5
+303,close_distance_trash1304.jpg,plastic bottle,yes,no,0.628,1342.5
+304,close_distance_trash1304.jpg,plastic bag,yes,no,0.541,1342.5
+305,close_distance_trash1304.jpg,trash,no,no,0.567,1342.5
+306,close_distance_trash1304.jpg,plastic wrapper,no,no,0.609,1342.5
+307,close_distance_trash1305.jpg,plastic bottle,yes,no,0.514,1342.5
+308,close_distance_trash1305.jpg,glass,yes,no,0.521,1342.5
+309,close_distance_trash1305.jpg,can,yes,no,0.546,1342.5
+310,close_distance_trash1305.jpg,plastic wrapper,yes,no,0.632,1342.5
+311,close_distance_trash1305.jpg,trash pile,yes,no,0.685,1342.5
+312,close_distance_trash1305.jpg,trash,yes,no,0.567,1342.5
+313,close_distance_trash1305.jpg,plastic bag,no,no,0.485,1342.5
+314,close_distance_trash1305.jpg,metal scrap,no,no,0.619,1342.5
+315,close_distance_trash14.jpg,glass,yes,no,0.698,1342.5
+316,close_distance_trash14.jpg,trash,no,no,0.534,1342.5
+317,close_distance_trash15.jpg,trash,yes,no,0.578,1342.5
+318,close_distance_trash15.jpg,plastic bottle,no,no,0.527,1342.5
+319,close_distance_trash16.jpg,plastic bag,yes,no,0.566,1342.5
+320,close_distance_trash16.jpg,trash,no,no,0.626,1342.5
+321,close_distance_trash17.jpg,plastic wrapper,yes,no,0.599,1342.5
+322,close_distance_trash17.jpg,trash,no,no,0.535,1342.5
+323,close_distance_trash176.jpg,glass,yes,no,0.569,1342.5
+324,close_distance_trash176.jpg,can,yes,no,0.599,1342.5
+325,close_distance_trash176.jpg,trash pile,yes,no,0.581,1342.5
+326,close_distance_trash176.jpg,trash,no,no,0.534,1342.5
+327,close_distance_trash176.jpg,plastic bottle,no,no,0.533,1342.5
+328,close_distance_trash176.jpg,plastic wrapper,no,no,0.521,1342.5
+329,close_distance_trash177.jpg,trash pile,yes,no,0.524,1342.5
+330,close_distance_trash177.jpg,trash,yes,no,0.561,1342.5
+331,close_distance_trash177.jpg,plastic bottle,no,no,0.517,1342.5
+332,close_distance_trash177.jpg,plastic wrapper,no,no,0.576,1342.5
+333,close_distance_trash180.jpg,trash,yes,no,0.536,1342.5
+334,close_distance_trash180.jpg,plastic bottle,no,no,0.661,1342.5
+335,close_distance_trash182.jpg,plastic wrapper,yes,no,0.534,1342.5
+336,close_distance_trash182.jpg,trash,no,no,0.573,1342.5
+337,close_distance_trash184.jpg,trash,yes,no,0.534,1342.5
+338,close_distance_trash184.jpg,plastic bottle,no,no,0.547,1342.5
+339,close_distance_trash185.jpg,plastic wrapper,yes,no,0.545,1342.5
+340,close_distance_trash185.jpg,trash,no,no,0.538,1342.5
+341,close_distance_trash186.jpg,trash,yes,no,0.521,1342.5
+342,close_distance_trash186.jpg,plastic bottle,no,no,0.502,1342.5
+343,close_distance_trash188.jpg,trash,yes,no,0.563,1342.5
+344,close_distance_trash188.jpg,plastic bottle,no,no,0.574,1342.5
+345,close_distance_trash192.jpg,plastic wrapper,yes,no,0.524,1342.5
+346,close_distance_trash192.jpg,trash,no,no,0.531,1342.5
+347,close_distance_trash194.jpg,plastic bag,yes,no,0.511,1342.5
+348,close_distance_trash194.jpg,trash,yes,no,0.574,1342.5
+349,close_distance_trash194.jpg,plastic bottle,no,no,0.58,1342.5
+350,close_distance_trash194.jpg,plastic wrapper,no,no,0.574,1342.5
+351,close_distance_trash196.jpg,plastic bag,yes,no,0.535,1342.5
+352,close_distance_trash196.jpg,plastic wrapper,yes,no,0.518,1342.5
+353,close_distance_trash196.jpg,trash pile,yes,no,0.563,1342.5
+354,close_distance_trash196.jpg,trash,yes,no,0.579,1342.5
+355,close_distance_trash196.jpg,plastic bottle,no,no,0.563,1342.5
+356,close_distance_trash196.jpg,can,no,no,0.54,1342.5
+357,close_distance_trash196.jpg,glass,no,no,0.543,1342.5
+358,close_distance_trash196.jpg,metal scrap,no,no,0.551,1342.5
+359,close_distance_trash197.jpg,plastic bottle,yes,no,0.521,1342.5
+360,close_distance_trash197.jpg,plastic wrapper,yes,no,0.625,1342.5
+361,close_distance_trash197.jpg,trash pile,yes,no,0.543,1342.5
+362,close_distance_trash197.jpg,trash,yes,no,0.606,1342.5
+363,close_distance_trash197.jpg,plastic bag,no,no,0.531,1342.5
+364,close_distance_trash197.jpg,can,no,no,0.556,1342.5
+365,close_distance_trash197.jpg,glass,no,no,0.533,1342.5
+366,close_distance_trash197.jpg,metal scrap,no,no,0.549,1342.5
+367,close_distance_trash203.jpg,plastic bottle,yes,no,0.557,1342.5
+368,close_distance_trash203.jpg,can,yes,no,0.605,1342.5
+369,close_distance_trash203.jpg,trash,yes,no,0.598,1342.5
+370,close_distance_trash203.jpg,plastic wrapper,no,no,0.596,1342.5
+371,close_distance_trash203.jpg,plastic bag,no,no,0.524,1342.5
+372,close_distance_trash203.jpg,trash pile,no,no,0.522,1342.5
+373,close_distance_trash206.jpg,trash,yes,no,0.602,1342.5
+374,close_distance_trash206.jpg,plastic bottle,no,no,0.55,1342.5
+375,close_distance_trash208.jpg,trash,yes,no,0.576,1342.5
+376,close_distance_trash208.jpg,plastic bottle,no,no,0.543,1342.5
+377,close_distance_trash209.jpg,plastic bag,yes,no,0.535,1342.5
+378,close_distance_trash209.jpg,plastic wrapper,yes,no,0.591,1342.5
+379,close_distance_trash209.jpg,trash,no,no,0.505,1342.5
+380,close_distance_trash209.jpg,plastic bottle,no,no,0.526,1342.5
+381,close_distance_trash211.jpg,trash,yes,no,0.582,1342.5
+382,close_distance_trash211.jpg,plastic bottle,no,no,0.557,1342.5
+383,close_distance_trash212.jpg,trash,yes,no,0.57,1342.5
+384,close_distance_trash212.jpg,plastic bottle,no,no,0.548,1342.5
+385,close_distance_trash215.jpg,plastic bag,yes,no,0.542,1342.5
+386,close_distance_trash215.jpg,plastic wrapper,yes,no,0.543,1342.5
+387,close_distance_trash215.jpg,trash,no,no,0.518,1342.5
+388,close_distance_trash215.jpg,plastic bottle,no,no,0.513,1342.5
+389,close_distance_trash217.jpg,plastic wrapper,yes,no,0.52,1342.5
+390,close_distance_trash217.jpg,trash,no,no,0.555,1342.5
+391,close_distance_trash220.jpg,trash,yes,no,0.533,1342.5
+392,close_distance_trash220.jpg,plastic bottle,no,no,0.513,1342.5
+393,close_distance_trash221.jpg,trash,yes,no,0.536,1342.5
+394,close_distance_trash221.jpg,plastic bottle,no,no,0.562,1342.5
+395,close_distance_trash222.jpg,plastic bottle,yes,no,0.583,1342.5
+396,close_distance_trash222.jpg,plastic bag,yes,no,0.537,1342.5
+397,close_distance_trash222.jpg,trash,no,no,0.545,1342.5
+398,close_distance_trash222.jpg,plastic wrapper,no,no,0.553,1342.5
+399,close_distance_trash224.jpg,trash,yes,no,0.578,1342.5
+400,close_distance_trash224.jpg,plastic bottle,no,no,0.563,1342.5
+401,close_distance_trash226.jpg,trash,yes,no,0.643,1342.5
+402,close_distance_trash226.jpg,plastic bottle,no,no,0.553,1342.5
+403,close_distance_trash227.jpg,plastic bag,yes,no,0.508,1342.5
+404,close_distance_trash227.jpg,trash,no,no,0.556,1342.5
+405,close_distance_trash228.jpg,trash,yes,no,0.568,1342.5
+406,close_distance_trash228.jpg,plastic bottle,no,no,0.556,1342.5
+407,close_distance_trash23.jpg,plastic bottle,yes,no,0.545,1342.5
+408,close_distance_trash23.jpg,plastic bag,yes,no,0.492,1342.5
+409,close_distance_trash23.jpg,plastic wrapper,yes,no,0.508,1342.5
+410,close_distance_trash23.jpg,trash,yes,no,0.511,1342.5
+411,close_distance_trash23.jpg,can,no,no,0.521,1342.5
+412,close_distance_trash23.jpg,trash pile,no,no,0.467,1342.5
+413,close_distance_trash23.jpg,glass,no,no,0.522,1342.5
+414,close_distance_trash23.jpg,metal scrap,no,no,0.484,1342.5
+415,close_distance_trash231.jpg,plastic bottle,yes,no,0.494,1342.5
+416,close_distance_trash231.jpg,glass,yes,no,0.471,1342.5
+417,close_distance_trash231.jpg,plastic wrapper,yes,no,0.485,1342.5
+418,close_distance_trash231.jpg,trash,yes,no,0.533,1342.5
+419,close_distance_trash231.jpg,plastic bag,no,no,0.524,1342.5
+420,close_distance_trash231.jpg,can,no,no,0.489,1342.5
+421,close_distance_trash231.jpg,trash pile,no,no,0.512,1342.5
+422,close_distance_trash231.jpg,metal scrap,no,no,0.587,1342.5
+423,close_distance_trash235.jpg,plastic bottle,yes,no,0.677,1342.5
+424,close_distance_trash235.jpg,trash,yes,no,0.61,1342.5
+425,close_distance_trash235.jpg,plastic wrapper,no,no,0.571,1342.5
+426,close_distance_trash235.jpg,plastic bag,no,no,0.526,1342.5
+427,close_distance_trash238.jpg,plastic bottle,yes,no,0.528,1342.5
+428,close_distance_trash238.jpg,trash,yes,no,0.554,1342.5
+429,close_distance_trash238.jpg,plastic wrapper,no,no,0.495,1342.5
+430,close_distance_trash238.jpg,plastic bag,no,no,0.57,1342.5
+431,close_distance_trash24.jpg,can,yes,yes,0.555,1342.5
+432,close_distance_trash24.jpg,metal scrap,yes,no,0.587,1342.5
+433,close_distance_trash24.jpg,trash,yes,no,0.587,1342.5
+434,close_distance_trash24.jpg,plastic bottle,no,no,0.83,1342.5
+435,close_distance_trash24.jpg,plastic wrapper,no,no,0.536,1342.5
+436,close_distance_trash24.jpg,plastic bag,no,no,0.607,1342.5
+437,close_distance_trash241.jpg,plastic bottle,yes,no,0.592,1342.5
+438,close_distance_trash241.jpg,trash pile,yes,no,0.584,1342.5
+439,close_distance_trash241.jpg,trash,yes,no,0.545,1342.5
+440,close_distance_trash241.jpg,plastic wrapper,no,no,0.596,1342.5
+441,close_distance_trash241.jpg,plastic bag,no,no,0.601,1342.5
+442,close_distance_trash241.jpg,can,no,no,0.54,1342.5
+443,close_distance_trash242.jpg,plastic bottle,yes,no,0.62,1342.5
+444,close_distance_trash242.jpg,trash,no,no,0.57,1342.5
+445,close_distance_trash243.jpg,plastic bottle,yes,no,0.574,1342.5
+446,close_distance_trash243.jpg,trash,no,no,0.549,1342.5
+447,close_distance_trash244.jpg,trash,yes,no,0.581,1342.5
+448,close_distance_trash244.jpg,plastic bottle,no,no,0.549,1342.5
+449,close_distance_trash247.jpg,plastic bottle,yes,no,0.542,1342.5
+450,close_distance_trash247.jpg,trash,no,no,0.622,1342.5
+451,close_distance_trash248.jpg,plastic bottle,yes,no,0.609,1342.5
+452,close_distance_trash248.jpg,trash,yes,no,0.591,1342.5
+453,close_distance_trash248.jpg,plastic wrapper,no,no,0.545,1342.5
+454,close_distance_trash248.jpg,plastic bag,no,no,0.569,1342.5
+455,close_distance_trash249.jpg,plastic wrapper,yes,no,0.554,1342.5
+456,close_distance_trash249.jpg,trash,yes,no,0.597,1342.5
+457,close_distance_trash249.jpg,plastic bottle,no,no,0.539,1342.5
+458,close_distance_trash249.jpg,plastic bag,no,no,0.577,1342.5
+459,close_distance_trash25.jpg,plastic wrapper,yes,no,0.555,1342.5
+460,close_distance_trash25.jpg,trash,no,no,0.59,1342.5
+461,close_distance_trash250.jpg,trash,yes,no,0.549,1342.5
+462,close_distance_trash250.jpg,plastic bottle,no,no,0.536,1342.5
+463,close_distance_trash251.jpg,plastic bottle,yes,no,0.546,1342.5
+464,close_distance_trash251.jpg,trash pile,yes,no,0.532,1342.5
+465,close_distance_trash251.jpg,trash,yes,no,0.568,1342.5
+466,close_distance_trash251.jpg,plastic wrapper,no,no,0.542,1342.5
+467,close_distance_trash251.jpg,plastic bag,no,no,0.538,1342.5
+468,close_distance_trash251.jpg,can,no,no,0.532,1342.5
+469,close_distance_trash261.jpg,plastic bag,yes,no,0.55,1342.5
+470,close_distance_trash261.jpg,trash pile,yes,no,0.532,1342.5
+471,close_distance_trash261.jpg,trash,no,no,0.613,1342.5
+472,close_distance_trash261.jpg,plastic bottle,no,no,0.562,1342.5
+473,close_distance_trash263.jpg,plastic bag,yes,no,0.651,1342.5
+474,close_distance_trash263.jpg,plastic wrapper,yes,no,0.632,1342.5
+475,close_distance_trash263.jpg,trash pile,yes,no,0.682,1342.5
+476,close_distance_trash263.jpg,trash,yes,no,0.687,1342.5
+477,close_distance_trash263.jpg,plastic bottle,no,no,0.646,1342.5
+478,close_distance_trash263.jpg,can,no,no,0.765,1342.5
+479,close_distance_trash263.jpg,glass,no,no,0.794,1342.5
+480,close_distance_trash263.jpg,metal scrap,no,no,0.717,1342.5
+481,close_distance_trash264.jpg,plastic bag,yes,no,0.567,1342.5
+482,close_distance_trash264.jpg,plastic wrapper,yes,no,0.553,1342.5
+483,close_distance_trash264.jpg,trash pile,yes,no,0.609,1342.5
+484,close_distance_trash264.jpg,trash,no,no,0.608,1342.5
+485,close_distance_trash264.jpg,plastic bottle,no,no,0.544,1342.5
+486,close_distance_trash264.jpg,can,no,no,0.557,1342.5
+487,close_distance_trash265.jpg,metal scrap,yes,no,0.8,1342.5
+488,close_distance_trash265.jpg,trash pile,yes,no,0.743,1342.5
+489,close_distance_trash265.jpg,trash,no,no,0.823,1342.5
+490,close_distance_trash265.jpg,plastic bottle,no,no,0.804,1342.5
+491,close_distance_trash266.jpg,plastic bag,yes,no,0.571,1342.5
+492,close_distance_trash266.jpg,trash pile,yes,no,0.59,1342.5
+493,close_distance_trash266.jpg,trash,no,no,0.575,1342.5
+494,close_distance_trash266.jpg,plastic bottle,no,no,0.715,1342.5
+495,close_distance_trash27.jpg,plastic bottle,yes,no,0.495,1342.5
+496,close_distance_trash27.jpg,trash,no,no,0.547,1342.5
+497,close_distance_trash275.jpg,can,yes,no,0.738,1342.5
+498,close_distance_trash275.jpg,trash,no,no,0.722,1342.5
+499,close_distance_trash28.jpg,plastic wrapper,yes,no,0.569,1342.5
+500,close_distance_trash28.jpg,trash,yes,no,0.48,1342.5
+501,close_distance_trash28.jpg,plastic bottle,no,no,0.533,1342.5
+502,close_distance_trash28.jpg,plastic bag,no,no,0.53,1342.5
+503,close_distance_trash281.jpg,trash,yes,no,0.563,1342.5
+504,close_distance_trash281.jpg,plastic bottle,no,no,0.549,1342.5
+505,close_distance_trash286.jpg,metal scrap,yes,no,0.584,1342.5
+506,close_distance_trash286.jpg,trash,no,no,0.577,1342.5
+507,close_distance_trash299.jpg,trash,yes,no,0.627,1342.5
+508,close_distance_trash299.jpg,plastic bottle,no,no,0.584,1342.5
+509,close_distance_trash3.jpg,plastic bag,yes,no,1.067,1445.9
+510,close_distance_trash3.jpg,plastic wrapper,yes,no,1.086,1445.9
+511,close_distance_trash3.jpg,trash pile,yes,no,1.055,1445.9
+512,close_distance_trash3.jpg,trash,yes,no,1.053,1445.9
+513,close_distance_trash3.jpg,plastic bottle,no,no,1.085,1445.9
+514,close_distance_trash3.jpg,can,no,no,1.053,1445.9
+515,close_distance_trash3.jpg,glass,no,no,1.092,1445.9
+516,close_distance_trash3.jpg,metal scrap,no,no,1.075,1445.9
+517,close_distance_trash30.jpg,trash,yes,no,0.61,1342.5
+518,close_distance_trash30.jpg,plastic bottle,no,no,0.621,1342.5
+519,close_distance_trash300.jpg,plastic bag,yes,no,0.874,1445.9
+520,close_distance_trash300.jpg,trash pile,yes,no,0.837,1445.9
+521,close_distance_trash300.jpg,trash,yes,no,0.705,1445.9
+522,close_distance_trash300.jpg,plastic bottle,no,no,0.746,1445.9
+523,close_distance_trash300.jpg,plastic wrapper,no,no,0.76,1445.9
+524,close_distance_trash300.jpg,can,no,no,0.734,1445.9
+525,close_distance_trash31.jpg,plastic bottle,yes,no,0.669,1342.5
+526,close_distance_trash31.jpg,can,yes,no,0.674,1342.5
+527,close_distance_trash31.jpg,metal scrap,yes,no,0.646,1342.5
+528,close_distance_trash31.jpg,trash pile,yes,no,0.721,1342.5
+529,close_distance_trash31.jpg,trash,no,no,0.683,1342.5
+530,close_distance_trash31.jpg,plastic wrapper,no,no,0.63,1342.5
+531,close_distance_trash31.jpg,plastic bag,no,no,0.642,1342.5
+532,close_distance_trash31.jpg,glass,no,no,0.641,1342.5
+533,close_distance_trash315.jpg,plastic bottle,yes,no,0.723,1445.9
+534,close_distance_trash315.jpg,trash,no,no,0.733,1445.9
+535,close_distance_trash32.jpg,trash,yes,no,0.567,1342.5
+536,close_distance_trash32.jpg,plastic bottle,no,no,0.599,1342.5
+537,close_distance_trash323.jpg,metal scrap,yes,no,0.601,1342.5
+538,close_distance_trash323.jpg,trash,no,no,0.603,1342.5
+539,close_distance_trash324.jpg,plastic wrapper,yes,no,0.678,1342.5
+540,close_distance_trash324.jpg,trash,no,no,0.682,1342.5
+541,close_distance_trash325.jpg,metal scrap,yes,no,0.656,1342.5
+542,close_distance_trash325.jpg,trash,yes,no,0.706,1342.5
+543,close_distance_trash325.jpg,plastic bottle,no,no,0.675,1342.5
+544,close_distance_trash325.jpg,plastic wrapper,no,no,0.676,1342.5
+545,close_distance_trash331.jpg,plastic bottle,yes,no,0.719,1445.9
+546,close_distance_trash331.jpg,trash pile,yes,no,0.808,1445.9
+547,close_distance_trash331.jpg,trash,yes,no,0.714,1445.9
+548,close_distance_trash331.jpg,plastic wrapper,no,no,0.692,1445.9
+549,close_distance_trash331.jpg,plastic bag,no,no,0.668,1445.9
+550,close_distance_trash331.jpg,can,no,no,0.661,1445.9
+551,close_distance_trash346.jpg,plastic bag,yes,no,0.646,1445.9
+552,close_distance_trash346.jpg,trash,no,no,0.651,1445.9
+553,close_distance_trash35.jpg,trash,yes,no,0.463,1342.5
+554,close_distance_trash35.jpg,plastic bottle,no,no,0.483,1342.5
+555,close_distance_trash36.jpg,trash,yes,no,0.535,1342.5
+556,close_distance_trash36.jpg,plastic bottle,no,no,0.548,1342.5
+557,close_distance_trash37.jpg,plastic wrapper,yes,no,0.569,1342.5
+558,close_distance_trash37.jpg,trash,no,no,0.514,1342.5
+559,close_distance_trash379.jpg,plastic bottle,yes,no,0.761,1445.9
+560,close_distance_trash379.jpg,trash,no,no,0.767,1445.9
+561,close_distance_trash39.jpg,plastic wrapper,yes,no,0.526,1342.5
+562,close_distance_trash39.jpg,trash,yes,no,0.584,1342.5
+563,close_distance_trash39.jpg,plastic bottle,no,no,0.598,1342.5
+564,close_distance_trash39.jpg,plastic bag,no,no,0.584,1342.5
+565,close_distance_trash390.jpg,metal scrap,yes,no,0.633,1342.5
+566,close_distance_trash390.jpg,trash,no,no,0.626,1342.5
+567,close_distance_trash395.jpg,plastic wrapper,yes,no,0.687,1342.5
+568,close_distance_trash395.jpg,trash,no,no,0.681,1342.5
+569,close_distance_trash4.jpg,plastic bottle,yes,no,0.639,1342.5
+570,close_distance_trash4.jpg,can,yes,no,0.645,1342.5
+571,close_distance_trash4.jpg,plastic bag,yes,no,0.667,1342.5
+572,close_distance_trash4.jpg,trash pile,yes,no,0.69,1342.5
+573,close_distance_trash4.jpg,trash,yes,no,0.612,1342.5
+574,close_distance_trash4.jpg,plastic wrapper,no,no,0.683,1342.5
+575,close_distance_trash4.jpg,glass,no,no,0.693,1342.5
+576,close_distance_trash4.jpg,metal scrap,no,no,0.673,1342.5
+577,close_distance_trash40.jpg,trash,yes,no,0.577,1342.5
+578,close_distance_trash40.jpg,plastic bottle,no,no,0.562,1342.5
+579,close_distance_trash406.jpg,plastic bag,yes,no,0.705,1445.9
+580,close_distance_trash406.jpg,plastic wrapper,yes,no,0.74,1445.9
+581,close_distance_trash406.jpg,trash pile,yes,no,0.731,1445.9
+582,close_distance_trash406.jpg,trash,no,no,0.701,1445.9
+583,close_distance_trash406.jpg,plastic bottle,no,no,0.751,1445.9
+584,close_distance_trash406.jpg,can,no,no,0.73,1445.9
+585,close_distance_trash409.jpg,plastic bottle,yes,yes,0.805,1445.9
+586,close_distance_trash409.jpg,trash,no,no,0.73,1445.9
+587,close_distance_trash41.jpg,trash,yes,no,0.562,1342.5
+588,close_distance_trash41.jpg,plastic bottle,no,no,0.538,1342.5
+589,close_distance_trash426.jpg,glass,yes,no,0.789,1445.9
+590,close_distance_trash426.jpg,trash,no,no,0.714,1445.9
+591,close_distance_trash43.jpg,trash,yes,no,0.563,1342.5
+592,close_distance_trash43.jpg,plastic bottle,no,no,0.533,1342.5
+593,close_distance_trash434.jpg,plastic bottle,yes,no,0.756,1445.9
+594,close_distance_trash434.jpg,trash pile,yes,no,0.712,1445.9
+595,close_distance_trash434.jpg,trash,no,no,0.746,1445.9
+596,close_distance_trash434.jpg,plastic wrapper,no,no,0.716,1445.9
+597,close_distance_trash437.jpg,plastic bottle,yes,no,0.498,1342.5
+598,close_distance_trash437.jpg,trash,no,no,0.591,1342.5
+599,close_distance_trash439.jpg,can,yes,no,0.67,1445.9
+600,close_distance_trash439.jpg,trash,no,no,0.793,1445.9
+601,close_distance_trash441.jpg,can,yes,no,0.593,1342.5
+602,close_distance_trash441.jpg,trash,no,no,0.581,1342.5
+603,close_distance_trash45.jpg,trash,yes,no,0.549,1342.5
+604,close_distance_trash45.jpg,plastic bottle,no,no,0.535,1342.5
+605,close_distance_trash46.jpg,can,yes,no,0.541,1342.5
+606,close_distance_trash46.jpg,plastic wrapper,yes,no,0.549,1342.5
+607,close_distance_trash46.jpg,trash,yes,no,0.57,1342.5
+608,close_distance_trash46.jpg,plastic bottle,no,no,0.556,1342.5
+609,close_distance_trash46.jpg,plastic bag,no,no,0.592,1342.5
+610,close_distance_trash46.jpg,trash pile,no,no,0.55,1342.5
+611,close_distance_trash469.jpg,plastic bottle,yes,no,0.705,1445.9
+612,close_distance_trash469.jpg,trash pile,yes,no,0.693,1445.9
+613,close_distance_trash469.jpg,trash,yes,no,0.811,1445.9
+614,close_distance_trash469.jpg,plastic wrapper,no,no,0.876,1445.9
+615,close_distance_trash469.jpg,plastic bag,no,no,0.825,1445.9
+616,close_distance_trash469.jpg,can,no,no,0.773,1445.9
+617,close_distance_trash47.jpg,plastic bottle,yes,no,0.6,1342.5
+618,close_distance_trash47.jpg,trash,no,no,0.559,1342.5
+619,close_distance_trash470.jpg,plastic bag,yes,no,0.549,1342.5
+620,close_distance_trash470.jpg,trash pile,yes,no,0.581,1342.5
+621,close_distance_trash470.jpg,trash,no,no,0.654,1342.5
+622,close_distance_trash470.jpg,plastic bottle,no,no,0.553,1342.5
+623,close_distance_trash472.jpg,plastic bottle,yes,no,0.726,1445.9
+624,close_distance_trash472.jpg,trash pile,yes,no,0.705,1445.9
+625,close_distance_trash472.jpg,trash,yes,no,0.758,1445.9
+626,close_distance_trash472.jpg,plastic wrapper,no,no,0.749,1445.9
+627,close_distance_trash472.jpg,plastic bag,no,no,0.746,1445.9
+628,close_distance_trash472.jpg,can,no,no,0.725,1445.9
+629,close_distance_trash476.jpg,trash,yes,no,0.69,1445.9
+630,close_distance_trash476.jpg,plastic bottle,no,no,0.733,1445.9
+631,close_distance_trash479.jpg,can,yes,no,0.756,1445.9
+632,close_distance_trash479.jpg,trash,no,no,0.737,1445.9
+633,close_distance_trash483.jpg,metal scrap,yes,no,0.714,1445.9
+634,close_distance_trash483.jpg,trash,no,no,0.711,1445.9
+635,close_distance_trash489.jpg,plastic bag,yes,no,0.673,1342.5
+636,close_distance_trash489.jpg,trash,no,no,0.687,1342.5
+637,close_distance_trash49.jpg,trash,yes,no,0.603,1342.5
+638,close_distance_trash49.jpg,plastic bottle,no,no,0.618,1342.5
+639,close_distance_trash494.jpg,trash,yes,no,0.582,1342.5
+640,close_distance_trash494.jpg,plastic bottle,no,no,0.653,1342.5
+641,close_distance_trash50.jpg,trash,yes,no,0.53,1342.5
+642,close_distance_trash50.jpg,plastic bottle,no,no,0.522,1342.5
+643,close_distance_trash502.jpg,plastic bag,yes,yes,0.719,1445.9
+644,close_distance_trash502.jpg,trash,no,no,0.736,1445.9
+645,close_distance_trash52.jpg,trash,yes,no,0.588,1342.5
+646,close_distance_trash52.jpg,plastic bottle,no,no,0.593,1342.5
+647,close_distance_trash53.jpg,glass,yes,no,0.596,1342.5
+648,close_distance_trash53.jpg,plastic wrapper,yes,no,0.539,1342.5
+649,close_distance_trash53.jpg,trash,no,no,0.556,1342.5
+650,close_distance_trash53.jpg,plastic bottle,no,no,0.535,1342.5
+651,close_distance_trash54.jpg,metal scrap,yes,no,0.564,1342.5
+652,close_distance_trash54.jpg,trash,no,no,0.621,1342.5
+653,close_distance_trash545.jpg,plastic bottle,yes,no,0.663,1342.5
+654,close_distance_trash545.jpg,can,yes,no,0.782,1342.5
+655,close_distance_trash545.jpg,trash,yes,no,0.733,1342.5
+656,close_distance_trash545.jpg,plastic wrapper,no,no,0.688,1342.5
+657,close_distance_trash545.jpg,plastic bag,no,no,0.725,1342.5
+658,close_distance_trash545.jpg,trash pile,no,no,0.712,1342.5
+659,close_distance_trash548.jpg,glass,yes,no,0.555,1342.5
+660,close_distance_trash548.jpg,trash,no,no,0.574,1342.5
+661,close_distance_trash55.jpg,trash,yes,no,0.526,1342.5
+662,close_distance_trash55.jpg,plastic bottle,no,no,0.509,1342.5
+663,close_distance_trash554.jpg,plastic bottle,yes,no,0.715,1445.9
+664,close_distance_trash554.jpg,trash,no,no,0.725,1445.9
+665,close_distance_trash57.jpg,plastic wrapper,yes,no,0.544,1342.5
+666,close_distance_trash57.jpg,trash,no,no,0.536,1342.5
+667,close_distance_trash6.jpg,can,yes,no,0.563,1342.5
+668,close_distance_trash6.jpg,plastic bag,yes,no,0.533,1342.5
+669,close_distance_trash6.jpg,trash pile,yes,no,0.556,1342.5
+670,close_distance_trash6.jpg,trash,no,no,0.592,1342.5
+671,close_distance_trash6.jpg,plastic bottle,no,no,0.549,1342.5
+672,close_distance_trash6.jpg,plastic wrapper,no,no,0.536,1342.5
+673,close_distance_trash61.jpg,plastic bottle,yes,no,0.519,1342.5
+674,close_distance_trash61.jpg,trash,yes,no,0.564,1342.5
+675,close_distance_trash61.jpg,plastic wrapper,no,no,0.526,1342.5
+676,close_distance_trash61.jpg,plastic bag,no,no,0.572,1342.5
+677,close_distance_trash612.jpg,plastic bottle,yes,yes,0.698,1445.9
+678,close_distance_trash612.jpg,plastic bag,yes,no,0.751,1445.9
+679,close_distance_trash612.jpg,trash pile,yes,no,0.782,1445.9
+680,close_distance_trash612.jpg,trash,no,no,0.749,1445.9
+681,close_distance_trash612.jpg,plastic wrapper,no,no,0.711,1445.9
+682,close_distance_trash612.jpg,can,no,no,0.687,1445.9
+683,close_distance_trash616.jpg,plastic bottle,yes,no,0.73,1445.9
+684,close_distance_trash616.jpg,trash pile,yes,no,0.727,1445.9
+685,close_distance_trash616.jpg,trash,yes,no,0.843,1445.9
+686,close_distance_trash616.jpg,plastic wrapper,no,no,0.72,1445.9
+687,close_distance_trash616.jpg,plastic bag,no,no,0.744,1445.9
+688,close_distance_trash616.jpg,can,no,no,0.772,1445.9
+689,close_distance_trash62.jpg,plastic bottle,yes,no,0.55,1342.5
+690,close_distance_trash62.jpg,trash,no,no,0.524,1342.5
+691,close_distance_trash63.jpg,plastic bag,yes,no,0.598,1342.5
+692,close_distance_trash63.jpg,plastic wrapper,yes,no,0.565,1342.5
+693,close_distance_trash63.jpg,trash,no,no,0.567,1342.5
+694,close_distance_trash63.jpg,plastic bottle,no,no,0.543,1342.5
+695,close_distance_trash65.jpg,trash,yes,no,0.557,1342.5
+696,close_distance_trash65.jpg,plastic bottle,no,no,0.601,1342.5
+697,close_distance_trash655.jpg,can,yes,no,0.726,1445.9
+698,close_distance_trash655.jpg,trash,no,no,0.706,1445.9
+699,close_distance_trash66.jpg,trash,yes,no,0.565,1342.5
+700,close_distance_trash66.jpg,plastic bottle,no,no,0.58,1342.5
+701,close_distance_trash661.jpg,trash,yes,no,0.713,1342.5
+702,close_distance_trash661.jpg,plastic bottle,no,no,0.729,1342.5
+703,close_distance_trash668.jpg,trash,yes,no,0.699,1445.9
+704,close_distance_trash668.jpg,plastic bottle,no,no,0.688,1445.9
+705,close_distance_trash67.jpg,plastic bottle,yes,no,0.548,1342.5
+706,close_distance_trash67.jpg,trash,no,no,0.562,1342.5
+707,close_distance_trash68.jpg,trash,yes,no,0.583,1342.5
+708,close_distance_trash68.jpg,plastic bottle,no,no,0.606,1342.5
+709,close_distance_trash685.jpg,plastic bottle,yes,no,0.863,1445.9
+710,close_distance_trash685.jpg,trash pile,yes,no,0.792,1445.9
+711,close_distance_trash685.jpg,trash,yes,no,0.704,1445.9
+712,close_distance_trash685.jpg,plastic wrapper,no,no,0.713,1445.9
+713,close_distance_trash685.jpg,plastic bag,no,no,0.701,1445.9
+714,close_distance_trash685.jpg,can,no,no,0.673,1445.9
+715,close_distance_trash687.jpg,plastic bag,yes,no,0.75,1445.9
+716,close_distance_trash687.jpg,trash,no,no,0.743,1445.9
+717,close_distance_trash70.jpg,metal scrap,yes,no,0.574,1342.5
+718,close_distance_trash70.jpg,trash,yes,no,0.627,1342.5
+719,close_distance_trash70.jpg,plastic bottle,no,no,0.54,1342.5
+720,close_distance_trash70.jpg,plastic wrapper,no,no,0.532,1342.5
+721,close_distance_trash701.jpg,plastic bottle,yes,yes,0.739,1445.9
+722,close_distance_trash701.jpg,trash,no,no,0.689,1445.9
+723,close_distance_trash708.jpg,plastic bottle,yes,no,0.737,1342.5
+724,close_distance_trash708.jpg,trash,no,no,0.776,1342.5
+725,close_distance_trash724.jpg,plastic bag,yes,no,0.711,1445.9
+726,close_distance_trash724.jpg,trash,no,no,0.82,1445.9
+727,close_distance_trash73.jpg,trash,yes,no,0.572,1342.5
+728,close_distance_trash73.jpg,plastic bottle,no,no,0.537,1342.5
+729,close_distance_trash733.jpg,plastic bag,yes,no,0.709,1445.9
+730,close_distance_trash733.jpg,trash pile,yes,no,0.735,1445.9
+731,close_distance_trash733.jpg,trash,no,no,0.687,1445.9
+732,close_distance_trash733.jpg,plastic bottle,no,no,0.747,1445.9
+733,close_distance_trash74.jpg,plastic bag,yes,no,0.59,1342.5
+734,close_distance_trash74.jpg,trash,no,no,0.531,1342.5
+735,close_distance_trash740.jpg,plastic bottle,yes,yes,0.77,1445.9
+736,close_distance_trash740.jpg,trash,no,no,0.699,1445.9
+737,close_distance_trash750.jpg,plastic bottle,yes,no,0.734,1445.9
+738,close_distance_trash750.jpg,trash,no,no,0.676,1445.9
+739,close_distance_trash754.jpg,glass,yes,no,0.525,1342.5
+740,close_distance_trash754.jpg,trash,no,no,0.537,1342.5
+741,close_distance_trash76.jpg,plastic bag,yes,no,0.452,1342.5
+742,close_distance_trash76.jpg,plastic wrapper,yes,no,0.492,1342.5
+743,close_distance_trash76.jpg,trash,yes,no,0.48,1342.5
+744,close_distance_trash76.jpg,plastic bottle,no,no,0.481,1342.5
+745,close_distance_trash76.jpg,can,no,no,0.518,1342.5
+746,close_distance_trash76.jpg,trash pile,no,no,0.539,1342.5
+747,close_distance_trash765.jpg,trash,yes,no,0.695,1342.5
+748,close_distance_trash765.jpg,plastic bottle,no,no,0.657,1342.5
+749,close_distance_trash766.jpg,plastic bottle,yes,no,0.703,1445.9
+750,close_distance_trash766.jpg,plastic wrapper,yes,no,0.701,1445.9
+751,close_distance_trash766.jpg,trash,no,no,0.74,1445.9
+752,close_distance_trash766.jpg,plastic bag,no,no,0.699,1445.9
+753,close_distance_trash778.jpg,trash,yes,no,0.721,1445.9
+754,close_distance_trash778.jpg,plastic bottle,no,no,0.718,1445.9
+755,close_distance_trash780.jpg,can,yes,no,0.683,1445.9
+756,close_distance_trash780.jpg,trash,no,no,0.814,1445.9
+757,close_distance_trash789.jpg,plastic bag,yes,no,0.605,1342.5
+758,close_distance_trash789.jpg,trash,no,no,0.587,1342.5
+759,close_distance_trash79.jpg,plastic bottle,yes,no,0.566,1342.5
+760,close_distance_trash79.jpg,trash,no,no,0.599,1342.5
+761,close_distance_trash808.jpg,metal scrap,yes,no,0.587,1342.5
+762,close_distance_trash808.jpg,trash,no,no,0.604,1342.5
+763,close_distance_trash82.jpg,plastic wrapper,yes,no,0.526,1342.5
+764,close_distance_trash82.jpg,trash,no,no,0.578,1342.5
+765,close_distance_trash826.jpg,plastic bag,yes,no,0.548,1342.5
+766,close_distance_trash826.jpg,trash,no,no,0.58,1342.5
+767,close_distance_trash827.jpg,plastic bottle,yes,no,0.801,1445.9
+768,close_distance_trash827.jpg,trash,no,no,0.757,1445.9
+769,close_distance_trash83.jpg,plastic wrapper,yes,no,0.573,1342.5
+770,close_distance_trash83.jpg,trash,yes,no,0.572,1342.5
+771,close_distance_trash83.jpg,plastic bottle,no,no,0.526,1342.5
+772,close_distance_trash83.jpg,plastic bag,no,no,0.511,1342.5
+773,close_distance_trash838.jpg,plastic wrapper,yes,no,0.684,1342.5
+774,close_distance_trash838.jpg,trash,yes,no,0.752,1342.5
+775,close_distance_trash838.jpg,plastic bottle,no,no,0.706,1342.5
+776,close_distance_trash838.jpg,plastic bag,no,no,0.674,1342.5
+777,close_distance_trash846.jpg,can,yes,no,0.72,1445.9
+778,close_distance_trash846.jpg,plastic bag,yes,no,0.673,1445.9
+779,close_distance_trash846.jpg,trash pile,yes,no,0.719,1445.9
+780,close_distance_trash846.jpg,trash,yes,no,0.726,1445.9
+781,close_distance_trash846.jpg,plastic bottle,no,no,0.703,1445.9
+782,close_distance_trash846.jpg,plastic wrapper,no,no,0.746,1445.9
+783,close_distance_trash846.jpg,glass,no,no,0.712,1445.9
+784,close_distance_trash846.jpg,metal scrap,no,no,0.72,1445.9
+785,close_distance_trash847.jpg,plastic bottle,yes,no,0.723,1445.9
+786,close_distance_trash847.jpg,trash,no,no,0.72,1445.9
+787,close_distance_trash857.jpg,plastic bottle,yes,no,0.7,1445.9
+788,close_distance_trash857.jpg,trash pile,yes,no,0.725,1445.9
+789,close_distance_trash857.jpg,trash,no,no,0.704,1445.9
+790,close_distance_trash857.jpg,plastic wrapper,no,no,0.695,1445.9
+791,close_distance_trash858.jpg,can,yes,no,0.707,1445.9
+792,close_distance_trash858.jpg,plastic bag,yes,no,0.709,1445.9
+793,close_distance_trash858.jpg,plastic wrapper,yes,no,0.724,1445.9
+794,close_distance_trash858.jpg,trash pile,yes,no,0.704,1445.9
+795,close_distance_trash858.jpg,trash,yes,no,0.683,1445.9
+796,close_distance_trash858.jpg,plastic bottle,no,no,0.694,1445.9
+797,close_distance_trash858.jpg,glass,no,no,0.767,1445.9
+798,close_distance_trash858.jpg,metal scrap,no,no,0.745,1445.9
+799,close_distance_trash87.jpg,plastic bottle,yes,no,0.554,1342.5
+800,close_distance_trash87.jpg,glass,yes,no,0.597,1342.5
+801,close_distance_trash87.jpg,trash,yes,no,0.618,1342.5
+802,close_distance_trash87.jpg,plastic wrapper,no,no,0.65,1342.5
+803,close_distance_trash87.jpg,plastic bag,no,no,0.61,1342.5
+804,close_distance_trash87.jpg,can,no,no,0.598,1342.5
+805,close_distance_trash876.jpg,trash,yes,no,0.755,1445.9
+806,close_distance_trash876.jpg,plastic bottle,no,no,0.779,1445.9
+807,close_distance_trash885.jpg,plastic bottle,yes,no,0.715,1342.5
+808,close_distance_trash885.jpg,can,yes,no,0.683,1342.5
+809,close_distance_trash885.jpg,plastic wrapper,yes,no,0.725,1342.5
+810,close_distance_trash885.jpg,trash,no,no,0.687,1342.5
+811,close_distance_trash885.jpg,plastic bag,no,no,0.692,1342.5
+812,close_distance_trash885.jpg,trash pile,no,no,0.723,1342.5
+813,close_distance_trash89.jpg,plastic bag,yes,no,0.561,1342.5
+814,close_distance_trash89.jpg,trash,no,no,0.558,1342.5
+815,close_distance_trash9.jpg,trash pile,yes,no,0.665,1342.5
+816,close_distance_trash9.jpg,trash,yes,no,0.649,1342.5
+817,close_distance_trash9.jpg,plastic bottle,no,no,0.591,1342.5
+818,close_distance_trash9.jpg,plastic wrapper,no,no,0.559,1342.5
+819,close_distance_trash91.jpg,trash,yes,no,0.538,1342.5
+820,close_distance_trash91.jpg,plastic bottle,no,no,0.55,1342.5
+821,close_distance_trash912.jpg,plastic bottle,yes,yes,0.722,1445.9
+822,close_distance_trash912.jpg,trash,no,no,0.722,1445.9
+823,close_distance_trash920.jpg,plastic wrapper,yes,no,0.733,1445.9
+824,close_distance_trash920.jpg,trash,no,no,0.72,1445.9
+825,close_distance_trash921.jpg,plastic bottle,yes,no,0.575,1342.5
+826,close_distance_trash921.jpg,can,yes,no,0.614,1342.5
+827,close_distance_trash921.jpg,trash,no,no,0.546,1342.5
+828,close_distance_trash921.jpg,plastic wrapper,no,no,0.604,1342.5
+829,close_distance_trash93.jpg,trash,yes,no,0.531,1342.5
+830,close_distance_trash93.jpg,plastic bottle,no,no,0.539,1342.5
+831,close_distance_trash932.jpg,plastic bag,yes,no,0.587,1342.5
+832,close_distance_trash932.jpg,trash,no,no,0.598,1342.5
+833,close_distance_trash933.jpg,trash,yes,no,0.69,1342.5
+834,close_distance_trash933.jpg,plastic bottle,no,no,0.659,1342.5
+835,close_distance_trash94.jpg,glass,yes,no,0.543,1342.5
+836,close_distance_trash94.jpg,trash,no,no,0.557,1342.5
+837,close_distance_trash940.jpg,plastic bag,yes,no,0.684,1342.5
+838,close_distance_trash940.jpg,trash,no,no,0.711,1342.5
+839,close_distance_trash96.jpg,plastic bag,yes,no,0.575,1342.5
+840,close_distance_trash96.jpg,trash,no,no,0.593,1342.5
+841,close_distance_trash97.jpg,trash,yes,no,0.562,1342.5
+842,close_distance_trash97.jpg,plastic bottle,no,no,0.572,1342.5
+843,close_distance_trash976.jpg,plastic bag,yes,no,0.752,1445.9
+844,close_distance_trash976.jpg,trash,no,no,0.741,1445.9
+845,close_distance_trash985.jpg,plastic bag,yes,no,0.72,1445.9
+846,close_distance_trash985.jpg,trash,yes,no,0.726,1445.9
+847,close_distance_trash985.jpg,plastic bottle,no,no,0.788,1445.9
+848,close_distance_trash985.jpg,plastic wrapper,no,no,0.763,1445.9
+849,close_distance_trash991.jpg,plastic bag,yes,no,0.83,1445.9
+850,close_distance_trash991.jpg,trash,no,no,0.716,1445.9
+851,close_distance_trash995.jpg,plastic bottle,yes,no,0.718,1445.9
+852,close_distance_trash995.jpg,trash,no,no,0.78,1445.9
+853,close_distance_trash997.jpg,can,yes,no,0.724,1445.9
+854,close_distance_trash997.jpg,trash,no,no,0.748,1445.9
+855,close_distance_trash999.jpg,plastic bottle,yes,no,0.727,1445.9
+856,close_distance_trash999.jpg,trash pile,yes,no,0.717,1445.9
+857,close_distance_trash999.jpg,trash,yes,no,0.727,1445.9
+858,close_distance_trash999.jpg,plastic wrapper,no,no,0.688,1445.9
+859,close_distance_trash999.jpg,plastic bag,no,no,0.703,1445.9
+860,close_distance_trash999.jpg,can,no,no,0.685,1445.9
+861,far_distance_trash1.jpg,can,yes,no,0.539,1342.5
+862,far_distance_trash1.jpg,trash,no,no,0.538,1342.5
+863,far_distance_trash10.jpg,plastic bottle,yes,no,0.55,1342.5
+864,far_distance_trash10.jpg,trash,no,no,0.547,1342.5
+865,far_distance_trash100.jpg,can,yes,no,0.537,1342.5
+866,far_distance_trash100.jpg,trash,no,no,0.536,1342.5
+867,far_distance_trash102.jpg,glass,yes,no,0.539,1342.5
+868,far_distance_trash102.jpg,trash,no,no,0.562,1342.5
+869,far_distance_trash103.jpg,plastic wrapper,yes,no,0.537,1342.5
+870,far_distance_trash103.jpg,trash,no,no,0.536,1342.5
+871,far_distance_trash104.jpg,trash,yes,no,0.528,1342.5
+872,far_distance_trash104.jpg,plastic bottle,no,no,0.509,1342.5
+873,far_distance_trash105.jpg,plastic wrapper,yes,no,0.526,1342.5
+874,far_distance_trash105.jpg,trash,no,no,0.515,1342.5
+875,far_distance_trash108.jpg,trash,yes,no,0.545,1342.5
+876,far_distance_trash108.jpg,plastic bottle,no,no,0.531,1342.5
+877,far_distance_trash11.jpg,trash,yes,no,0.535,1342.5
+878,far_distance_trash11.jpg,plastic bottle,no,no,0.598,1342.5
+879,far_distance_trash110.jpg,trash,yes,no,0.582,1342.5
+880,far_distance_trash110.jpg,plastic bottle,no,no,0.591,1342.5
+881,far_distance_trash111.jpg,plastic wrapper,yes,no,0.548,1342.5
+882,far_distance_trash111.jpg,trash,no,no,0.544,1342.5
+883,far_distance_trash112.jpg,trash,yes,no,0.556,1342.5
+884,far_distance_trash112.jpg,plastic bottle,no,no,0.578,1342.5
+885,far_distance_trash113.jpg,plastic bag,yes,no,0.524,1342.5
+886,far_distance_trash113.jpg,trash,no,no,0.566,1342.5
+887,far_distance_trash114.jpg,plastic bag,yes,no,0.513,1342.5
+888,far_distance_trash114.jpg,trash,no,no,0.572,1342.5
+889,far_distance_trash12.jpg,plastic bottle,yes,no,0.55,1342.5
+890,far_distance_trash12.jpg,trash,no,no,0.601,1342.5
+891,far_distance_trash13.jpg,can,yes,no,0.544,1342.5
+892,far_distance_trash13.jpg,trash,no,no,0.603,1342.5
+893,far_distance_trash14.jpg,plastic bottle,yes,no,0.574,1342.5
+894,far_distance_trash14.jpg,trash,no,no,0.571,1342.5
+895,far_distance_trash15.jpg,trash,yes,no,0.572,1342.5
+896,far_distance_trash15.jpg,plastic bottle,no,no,0.588,1342.5
+897,far_distance_trash16.jpg,plastic wrapper,yes,no,0.551,1342.5
+898,far_distance_trash16.jpg,trash,yes,no,0.563,1342.5
+899,far_distance_trash16.jpg,plastic bottle,no,no,0.558,1342.5
+900,far_distance_trash16.jpg,plastic bag,no,no,0.576,1342.5
+901,far_distance_trash18.jpg,can,yes,no,0.63,1342.5
+902,far_distance_trash18.jpg,trash,no,no,0.622,1342.5
+903,far_distance_trash21.jpg,trash,yes,no,0.575,1342.5
+904,far_distance_trash21.jpg,plastic bottle,no,no,0.512,1342.5
+905,far_distance_trash230.jpg,plastic bag,yes,no,0.503,1342.5
+906,far_distance_trash230.jpg,trash,no,no,0.514,1342.5
+907,far_distance_trash232.jpg,trash,yes,no,0.534,1342.5
+908,far_distance_trash232.jpg,plastic bottle,no,no,0.582,1342.5
+909,far_distance_trash233.jpg,trash,yes,no,0.593,1342.5
+910,far_distance_trash233.jpg,plastic bottle,no,no,0.532,1342.5
+911,far_distance_trash235.jpg,trash,yes,no,0.576,1342.5
+912,far_distance_trash235.jpg,plastic bottle,no,no,0.553,1342.5
+913,far_distance_trash236.jpg,plastic wrapper,yes,no,0.543,1342.5
+914,far_distance_trash236.jpg,trash,no,no,0.501,1342.5
+915,far_distance_trash237.jpg,plastic bag,yes,no,0.519,1342.5
+916,far_distance_trash237.jpg,trash,no,no,0.537,1342.5
+917,far_distance_trash24.jpg,plastic bag,yes,no,0.54,1342.5
+918,far_distance_trash24.jpg,trash,no,no,0.575,1342.5
+919,far_distance_trash240.jpg,plastic wrapper,yes,no,0.558,1342.5
+920,far_distance_trash240.jpg,trash,no,no,0.606,1342.5
+921,far_distance_trash243.jpg,plastic bag,yes,no,0.6,1342.5
+922,far_distance_trash243.jpg,trash,no,no,0.543,1342.5
+923,far_distance_trash244.jpg,trash,yes,no,0.54,1342.5
+924,far_distance_trash244.jpg,plastic bottle,no,no,0.592,1342.5
+925,far_distance_trash248.jpg,plastic wrapper,yes,no,0.623,1342.5
+926,far_distance_trash248.jpg,trash,yes,no,0.539,1342.5
+927,far_distance_trash248.jpg,plastic bottle,no,no,0.546,1342.5
+928,far_distance_trash248.jpg,plastic bag,no,no,0.582,1342.5
+929,far_distance_trash249.jpg,plastic wrapper,yes,no,0.562,1342.5
+930,far_distance_trash249.jpg,trash,no,no,0.528,1342.5
+931,far_distance_trash250.jpg,can,yes,no,0.572,1342.5
+932,far_distance_trash250.jpg,plastic wrapper,yes,no,0.542,1342.5
+933,far_distance_trash250.jpg,trash,no,no,0.547,1342.5
+934,far_distance_trash250.jpg,plastic bottle,no,no,0.51,1342.5
+935,far_distance_trash251.jpg,plastic bottle,yes,no,0.548,1342.5
+936,far_distance_trash251.jpg,trash,no,no,0.563,1342.5
+937,far_distance_trash252.jpg,can,yes,no,0.525,1342.5
+938,far_distance_trash252.jpg,trash,no,no,0.55,1342.5
+939,far_distance_trash253.jpg,trash,yes,no,0.519,1342.5
+940,far_distance_trash253.jpg,plastic bottle,no,no,0.537,1342.5
+941,far_distance_trash255.jpg,can,yes,no,0.565,1342.5
+942,far_distance_trash255.jpg,trash,no,no,0.581,1342.5
+943,far_distance_trash256.jpg,plastic bag,yes,no,0.531,1342.5
+944,far_distance_trash256.jpg,trash,no,no,0.555,1342.5
+945,far_distance_trash257.jpg,can,yes,no,0.563,1342.5
+946,far_distance_trash257.jpg,trash,no,no,0.56,1342.5
+947,far_distance_trash258.jpg,trash,yes,no,0.56,1342.5
+948,far_distance_trash258.jpg,plastic bottle,no,no,0.548,1342.5
+949,far_distance_trash259.jpg,can,yes,no,0.577,1342.5
+950,far_distance_trash259.jpg,trash,no,no,0.566,1342.5
+951,far_distance_trash26.jpg,plastic bottle,yes,no,0.54,1342.5
+952,far_distance_trash26.jpg,can,yes,no,0.535,1342.5
+953,far_distance_trash26.jpg,trash,no,no,0.557,1342.5
+954,far_distance_trash26.jpg,plastic wrapper,no,no,0.538,1342.5
+955,far_distance_trash260.jpg,trash,yes,no,0.571,1342.5
+956,far_distance_trash260.jpg,plastic bottle,no,no,0.553,1342.5
+957,far_distance_trash261.jpg,trash,yes,no,0.587,1342.5
+958,far_distance_trash261.jpg,plastic bottle,no,no,0.575,1342.5
+959,far_distance_trash263.jpg,plastic wrapper,yes,no,0.535,1342.5
+960,far_distance_trash263.jpg,trash,no,no,0.568,1342.5
+961,far_distance_trash264.jpg,plastic bag,yes,no,0.645,1342.5
+962,far_distance_trash264.jpg,plastic wrapper,yes,no,0.573,1342.5
+963,far_distance_trash264.jpg,trash,no,no,0.571,1342.5
+964,far_distance_trash264.jpg,plastic bottle,no,no,0.591,1342.5
+965,far_distance_trash266.jpg,trash,yes,no,0.603,1342.5
+966,far_distance_trash266.jpg,plastic bottle,no,no,0.607,1342.5
+967,far_distance_trash268.jpg,plastic wrapper,yes,no,0.597,1342.5
+968,far_distance_trash268.jpg,trash,no,no,0.551,1342.5
+969,far_distance_trash27.jpg,plastic wrapper,yes,no,0.499,1342.5
+970,far_distance_trash27.jpg,trash,no,no,0.519,1342.5
+971,far_distance_trash270.jpg,trash,yes,no,0.549,1342.5
+972,far_distance_trash270.jpg,plastic bottle,no,no,0.573,1342.5
+973,far_distance_trash275.jpg,trash,yes,no,0.545,1342.5
+974,far_distance_trash275.jpg,plastic bottle,no,no,0.588,1342.5
+975,far_distance_trash277.jpg,plastic bottle,yes,no,0.569,1342.5
+976,far_distance_trash277.jpg,trash,yes,no,0.545,1342.5
+977,far_distance_trash277.jpg,plastic wrapper,no,no,0.546,1342.5
+978,far_distance_trash277.jpg,plastic bag,no,no,0.497,1342.5
+979,far_distance_trash278.jpg,plastic bottle,yes,no,0.512,1342.5
+980,far_distance_trash278.jpg,trash,no,no,0.513,1342.5
+981,far_distance_trash279.jpg,trash,yes,no,0.511,1342.5
+982,far_distance_trash279.jpg,plastic bottle,no,no,0.505,1342.5
+983,far_distance_trash28.jpg,trash,yes,no,0.522,1342.5
+984,far_distance_trash28.jpg,plastic bottle,no,no,0.547,1342.5
+985,far_distance_trash282.jpg,can,yes,no,0.508,1342.5
+986,far_distance_trash282.jpg,trash,no,no,0.495,1342.5
+987,far_distance_trash283.jpg,plastic wrapper,yes,no,0.523,1342.5
+988,far_distance_trash283.jpg,trash,no,no,0.543,1342.5
+989,far_distance_trash284.jpg,plastic bottle,yes,no,0.578,1342.5
+990,far_distance_trash284.jpg,trash,no,no,0.546,1342.5
+991,far_distance_trash287.jpg,glass,yes,no,0.52,1342.5
+992,far_distance_trash287.jpg,trash,no,no,0.532,1342.5
+993,far_distance_trash29.jpg,plastic wrapper,yes,no,0.505,1342.5
+994,far_distance_trash29.jpg,trash,no,no,0.488,1342.5
+995,far_distance_trash290.jpg,trash,yes,no,0.507,1342.5
+996,far_distance_trash290.jpg,plastic bottle,no,no,0.488,1342.5
+997,far_distance_trash291.jpg,plastic wrapper,yes,no,0.483,1342.5
+998,far_distance_trash291.jpg,trash,no,no,0.477,1342.5
+999,far_distance_trash292.jpg,can,yes,no,0.443,1342.5
+1000,far_distance_trash292.jpg,trash,no,no,0.486,1342.5
+1001,far_distance_trash293.jpg,trash,yes,no,0.553,1342.5
+1002,far_distance_trash293.jpg,plastic bottle,no,no,0.645,1342.5
+1003,far_distance_trash295.jpg,trash,yes,no,0.652,1342.5
+1004,far_distance_trash295.jpg,plastic bottle,no,no,0.556,1342.5
+1005,far_distance_trash296.jpg,plastic wrapper,yes,no,0.63,1342.5
+1006,far_distance_trash296.jpg,trash,no,no,0.564,1342.5
+1007,far_distance_trash298.jpg,can,yes,no,0.551,1342.5
+1008,far_distance_trash298.jpg,trash,no,no,0.592,1342.5
+1009,far_distance_trash299.jpg,can,yes,no,0.598,1342.5
+1010,far_distance_trash299.jpg,trash,no,no,0.543,1342.5
+1011,far_distance_trash30.jpg,plastic wrapper,yes,no,0.576,1342.5
+1012,far_distance_trash30.jpg,trash,no,no,0.526,1342.5
+1013,far_distance_trash301.jpg,trash,yes,no,0.578,1342.5
+1014,far_distance_trash301.jpg,plastic bottle,no,no,0.586,1342.5
+1015,far_distance_trash302.jpg,trash,yes,no,0.569,1342.5
+1016,far_distance_trash302.jpg,plastic bottle,no,no,0.531,1342.5
+1017,far_distance_trash305.jpg,plastic bottle,yes,no,0.49,1342.5
+1018,far_distance_trash305.jpg,trash,no,no,0.599,1342.5
+1019,far_distance_trash306.jpg,can,yes,no,0.576,1342.5
+1020,far_distance_trash306.jpg,trash,no,no,0.558,1342.5
+1021,far_distance_trash308.jpg,can,yes,no,0.533,1342.5
+1022,far_distance_trash308.jpg,trash,no,no,0.548,1342.5
+1023,far_distance_trash309.jpg,can,yes,no,0.637,1342.5
+1024,far_distance_trash309.jpg,trash,no,no,0.525,1342.5
+1025,far_distance_trash31.jpg,can,yes,no,0.525,1342.5
+1026,far_distance_trash31.jpg,trash,no,no,0.541,1342.5
+1027,far_distance_trash310.jpg,can,yes,no,0.528,1342.5
+1028,far_distance_trash310.jpg,trash,no,no,0.581,1342.5
+1029,far_distance_trash311.jpg,can,yes,no,0.558,1342.5
+1030,far_distance_trash311.jpg,trash,no,no,0.578,1342.5
+1031,far_distance_trash313.jpg,can,yes,no,0.529,1342.5
+1032,far_distance_trash313.jpg,trash,no,no,0.601,1342.5
+1033,far_distance_trash314.jpg,can,yes,no,0.527,1342.5
+1034,far_distance_trash314.jpg,trash,no,no,0.558,1342.5
+1035,far_distance_trash315.jpg,can,yes,no,0.609,1342.5
+1036,far_distance_trash315.jpg,trash,yes,no,0.541,1342.5
+1037,far_distance_trash315.jpg,plastic bottle,no,no,0.638,1342.5
+1038,far_distance_trash315.jpg,plastic wrapper,no,no,0.589,1342.5
+1039,far_distance_trash316.jpg,plastic wrapper,yes,no,0.579,1342.5
+1040,far_distance_trash316.jpg,trash,no,no,0.574,1342.5
+1041,far_distance_trash319.jpg,plastic bag,yes,no,0.615,1342.5
+1042,far_distance_trash319.jpg,trash,no,no,0.583,1342.5
+1043,far_distance_trash320.jpg,plastic bottle,yes,no,0.588,1342.5
+1044,far_distance_trash320.jpg,trash,no,no,0.672,1342.5
+1045,far_distance_trash321.jpg,plastic bottle,yes,no,0.643,1342.5
+1046,far_distance_trash321.jpg,trash,no,no,0.561,1342.5
+1047,far_distance_trash323.jpg,glass,yes,no,0.551,1342.5
+1048,far_distance_trash323.jpg,trash,yes,no,0.574,1342.5
+1049,far_distance_trash323.jpg,plastic bottle,no,no,0.544,1342.5
+1050,far_distance_trash323.jpg,plastic wrapper,no,no,0.573,1342.5
+1051,far_distance_trash324.jpg,can,yes,no,0.551,1342.5
+1052,far_distance_trash324.jpg,trash,no,no,0.593,1342.5
+1053,far_distance_trash325.jpg,can,yes,no,0.601,1342.5
+1054,far_distance_trash325.jpg,trash,yes,no,0.586,1342.5
+1055,far_distance_trash325.jpg,plastic bottle,no,no,0.616,1342.5
+1056,far_distance_trash325.jpg,plastic wrapper,no,no,0.582,1342.5
+1057,far_distance_trash326.jpg,plastic bag,yes,no,0.598,1342.5
+1058,far_distance_trash326.jpg,trash,no,no,0.548,1342.5
+1059,far_distance_trash327.jpg,plastic wrapper,yes,no,0.528,1342.5
+1060,far_distance_trash327.jpg,trash,no,no,0.563,1342.5
+1061,far_distance_trash328.jpg,trash,yes,no,0.556,1342.5
+1062,far_distance_trash328.jpg,plastic bottle,no,no,0.544,1342.5
+1063,far_distance_trash329.jpg,plastic bottle,yes,no,0.545,1342.5
+1064,far_distance_trash329.jpg,trash,no,no,0.625,1342.5
+1065,far_distance_trash33.jpg,can,yes,no,0.54,1342.5
+1066,far_distance_trash33.jpg,plastic bag,yes,no,0.524,1342.5
+1067,far_distance_trash33.jpg,trash,no,no,0.545,1342.5
+1068,far_distance_trash33.jpg,plastic bottle,no,no,0.58,1342.5
+1069,far_distance_trash331.jpg,can,yes,no,0.529,1342.5
+1070,far_distance_trash331.jpg,trash,no,no,0.553,1342.5
+1071,far_distance_trash332.jpg,glass,yes,no,0.589,1342.5
+1072,far_distance_trash332.jpg,metal scrap,yes,no,0.586,1342.5
+1073,far_distance_trash332.jpg,trash,no,no,0.533,1342.5
+1074,far_distance_trash332.jpg,plastic bottle,no,no,0.526,1342.5
+1075,far_distance_trash333.jpg,plastic bottle,yes,no,0.533,1342.5
+1076,far_distance_trash333.jpg,trash,yes,no,0.567,1342.5
+1077,far_distance_trash333.jpg,plastic wrapper,no,no,0.565,1342.5
+1078,far_distance_trash333.jpg,plastic bag,no,no,0.519,1342.5
+1079,far_distance_trash334.jpg,can,yes,no,0.588,1342.5
+1080,far_distance_trash334.jpg,trash,no,no,0.599,1342.5
+1081,far_distance_trash336.jpg,can,yes,no,0.55,1342.5
+1082,far_distance_trash336.jpg,trash,no,no,0.571,1342.5
+1083,far_distance_trash338.jpg,plastic wrapper,yes,no,0.535,1342.5
+1084,far_distance_trash338.jpg,trash,no,no,0.557,1342.5
+1085,far_distance_trash34.jpg,plastic bottle,yes,no,0.595,1342.5
+1086,far_distance_trash34.jpg,trash,no,no,0.601,1342.5
+1087,far_distance_trash340.jpg,plastic bottle,yes,no,0.545,1342.5
+1088,far_distance_trash340.jpg,glass,yes,no,0.561,1342.5
+1089,far_distance_trash340.jpg,can,yes,no,0.643,1342.5
+1090,far_distance_trash340.jpg,trash,no,no,0.545,1342.5
+1091,far_distance_trash340.jpg,plastic wrapper,no,no,0.557,1342.5
+1092,far_distance_trash340.jpg,plastic bag,no,no,0.538,1342.5
+1093,far_distance_trash341.jpg,trash,yes,no,0.529,1342.5
+1094,far_distance_trash341.jpg,plastic bottle,no,no,0.522,1342.5
+1095,far_distance_trash344.jpg,plastic wrapper,yes,no,0.522,1342.5
+1096,far_distance_trash344.jpg,trash,yes,no,0.528,1342.5
+1097,far_distance_trash344.jpg,plastic bottle,no,no,0.52,1342.5
+1098,far_distance_trash344.jpg,plastic bag,no,no,0.522,1342.5
+1099,far_distance_trash345.jpg,can,yes,no,0.524,1342.5
+1100,far_distance_trash345.jpg,trash,no,no,0.554,1342.5
+1101,far_distance_trash346.jpg,plastic bottle,yes,no,0.484,1342.5
+1102,far_distance_trash346.jpg,can,yes,no,0.487,1342.5
+1103,far_distance_trash346.jpg,plastic wrapper,yes,no,0.496,1342.5
+1104,far_distance_trash346.jpg,trash,no,no,0.461,1342.5
+1105,far_distance_trash346.jpg,plastic bag,no,no,0.498,1342.5
+1106,far_distance_trash346.jpg,trash pile,no,no,0.47,1342.5
+1107,far_distance_trash348.jpg,plastic bag,yes,no,0.5,1342.5
+1108,far_distance_trash348.jpg,plastic wrapper,yes,no,0.563,1342.5
+1109,far_distance_trash348.jpg,trash,no,no,0.559,1342.5
+1110,far_distance_trash348.jpg,plastic bottle,no,no,0.539,1342.5
+1111,far_distance_trash35.jpg,trash,yes,no,0.57,1342.5
+1112,far_distance_trash35.jpg,plastic bottle,no,no,0.558,1342.5
+1113,far_distance_trash352.jpg,glass,yes,no,0.598,1342.5
+1114,far_distance_trash352.jpg,trash,no,no,0.55,1342.5
+1115,far_distance_trash353.jpg,trash,yes,no,0.565,1342.5
+1116,far_distance_trash353.jpg,plastic bottle,no,no,0.575,1342.5
+1117,far_distance_trash354.jpg,trash,yes,no,0.516,1342.5
+1118,far_distance_trash354.jpg,plastic bottle,no,no,0.514,1342.5
+1119,far_distance_trash355.jpg,trash,yes,no,0.584,1342.5
+1120,far_distance_trash355.jpg,plastic bottle,no,no,0.54,1342.5
+1121,far_distance_trash356.jpg,plastic wrapper,yes,no,0.607,1342.5
+1122,far_distance_trash356.jpg,trash,no,no,0.504,1342.5
+1123,far_distance_trash358.jpg,plastic wrapper,yes,no,0.579,1342.5
+1124,far_distance_trash358.jpg,trash,yes,no,0.747,1342.5
+1125,far_distance_trash358.jpg,plastic bottle,no,no,0.629,1342.5
+1126,far_distance_trash358.jpg,plastic bag,no,no,0.608,1342.5
+1127,far_distance_trash360.jpg,plastic bottle,yes,no,0.536,1342.5
+1128,far_distance_trash360.jpg,trash,no,no,0.518,1342.5
+1129,far_distance_trash361.jpg,plastic wrapper,yes,no,0.517,1342.5
+1130,far_distance_trash361.jpg,trash,no,no,0.589,1342.5
+1131,far_distance_trash362.jpg,can,yes,no,0.56,1342.5
+1132,far_distance_trash362.jpg,trash,no,no,0.568,1342.5
+1133,far_distance_trash363.jpg,plastic bag,yes,no,0.581,1342.5
+1134,far_distance_trash363.jpg,trash,no,no,0.56,1342.5
+1135,far_distance_trash364.jpg,trash,yes,no,0.571,1342.5
+1136,far_distance_trash364.jpg,plastic bottle,no,no,0.565,1342.5
+1137,far_distance_trash366.jpg,plastic wrapper,yes,no,0.505,1342.5
+1138,far_distance_trash366.jpg,trash,no,no,0.55,1342.5
+1139,far_distance_trash368.jpg,plastic wrapper,yes,no,0.518,1342.5
+1140,far_distance_trash368.jpg,trash,no,no,0.545,1342.5
+1141,far_distance_trash369.jpg,glass,yes,no,0.512,1342.5
+1142,far_distance_trash369.jpg,trash,no,no,0.525,1342.5
+1143,far_distance_trash37.jpg,trash,yes,no,0.525,1342.5
+1144,far_distance_trash37.jpg,plastic bottle,no,no,0.554,1342.5
+1145,far_distance_trash370.jpg,trash,yes,no,0.574,1342.5
+1146,far_distance_trash370.jpg,plastic bottle,no,no,0.559,1342.5
+1147,far_distance_trash371.jpg,can,yes,no,0.56,1342.5
+1148,far_distance_trash371.jpg,trash,no,no,0.519,1342.5
+1149,far_distance_trash374.jpg,glass,yes,no,0.535,1342.5
+1150,far_distance_trash374.jpg,can,yes,no,0.524,1342.5
+1151,far_distance_trash374.jpg,trash,yes,no,0.553,1342.5
+1152,far_distance_trash374.jpg,plastic bottle,no,no,0.518,1342.5
+1153,far_distance_trash374.jpg,plastic wrapper,no,no,0.539,1342.5
+1154,far_distance_trash374.jpg,plastic bag,no,no,0.522,1342.5
+1155,far_distance_trash375.jpg,trash,yes,no,0.535,1342.5
+1156,far_distance_trash375.jpg,plastic bottle,no,no,0.529,1342.5
+1157,far_distance_trash377.jpg,glass,yes,no,0.537,1342.5
+1158,far_distance_trash377.jpg,trash,no,no,0.512,1342.5
+1159,far_distance_trash378.jpg,plastic bottle,yes,no,0.541,1342.5
+1160,far_distance_trash378.jpg,glass,yes,no,0.579,1342.5
+1161,far_distance_trash378.jpg,trash,no,no,0.557,1342.5
+1162,far_distance_trash378.jpg,plastic wrapper,no,no,0.605,1342.5
+1163,far_distance_trash379.jpg,glass,yes,no,0.534,1342.5
+1164,far_distance_trash379.jpg,trash,no,no,0.576,1342.5
+1165,far_distance_trash38.jpg,trash,yes,no,0.526,1342.5
+1166,far_distance_trash38.jpg,plastic bottle,no,no,0.519,1342.5
+1167,far_distance_trash383.jpg,trash,yes,no,0.517,1342.5
+1168,far_distance_trash383.jpg,plastic bottle,no,no,0.576,1342.5
+1169,far_distance_trash384.jpg,glass,yes,no,0.595,1342.5
+1170,far_distance_trash384.jpg,trash,no,no,0.532,1342.5
+1171,far_distance_trash386.jpg,trash,yes,no,0.512,1342.5
+1172,far_distance_trash386.jpg,plastic bottle,no,no,0.525,1342.5
+1173,far_distance_trash388.jpg,trash,yes,no,0.543,1342.5
+1174,far_distance_trash388.jpg,plastic bottle,no,no,0.53,1342.5
+1175,far_distance_trash389.jpg,plastic bottle,yes,no,0.585,1342.5
+1176,far_distance_trash389.jpg,glass,yes,no,0.534,1342.5
+1177,far_distance_trash389.jpg,trash,no,no,0.573,1342.5
+1178,far_distance_trash389.jpg,plastic wrapper,no,no,0.555,1342.5
+1179,far_distance_trash390.jpg,plastic bag,yes,no,0.582,1342.5
+1180,far_distance_trash390.jpg,trash,no,no,0.53,1342.5
+1181,far_distance_trash391.jpg,trash,yes,no,0.549,1342.5
+1182,far_distance_trash391.jpg,plastic bottle,no,no,0.589,1342.5
+1183,far_distance_trash393.jpg,trash,yes,no,0.565,1342.5
+1184,far_distance_trash393.jpg,plastic bottle,no,no,0.545,1342.5
+1185,far_distance_trash394.jpg,glass,yes,no,0.56,1342.5
+1186,far_distance_trash394.jpg,trash,no,no,0.549,1342.5
+1187,far_distance_trash396.jpg,glass,yes,no,0.528,1342.5
+1188,far_distance_trash396.jpg,trash,yes,no,0.549,1342.5
+1189,far_distance_trash396.jpg,plastic bottle,no,no,0.577,1342.5
+1190,far_distance_trash396.jpg,plastic wrapper,no,no,0.511,1342.5
+1191,far_distance_trash397.jpg,plastic bottle,yes,no,0.5,1342.5
+1192,far_distance_trash397.jpg,trash,no,no,0.518,1342.5
+1193,far_distance_trash398.jpg,trash,yes,no,0.558,1342.5
+1194,far_distance_trash398.jpg,plastic bottle,no,no,0.511,1342.5
+1195,far_distance_trash399.jpg,trash,yes,no,0.547,1342.5
+1196,far_distance_trash399.jpg,plastic bottle,no,no,0.522,1342.5
+1197,far_distance_trash4.jpg,trash,yes,no,0.523,1342.5
+1198,far_distance_trash4.jpg,plastic bottle,no,no,0.575,1342.5
+1199,far_distance_trash40.jpg,plastic bottle,yes,no,0.584,1342.5
+1200,far_distance_trash40.jpg,trash,no,no,0.594,1342.5
+1201,far_distance_trash401.jpg,plastic bottle,yes,no,0.55,1342.5
+1202,far_distance_trash401.jpg,trash,no,no,0.594,1342.5
+1203,far_distance_trash402.jpg,plastic bottle,yes,no,0.621,1342.5
+1204,far_distance_trash402.jpg,trash,no,no,0.575,1342.5
+1205,far_distance_trash403.jpg,plastic bottle,yes,no,0.605,1342.5
+1206,far_distance_trash403.jpg,trash,no,no,0.524,1342.5
+1207,far_distance_trash404.jpg,plastic bottle,yes,no,0.569,1342.5
+1208,far_distance_trash404.jpg,trash,no,no,0.539,1342.5
+1209,far_distance_trash405.jpg,plastic wrapper,yes,no,0.517,1342.5
+1210,far_distance_trash405.jpg,trash,no,no,0.591,1342.5
+1211,far_distance_trash407.jpg,trash,yes,no,0.607,1342.5
+1212,far_distance_trash407.jpg,plastic bottle,no,no,0.574,1342.5
+1213,far_distance_trash409.jpg,plastic bottle,yes,no,0.524,1342.5
+1214,far_distance_trash409.jpg,trash,no,no,0.531,1342.5
+1215,far_distance_trash41.jpg,can,yes,no,0.574,1342.5
+1216,far_distance_trash41.jpg,trash,no,no,0.598,1342.5
+1217,far_distance_trash411.jpg,plastic bottle,yes,no,0.528,1342.5
+1218,far_distance_trash411.jpg,trash,no,no,0.548,1342.5
+1219,far_distance_trash412.jpg,trash,yes,no,0.582,1342.5
+1220,far_distance_trash412.jpg,plastic bottle,no,no,0.544,1342.5
+1221,far_distance_trash414.jpg,plastic wrapper,yes,no,0.542,1342.5
+1222,far_distance_trash414.jpg,trash,no,no,0.557,1342.5
+1223,far_distance_trash415.jpg,trash,yes,no,0.617,1342.5
+1224,far_distance_trash415.jpg,plastic bottle,no,no,0.511,1342.5
+1225,far_distance_trash416.jpg,plastic bottle,yes,no,0.564,1342.5
+1226,far_distance_trash416.jpg,trash,no,no,0.547,1342.5
+1227,far_distance_trash42.jpg,trash,yes,no,0.565,1342.5
+1228,far_distance_trash42.jpg,plastic bottle,no,no,0.529,1342.5
+1229,far_distance_trash420.jpg,plastic bottle,yes,no,0.526,1342.5
+1230,far_distance_trash420.jpg,trash,no,no,0.551,1342.5
+1231,far_distance_trash421.jpg,trash,yes,no,0.527,1342.5
+1232,far_distance_trash421.jpg,plastic bottle,no,no,0.54,1342.5
+1233,far_distance_trash422.jpg,plastic bag,yes,no,0.515,1342.5
+1234,far_distance_trash422.jpg,trash,yes,no,0.563,1342.5
+1235,far_distance_trash422.jpg,plastic bottle,no,no,0.602,1342.5
+1236,far_distance_trash422.jpg,plastic wrapper,no,no,0.629,1342.5
+1237,far_distance_trash425.jpg,plastic bag,yes,no,0.699,1342.5
+1238,far_distance_trash425.jpg,trash,no,no,0.556,1342.5
+1239,far_distance_trash426.jpg,trash,yes,no,0.552,1342.5
+1240,far_distance_trash426.jpg,plastic bottle,no,no,0.557,1342.5
+1241,far_distance_trash43.jpg,trash,yes,no,0.584,1342.5
+1242,far_distance_trash43.jpg,plastic bottle,no,no,0.581,1342.5
+1243,far_distance_trash432.jpg,trash,yes,no,0.573,1342.5
+1244,far_distance_trash432.jpg,plastic bottle,no,no,0.584,1342.5
+1245,far_distance_trash434.jpg,trash,yes,no,0.606,1342.5
+1246,far_distance_trash434.jpg,plastic bottle,no,no,0.572,1342.5
+1247,far_distance_trash435.jpg,plastic bottle,yes,no,0.579,1342.5
+1248,far_distance_trash435.jpg,trash,no,no,0.574,1342.5
+1249,far_distance_trash436.jpg,plastic bottle,yes,no,0.5,1342.5
+1250,far_distance_trash436.jpg,can,yes,no,0.539,1342.5
+1251,far_distance_trash436.jpg,plastic bag,yes,no,0.529,1342.5
+1252,far_distance_trash436.jpg,trash,yes,no,0.53,1342.5
+1253,far_distance_trash436.jpg,plastic wrapper,no,no,0.618,1342.5
+1254,far_distance_trash436.jpg,trash pile,no,no,0.565,1342.5
+1255,far_distance_trash436.jpg,glass,no,no,0.59,1342.5
+1256,far_distance_trash436.jpg,metal scrap,no,no,0.503,1342.5
+1257,far_distance_trash437.jpg,plastic wrapper,yes,no,0.736,1342.5
+1258,far_distance_trash437.jpg,trash,no,no,0.794,1342.5
+1259,far_distance_trash439.jpg,plastic wrapper,yes,no,0.706,1342.5
+1260,far_distance_trash439.jpg,trash,no,no,0.721,1342.5
+1261,far_distance_trash44.jpg,trash,yes,no,0.608,1342.5
+1262,far_distance_trash44.jpg,plastic bottle,no,no,0.54,1342.5
+1263,far_distance_trash440.jpg,can,yes,no,0.703,1342.5
+1264,far_distance_trash440.jpg,trash,no,no,0.69,1342.5
+1265,far_distance_trash441.jpg,plastic wrapper,yes,no,0.664,1342.5
+1266,far_distance_trash441.jpg,trash,no,no,0.667,1342.5
+1267,far_distance_trash444.jpg,trash,yes,no,0.681,1342.5
+1268,far_distance_trash444.jpg,plastic bottle,no,no,0.647,1342.5
+1269,far_distance_trash45.jpg,trash,yes,no,0.502,1342.5
+1270,far_distance_trash45.jpg,plastic bottle,no,no,0.506,1342.5
+1271,far_distance_trash450.jpg,can,yes,no,0.67,1342.5
+1272,far_distance_trash450.jpg,trash,no,no,0.694,1342.5
+1273,far_distance_trash453.jpg,plastic bottle,yes,no,0.716,1342.5
+1274,far_distance_trash453.jpg,trash,no,no,0.733,1342.5
+1275,far_distance_trash455.jpg,can,yes,no,0.719,1342.5
+1276,far_distance_trash455.jpg,trash,no,no,0.772,1342.5
+1277,far_distance_trash457.jpg,can,yes,no,0.767,1342.5
+1278,far_distance_trash457.jpg,trash,no,no,0.748,1342.5
+1279,far_distance_trash46.jpg,plastic bottle,yes,no,0.65,1342.5
+1280,far_distance_trash46.jpg,plastic wrapper,yes,no,0.566,1342.5
+1281,far_distance_trash46.jpg,trash,no,no,0.577,1342.5
+1282,far_distance_trash46.jpg,plastic bag,no,no,0.527,1342.5
+1283,far_distance_trash460.jpg,can,yes,no,0.535,1342.5
+1284,far_distance_trash460.jpg,trash,no,no,0.574,1342.5
+1285,far_distance_trash462.jpg,plastic bottle,yes,no,0.573,1342.5
+1286,far_distance_trash462.jpg,plastic wrapper,yes,no,0.581,1342.5
+1287,far_distance_trash462.jpg,trash,no,no,0.539,1342.5
+1288,far_distance_trash462.jpg,plastic bag,no,no,0.628,1342.5
+1289,far_distance_trash463.jpg,can,yes,no,0.603,1342.5
+1290,far_distance_trash463.jpg,trash,yes,no,0.595,1342.5
+1291,far_distance_trash463.jpg,plastic bottle,no,no,0.535,1342.5
+1292,far_distance_trash463.jpg,plastic wrapper,no,no,0.569,1342.5
+1293,far_distance_trash465.jpg,trash,yes,no,0.638,1342.5
+1294,far_distance_trash465.jpg,plastic bottle,no,no,0.617,1342.5
+1295,far_distance_trash467.jpg,trash,yes,no,0.766,1342.5
+1296,far_distance_trash467.jpg,plastic bottle,no,no,0.706,1342.5
+1297,far_distance_trash47.jpg,trash,yes,no,0.545,1342.5
+1298,far_distance_trash47.jpg,plastic bottle,no,no,0.536,1342.5
+1299,far_distance_trash470.jpg,plastic bottle,yes,no,0.554,1342.5
+1300,far_distance_trash470.jpg,can,yes,no,0.563,1342.5
+1301,far_distance_trash470.jpg,plastic wrapper,yes,no,0.549,1342.5
+1302,far_distance_trash470.jpg,trash,yes,no,0.574,1342.5
+1303,far_distance_trash470.jpg,plastic bag,no,no,0.582,1342.5
+1304,far_distance_trash470.jpg,trash pile,no,no,0.573,1342.5
+1305,far_distance_trash470.jpg,glass,no,no,0.516,1342.5
+1306,far_distance_trash470.jpg,metal scrap,no,no,0.537,1342.5
+1307,far_distance_trash476.jpg,plastic wrapper,yes,no,0.515,1342.5
+1308,far_distance_trash476.jpg,trash,no,no,0.527,1342.5
+1309,far_distance_trash477.jpg,plastic wrapper,yes,no,0.515,1342.5
+1310,far_distance_trash477.jpg,trash,no,no,0.517,1342.5
+1311,far_distance_trash479.jpg,plastic bottle,yes,no,0.532,1342.5
+1312,far_distance_trash479.jpg,trash,no,no,0.52,1342.5
+1313,far_distance_trash480.jpg,plastic wrapper,yes,no,0.486,1342.5
+1314,far_distance_trash480.jpg,trash,no,no,0.556,1342.5
+1315,far_distance_trash481.jpg,plastic bottle,yes,no,0.529,1342.5
+1316,far_distance_trash481.jpg,trash,no,no,0.628,1342.5
+1317,far_distance_trash485.jpg,trash,yes,no,0.557,1342.5
+1318,far_distance_trash485.jpg,plastic bottle,no,no,0.546,1342.5
+1319,far_distance_trash49.jpg,can,yes,no,0.559,1342.5
+1320,far_distance_trash49.jpg,trash,yes,no,0.56,1342.5
+1321,far_distance_trash49.jpg,plastic bottle,no,no,0.564,1342.5
+1322,far_distance_trash49.jpg,plastic wrapper,no,no,0.558,1342.5
+1323,far_distance_trash5.jpg,trash,yes,no,0.545,1342.5
+1324,far_distance_trash5.jpg,plastic bottle,no,no,0.531,1342.5
+1325,far_distance_trash50.jpg,glass,yes,no,0.56,1342.5
+1326,far_distance_trash50.jpg,trash,no,no,0.582,1342.5
+1327,far_distance_trash51.jpg,plastic wrapper,yes,no,0.568,1342.5
+1328,far_distance_trash51.jpg,trash,no,no,0.619,1342.5
+1329,far_distance_trash514.jpg,plastic wrapper,yes,no,0.553,1342.5
+1330,far_distance_trash514.jpg,trash,no,no,0.548,1342.5
+1331,far_distance_trash515.jpg,trash,yes,no,0.535,1342.5
+1332,far_distance_trash515.jpg,plastic bottle,no,no,0.579,1342.5
+1333,far_distance_trash516.jpg,plastic bottle,yes,no,0.493,1342.5
+1334,far_distance_trash516.jpg,trash,no,no,0.572,1342.5
+1335,far_distance_trash518.jpg,plastic wrapper,yes,no,0.511,1342.5
+1336,far_distance_trash518.jpg,trash,no,no,0.564,1342.5
+1337,far_distance_trash519.jpg,plastic bottle,yes,no,0.558,1342.5
+1338,far_distance_trash519.jpg,can,yes,no,0.591,1342.5
+1339,far_distance_trash519.jpg,trash,no,no,0.593,1342.5
+1340,far_distance_trash519.jpg,plastic wrapper,no,no,0.593,1342.5
+1341,far_distance_trash521.jpg,plastic bottle,yes,no,0.651,1342.5
+1342,far_distance_trash521.jpg,trash,no,no,0.65,1342.5
+1343,far_distance_trash522.jpg,plastic bottle,yes,no,0.606,1342.5
+1344,far_distance_trash522.jpg,trash,no,no,0.633,1342.5
+1345,far_distance_trash524.jpg,plastic wrapper,yes,no,0.563,1342.5
+1346,far_distance_trash524.jpg,trash,no,no,0.531,1342.5
+1347,far_distance_trash525.jpg,trash,yes,no,0.55,1342.5
+1348,far_distance_trash525.jpg,plastic bottle,no,no,0.539,1342.5
+1349,far_distance_trash526.jpg,plastic bottle,yes,no,0.543,1342.5
+1350,far_distance_trash526.jpg,trash,no,no,0.543,1342.5
+1351,far_distance_trash527.jpg,plastic wrapper,yes,no,0.538,1342.5
+1352,far_distance_trash527.jpg,trash,no,no,0.546,1342.5
+1353,far_distance_trash528.jpg,plastic bottle,yes,no,0.603,1342.5
+1354,far_distance_trash528.jpg,trash,no,no,0.799,1342.5
+1355,far_distance_trash53.jpg,plastic bottle,yes,no,0.618,1342.5
+1356,far_distance_trash53.jpg,trash,no,no,0.65,1342.5
+1357,far_distance_trash530.jpg,trash,yes,no,0.586,1342.5
+1358,far_distance_trash530.jpg,plastic bottle,no,no,0.6,1342.5
+1359,far_distance_trash531.jpg,trash,yes,no,0.555,1342.5
+1360,far_distance_trash531.jpg,plastic bottle,no,no,0.612,1342.5
+1361,far_distance_trash532.jpg,trash,yes,no,0.594,1342.5
+1362,far_distance_trash532.jpg,plastic bottle,no,no,0.601,1342.5
+1363,far_distance_trash533.jpg,trash,yes,no,0.552,1342.5
+1364,far_distance_trash533.jpg,plastic bottle,no,no,0.53,1342.5
+1365,far_distance_trash535.jpg,plastic bottle,yes,no,0.536,1342.5
+1366,far_distance_trash535.jpg,trash,no,no,0.53,1342.5
+1367,far_distance_trash536.jpg,plastic bag,yes,no,0.532,1342.5
+1368,far_distance_trash536.jpg,trash,no,no,0.557,1342.5
+1369,far_distance_trash538.jpg,trash,yes,no,0.566,1342.5
+1370,far_distance_trash538.jpg,plastic bottle,no,no,0.549,1342.5
+1371,far_distance_trash539.jpg,can,yes,no,0.52,1342.5
+1372,far_distance_trash539.jpg,trash,no,no,0.531,1342.5
+1373,far_distance_trash54.jpg,plastic bottle,yes,no,0.513,1342.5
+1374,far_distance_trash54.jpg,trash,no,no,0.515,1342.5
+1375,far_distance_trash55.jpg,can,yes,no,0.553,1342.5
+1376,far_distance_trash55.jpg,trash,no,no,0.566,1342.5
+1377,far_distance_trash57.jpg,plastic bottle,yes,no,0.552,1342.5
+1378,far_distance_trash57.jpg,trash,no,no,0.537,1342.5
+1379,far_distance_trash58.jpg,can,yes,no,0.53,1342.5
+1380,far_distance_trash58.jpg,trash,no,no,0.569,1342.5
+1381,far_distance_trash59.jpg,trash,yes,no,0.588,1342.5
+1382,far_distance_trash59.jpg,plastic bottle,no,no,0.544,1342.5
+1383,far_distance_trash6.jpg,plastic bottle,yes,no,0.524,1342.5
+1384,far_distance_trash6.jpg,trash,yes,no,0.539,1342.5
+1385,far_distance_trash6.jpg,plastic wrapper,no,no,0.525,1342.5
+1386,far_distance_trash6.jpg,plastic bag,no,no,0.569,1342.5
+1387,far_distance_trash61.jpg,plastic bag,yes,no,0.553,1342.5
+1388,far_distance_trash61.jpg,trash,no,no,0.523,1342.5
+1389,far_distance_trash63.jpg,trash,yes,no,0.536,1342.5
+1390,far_distance_trash63.jpg,plastic bottle,no,no,0.654,1342.5
+1391,far_distance_trash65.jpg,trash,yes,no,0.663,1342.5
+1392,far_distance_trash65.jpg,plastic bottle,no,no,0.727,1342.5
+1393,far_distance_trash69.jpg,can,yes,no,0.642,1342.5
+1394,far_distance_trash69.jpg,trash,no,no,0.654,1342.5
+1395,far_distance_trash7.jpg,plastic bottle,yes,no,0.569,1342.5
+1396,far_distance_trash7.jpg,plastic wrapper,yes,no,0.56,1342.5
+1397,far_distance_trash7.jpg,trash,no,no,0.538,1342.5
+1398,far_distance_trash7.jpg,plastic bag,no,no,0.565,1342.5
+1399,far_distance_trash70.jpg,glass,yes,no,0.565,1342.5
+1400,far_distance_trash70.jpg,trash,no,no,0.58,1342.5
+1401,far_distance_trash71.jpg,plastic bottle,yes,no,0.57,1342.5
+1402,far_distance_trash71.jpg,trash,no,no,0.625,1342.5
+1403,far_distance_trash72.jpg,can,yes,no,0.51,1342.5
+1404,far_distance_trash72.jpg,trash,no,no,0.54,1342.5
+1405,far_distance_trash73.jpg,can,yes,no,0.515,1342.5
+1406,far_distance_trash73.jpg,trash,no,no,0.591,1342.5
+1407,far_distance_trash74.jpg,can,yes,no,0.561,1342.5
+1408,far_distance_trash74.jpg,trash,no,no,0.567,1342.5
+1409,far_distance_trash75.jpg,plastic bottle,yes,no,0.558,1342.5
+1410,far_distance_trash75.jpg,trash,no,no,0.614,1342.5
+1411,far_distance_trash78.jpg,trash,yes,no,0.602,1342.5
+1412,far_distance_trash78.jpg,plastic bottle,no,no,0.617,1342.5
+1413,far_distance_trash79.jpg,plastic bottle,yes,no,0.53,1342.5
+1414,far_distance_trash79.jpg,can,yes,no,0.614,1342.5
+1415,far_distance_trash79.jpg,trash,no,no,0.6,1342.5
+1416,far_distance_trash79.jpg,plastic wrapper,no,no,0.571,1342.5
+1417,far_distance_trash8.jpg,plastic bottle,yes,no,0.777,1445.9
+1418,far_distance_trash8.jpg,trash,no,no,0.806,1445.9
+1419,far_distance_trash84.jpg,trash,yes,no,0.512,1342.5
+1420,far_distance_trash84.jpg,plastic bottle,no,no,0.52,1342.5
+1421,far_distance_trash86.jpg,trash,yes,no,0.507,1342.5
+1422,far_distance_trash86.jpg,plastic bottle,no,no,0.525,1342.5
+1423,far_distance_trash88.jpg,plastic wrapper,yes,no,0.547,1342.5
+1424,far_distance_trash88.jpg,trash,no,no,0.544,1342.5
+1425,far_distance_trash89.jpg,plastic wrapper,yes,no,0.611,1342.5
+1426,far_distance_trash89.jpg,trash,no,no,0.574,1342.5
+1427,far_distance_trash90.jpg,trash,yes,no,0.534,1342.5
+1428,far_distance_trash90.jpg,plastic bottle,no,no,0.522,1342.5
+1429,far_distance_trash93.jpg,plastic bottle,yes,no,0.556,1342.5
+1430,far_distance_trash93.jpg,trash,no,no,0.539,1342.5
+1431,far_distance_trash94.jpg,trash,yes,no,0.544,1342.5
+1432,far_distance_trash94.jpg,plastic bottle,no,no,0.526,1342.5
+1433,far_distance_trash96.jpg,plastic bottle,yes,no,0.587,1342.5
+1434,far_distance_trash96.jpg,trash,no,no,0.55,1342.5
+1435,far_distance_trash97.jpg,plastic bottle,yes,no,0.566,1342.5
+1436,far_distance_trash97.jpg,trash,no,no,0.589,1342.5
+1437,far_distance_trash99.jpg,plastic bag,yes,no,0.61,1342.5
+1438,far_distance_trash99.jpg,trash,no,no,0.635,1342.5
+1439,hn_anfi_beach_vega_11.jpg,trash,no,no,0.601,1342.5
+1440,hn_anfi_beach_vega_11.jpg,plastic bottle,no,no,0.582,1342.5
+1441,hn_anfi_beach_vega_11.jpg,plastic wrapper,no,no,0.612,1342.5
+1442,hn_anfi_beach_vega_19.jpg,trash,no,no,0.65,1342.5
+1443,hn_anfi_beach_vega_19.jpg,plastic bottle,no,no,0.593,1342.5
+1444,hn_anfi_beach_vega_19.jpg,plastic wrapper,no,no,0.669,1342.5
+1445,hn_anfi_beach_vega_20.jpg,trash,no,no,0.681,1342.5
+1446,hn_anfi_beach_vega_20.jpg,plastic bottle,no,no,0.752,1342.5
+1447,hn_anfi_beach_vega_20.jpg,plastic wrapper,no,no,0.674,1342.5
+1448,hn_anfi_beach_vega_22.jpg,trash,no,no,0.621,1342.5
+1449,hn_anfi_beach_vega_22.jpg,plastic bottle,no,no,0.751,1342.5
+1450,hn_anfi_beach_vega_22.jpg,plastic wrapper,no,no,0.676,1342.5
+1451,hn_anfi_beach_vega_25.jpg,trash,no,no,0.718,1342.5
+1452,hn_anfi_beach_vega_25.jpg,plastic bottle,no,no,0.587,1342.5
+1453,hn_anfi_beach_vega_25.jpg,plastic wrapper,no,no,0.595,1342.5
+1454,hn_anfi_beach_vega_28.jpg,trash,no,no,0.597,1342.5
+1455,hn_anfi_beach_vega_28.jpg,plastic bottle,no,no,0.662,1342.5
+1456,hn_anfi_beach_vega_28.jpg,plastic wrapper,no,no,0.57,1342.5
+1457,hn_anfi_beach_vega_33.jpg,trash,no,no,0.555,1342.5
+1458,hn_anfi_beach_vega_33.jpg,plastic bottle,no,no,0.651,1342.5
+1459,hn_anfi_beach_vega_33.jpg,plastic wrapper,no,no,0.575,1342.5
+1460,hn_anfi_beach_vega_36.jpg,trash,no,no,0.596,1342.5
+1461,hn_anfi_beach_vega_36.jpg,plastic bottle,no,no,0.64,1342.5
+1462,hn_anfi_beach_vega_36.jpg,plastic wrapper,no,no,0.561,1342.5
+1463,hn_anfi_beach_vega_4.jpg,trash,no,no,0.584,1342.5
+1464,hn_anfi_beach_vega_4.jpg,plastic bottle,no,no,0.595,1342.5
+1465,hn_anfi_beach_vega_4.jpg,plastic wrapper,no,no,0.575,1342.5
+1466,hn_anfi_beach_vega_46.jpg,trash,no,no,0.588,1342.5
+1467,hn_anfi_beach_vega_46.jpg,plastic bottle,no,no,0.641,1342.5
+1468,hn_anfi_beach_vega_46.jpg,plastic wrapper,no,no,0.641,1342.5
+1469,hn_anfi_beach_vega_6.jpg,trash,no,no,0.562,1342.5
+1470,hn_anfi_beach_vega_6.jpg,plastic bottle,no,no,0.567,1342.5
+1471,hn_anfi_beach_vega_6.jpg,plastic wrapper,no,no,0.606,1342.5
+1472,hn_anfi_harbour_view_1.jpg,trash,no,no,0.583,1342.5
+1473,hn_anfi_harbour_view_1.jpg,plastic bottle,no,no,0.559,1342.5
+1474,hn_anfi_harbour_view_1.jpg,plastic wrapper,no,no,0.559,1342.5
+1475,hn_anfi_harbour_view_104.jpg,trash,no,no,0.451,1342.5
+1476,hn_anfi_harbour_view_104.jpg,plastic bottle,no,no,0.464,1342.5
+1477,hn_anfi_harbour_view_104.jpg,plastic wrapper,no,no,0.444,1342.5
+1478,hn_anfi_harbour_view_106.jpg,trash,no,no,0.461,1342.5
+1479,hn_anfi_harbour_view_106.jpg,plastic bottle,no,no,0.468,1342.5
+1480,hn_anfi_harbour_view_106.jpg,plastic wrapper,no,no,0.452,1342.5
+1481,hn_anfi_harbour_view_107.jpg,trash,no,no,0.517,1342.5
+1482,hn_anfi_harbour_view_107.jpg,plastic bottle,no,no,0.54,1342.5
+1483,hn_anfi_harbour_view_107.jpg,plastic wrapper,no,no,0.585,1342.5
+1484,hn_anfi_harbour_view_112.jpg,trash,no,no,0.559,1342.5
+1485,hn_anfi_harbour_view_112.jpg,plastic bottle,no,no,0.509,1342.5
+1486,hn_anfi_harbour_view_112.jpg,plastic wrapper,no,no,0.548,1342.5
+1487,hn_anfi_harbour_view_117.jpg,trash,no,no,0.747,1342.5
+1488,hn_anfi_harbour_view_117.jpg,plastic bottle,no,no,0.609,1342.5
+1489,hn_anfi_harbour_view_117.jpg,plastic wrapper,no,no,0.634,1342.5
+1490,hn_anfi_harbour_view_120.jpg,trash,no,no,0.577,1342.5
+1491,hn_anfi_harbour_view_120.jpg,plastic bottle,no,no,0.604,1342.5
+1492,hn_anfi_harbour_view_120.jpg,plastic wrapper,no,no,0.612,1342.5
+1493,hn_anfi_harbour_view_122.jpg,trash,no,no,0.595,1342.5
+1494,hn_anfi_harbour_view_122.jpg,plastic bottle,no,no,0.606,1342.5
+1495,hn_anfi_harbour_view_122.jpg,plastic wrapper,no,no,0.664,1342.5
+1496,hn_anfi_harbour_view_123.jpg,trash,no,no,0.608,1342.5
+1497,hn_anfi_harbour_view_123.jpg,plastic bottle,no,no,0.611,1342.5
+1498,hn_anfi_harbour_view_123.jpg,plastic wrapper,no,no,0.647,1342.5
+1499,hn_anfi_harbour_view_125.jpg,trash,no,no,0.629,1342.5
+1500,hn_anfi_harbour_view_125.jpg,plastic bottle,no,no,0.62,1342.5
+1501,hn_anfi_harbour_view_125.jpg,plastic wrapper,no,no,0.628,1342.5
+1502,hn_anfi_harbour_view_126.jpg,trash,no,no,0.574,1342.5
+1503,hn_anfi_harbour_view_126.jpg,plastic bottle,no,no,0.634,1342.5
+1504,hn_anfi_harbour_view_126.jpg,plastic wrapper,no,no,0.683,1342.5
+1505,hn_anfi_harbour_view_127.jpg,trash,no,no,0.573,1342.5
+1506,hn_anfi_harbour_view_127.jpg,plastic bottle,no,no,0.659,1342.5
+1507,hn_anfi_harbour_view_127.jpg,plastic wrapper,no,no,0.573,1342.5
+1508,hn_anfi_harbour_view_131.jpg,trash,no,no,0.637,1342.5
+1509,hn_anfi_harbour_view_131.jpg,plastic bottle,no,no,0.724,1342.5
+1510,hn_anfi_harbour_view_131.jpg,plastic wrapper,no,no,0.583,1342.5
+1511,hn_anfi_harbour_view_132.jpg,trash,no,no,0.594,1342.5
+1512,hn_anfi_harbour_view_132.jpg,plastic bottle,no,no,0.624,1342.5
+1513,hn_anfi_harbour_view_132.jpg,plastic wrapper,no,no,0.625,1342.5
+1514,hn_anfi_harbour_view_136.jpg,trash,no,no,0.659,1342.5
+1515,hn_anfi_harbour_view_136.jpg,plastic bottle,no,no,0.602,1342.5
+1516,hn_anfi_harbour_view_136.jpg,plastic wrapper,no,no,0.623,1342.5
+1517,hn_anfi_harbour_view_137.jpg,trash,no,no,0.635,1342.5
+1518,hn_anfi_harbour_view_137.jpg,plastic bottle,no,no,0.667,1342.5
+1519,hn_anfi_harbour_view_137.jpg,plastic wrapper,no,no,0.557,1342.5
+1520,hn_anfi_harbour_view_141.jpg,trash,no,no,0.598,1342.5
+1521,hn_anfi_harbour_view_141.jpg,plastic bottle,no,no,0.597,1342.5
+1522,hn_anfi_harbour_view_141.jpg,plastic wrapper,no,no,0.617,1342.5
+1523,hn_anfi_harbour_view_143.jpg,trash,no,no,0.653,1342.5
+1524,hn_anfi_harbour_view_143.jpg,plastic bottle,no,no,0.588,1342.5
+1525,hn_anfi_harbour_view_143.jpg,plastic wrapper,no,no,0.61,1342.5
+1526,hn_anfi_harbour_view_149.jpg,trash,no,no,0.649,1342.5
+1527,hn_anfi_harbour_view_149.jpg,plastic bottle,no,no,0.586,1342.5
+1528,hn_anfi_harbour_view_149.jpg,plastic wrapper,no,no,0.613,1342.5
+1529,hn_anfi_harbour_view_15.jpg,trash,no,no,0.665,1342.5
+1530,hn_anfi_harbour_view_15.jpg,plastic bottle,no,no,0.603,1342.5
+1531,hn_anfi_harbour_view_15.jpg,plastic wrapper,no,no,0.684,1342.5
+1532,hn_anfi_harbour_view_151.jpg,trash,no,no,0.686,1342.5
+1533,hn_anfi_harbour_view_151.jpg,plastic bottle,no,no,0.661,1342.5
+1534,hn_anfi_harbour_view_151.jpg,plastic wrapper,no,no,0.699,1342.5
+1535,hn_anfi_harbour_view_152.jpg,trash,no,no,0.534,1342.5
+1536,hn_anfi_harbour_view_152.jpg,plastic bottle,no,no,0.614,1342.5
+1537,hn_anfi_harbour_view_152.jpg,plastic wrapper,no,no,0.606,1342.5
+1538,hn_anfi_harbour_view_155.jpg,trash,no,no,0.621,1342.5
+1539,hn_anfi_harbour_view_155.jpg,plastic bottle,no,no,0.551,1342.5
+1540,hn_anfi_harbour_view_155.jpg,plastic wrapper,no,no,0.563,1342.5
+1541,hn_anfi_harbour_view_157.jpg,trash,no,no,0.604,1342.5
+1542,hn_anfi_harbour_view_157.jpg,plastic bottle,no,no,0.581,1342.5
+1543,hn_anfi_harbour_view_157.jpg,plastic wrapper,no,no,0.634,1342.5
+1544,hn_anfi_harbour_view_162.jpg,trash,no,no,0.585,1342.5
+1545,hn_anfi_harbour_view_162.jpg,plastic bottle,no,no,0.59,1342.5
+1546,hn_anfi_harbour_view_162.jpg,plastic wrapper,no,no,0.603,1342.5
+1547,hn_anfi_harbour_view_163.jpg,trash,no,no,0.607,1342.5
+1548,hn_anfi_harbour_view_163.jpg,plastic bottle,no,no,0.627,1342.5
+1549,hn_anfi_harbour_view_163.jpg,plastic wrapper,no,no,0.668,1342.5
+1550,hn_anfi_harbour_view_167.jpg,trash,no,no,0.63,1342.5
+1551,hn_anfi_harbour_view_167.jpg,plastic bottle,no,no,0.629,1342.5
+1552,hn_anfi_harbour_view_167.jpg,plastic wrapper,no,no,0.606,1342.5
+1553,hn_anfi_harbour_view_168.jpg,trash,no,no,0.528,1342.5
+1554,hn_anfi_harbour_view_168.jpg,plastic bottle,no,no,0.661,1342.5
+1555,hn_anfi_harbour_view_168.jpg,plastic wrapper,no,no,0.604,1342.5
+1556,hn_anfi_harbour_view_169.jpg,trash,no,no,0.616,1342.5
+1557,hn_anfi_harbour_view_169.jpg,plastic bottle,no,no,0.605,1342.5
+1558,hn_anfi_harbour_view_169.jpg,plastic wrapper,no,no,0.578,1342.5
+1559,hn_anfi_harbour_view_172.jpg,trash,no,no,0.574,1342.5
+1560,hn_anfi_harbour_view_172.jpg,plastic bottle,no,no,0.575,1342.5
+1561,hn_anfi_harbour_view_172.jpg,plastic wrapper,no,no,0.6,1342.5
+1562,hn_anfi_harbour_view_174.jpg,trash,no,no,0.583,1342.5
+1563,hn_anfi_harbour_view_174.jpg,plastic bottle,no,no,0.602,1342.5
+1564,hn_anfi_harbour_view_174.jpg,plastic wrapper,no,no,0.612,1342.5
+1565,hn_anfi_harbour_view_19.jpg,trash,no,no,0.645,1342.5
+1566,hn_anfi_harbour_view_19.jpg,plastic bottle,no,no,0.647,1342.5
+1567,hn_anfi_harbour_view_19.jpg,plastic wrapper,no,no,0.653,1342.5
+1568,hn_anfi_harbour_view_26.jpg,trash,no,no,0.607,1342.5
+1569,hn_anfi_harbour_view_26.jpg,plastic bottle,no,no,0.622,1342.5
+1570,hn_anfi_harbour_view_26.jpg,plastic wrapper,no,no,0.667,1342.5
+1571,hn_anfi_harbour_view_32.jpg,trash,no,no,0.571,1342.5
+1572,hn_anfi_harbour_view_32.jpg,plastic bottle,no,no,0.644,1342.5
+1573,hn_anfi_harbour_view_32.jpg,plastic wrapper,no,no,0.682,1342.5
+1574,hn_anfi_harbour_view_35.jpg,trash,no,no,0.602,1342.5
+1575,hn_anfi_harbour_view_35.jpg,plastic bottle,no,no,0.624,1342.5
+1576,hn_anfi_harbour_view_35.jpg,plastic wrapper,no,no,0.616,1342.5
+1577,hn_anfi_harbour_view_36.jpg,trash,no,no,0.591,1342.5
+1578,hn_anfi_harbour_view_36.jpg,plastic bottle,no,no,0.6,1342.5
+1579,hn_anfi_harbour_view_36.jpg,plastic wrapper,no,no,0.611,1342.5
+1580,hn_anfi_harbour_view_4.jpg,trash,no,no,0.611,1342.5
+1581,hn_anfi_harbour_view_4.jpg,plastic bottle,no,no,0.577,1342.5
+1582,hn_anfi_harbour_view_4.jpg,plastic wrapper,no,no,0.573,1342.5
+1583,hn_anfi_harbour_view_46.jpg,trash,no,no,0.576,1342.5
+1584,hn_anfi_harbour_view_46.jpg,plastic bottle,no,no,0.608,1342.5
+1585,hn_anfi_harbour_view_46.jpg,plastic wrapper,no,no,0.596,1342.5
+1586,hn_anfi_harbour_view_48.jpg,trash,no,no,0.568,1342.5
+1587,hn_anfi_harbour_view_48.jpg,plastic bottle,no,no,0.607,1342.5
+1588,hn_anfi_harbour_view_48.jpg,plastic wrapper,no,no,0.566,1342.5
+1589,hn_anfi_harbour_view_5.jpg,trash,no,no,2.033,1342.5
+1590,hn_anfi_harbour_view_5.jpg,plastic bottle,no,no,0.569,1342.5
+1591,hn_anfi_harbour_view_5.jpg,plastic wrapper,no,no,0.587,1342.5
+1592,hn_anfi_harbour_view_55.jpg,trash,no,no,0.6,1342.5
+1593,hn_anfi_harbour_view_55.jpg,plastic bottle,no,no,0.639,1342.5
+1594,hn_anfi_harbour_view_55.jpg,plastic wrapper,no,no,0.599,1342.5
+1595,hn_anfi_harbour_view_58.jpg,trash,no,no,0.594,1342.5
+1596,hn_anfi_harbour_view_58.jpg,plastic bottle,no,no,0.619,1342.5
+1597,hn_anfi_harbour_view_58.jpg,plastic wrapper,no,no,0.644,1342.5
+1598,hn_anfi_harbour_view_60.jpg,trash,no,no,0.622,1342.5
+1599,hn_anfi_harbour_view_60.jpg,plastic bottle,no,no,0.581,1342.5
+1600,hn_anfi_harbour_view_60.jpg,plastic wrapper,no,no,0.595,1342.5
+1601,hn_anfi_harbour_view_63.jpg,trash,no,no,0.728,1342.5
+1602,hn_anfi_harbour_view_63.jpg,plastic bottle,no,no,0.638,1342.5
+1603,hn_anfi_harbour_view_63.jpg,plastic wrapper,no,no,0.581,1342.5
+1604,hn_anfi_harbour_view_65.jpg,trash,no,no,0.691,1342.5
+1605,hn_anfi_harbour_view_65.jpg,plastic bottle,no,no,0.57,1342.5
+1606,hn_anfi_harbour_view_65.jpg,plastic wrapper,no,no,0.611,1342.5
+1607,hn_anfi_harbour_view_66.jpg,trash,no,no,0.59,1342.5
+1608,hn_anfi_harbour_view_66.jpg,plastic bottle,no,no,0.591,1342.5
+1609,hn_anfi_harbour_view_66.jpg,plastic wrapper,no,no,0.587,1342.5
+1610,hn_anfi_harbour_view_71.jpg,trash,no,no,0.602,1342.5
+1611,hn_anfi_harbour_view_71.jpg,plastic bottle,no,no,0.673,1342.5
+1612,hn_anfi_harbour_view_71.jpg,plastic wrapper,no,no,0.578,1342.5
+1613,hn_anfi_harbour_view_72.jpg,trash,no,no,0.645,1342.5
+1614,hn_anfi_harbour_view_72.jpg,plastic bottle,no,no,0.614,1342.5
+1615,hn_anfi_harbour_view_72.jpg,plastic wrapper,no,no,0.599,1342.5
+1616,hn_anfi_harbour_view_73.jpg,trash,no,no,0.568,1342.5
+1617,hn_anfi_harbour_view_73.jpg,plastic bottle,no,no,0.643,1342.5
+1618,hn_anfi_harbour_view_73.jpg,plastic wrapper,no,no,0.632,1342.5
+1619,hn_anfi_harbour_view_74.jpg,trash,no,no,0.655,1342.5
+1620,hn_anfi_harbour_view_74.jpg,plastic bottle,no,no,0.624,1342.5
+1621,hn_anfi_harbour_view_74.jpg,plastic wrapper,no,no,0.608,1342.5
+1622,hn_anfi_harbour_view_78.jpg,trash,no,no,0.637,1342.5
+1623,hn_anfi_harbour_view_78.jpg,plastic bottle,no,no,0.602,1342.5
+1624,hn_anfi_harbour_view_78.jpg,plastic wrapper,no,no,0.592,1342.5
+1625,hn_anfi_harbour_view_79.jpg,trash,no,no,0.568,1342.5
+1626,hn_anfi_harbour_view_79.jpg,plastic bottle,no,no,0.591,1342.5
+1627,hn_anfi_harbour_view_79.jpg,plastic wrapper,no,no,0.596,1342.5
+1628,hn_anfi_harbour_view_87.jpg,trash,no,no,0.56,1342.5
+1629,hn_anfi_harbour_view_87.jpg,plastic bottle,no,no,0.592,1342.5
+1630,hn_anfi_harbour_view_87.jpg,plastic wrapper,no,no,0.598,1342.5
+1631,hn_anfi_harbour_view_90.jpg,trash,no,no,0.592,1342.5
+1632,hn_anfi_harbour_view_90.jpg,plastic bottle,no,no,0.588,1342.5
+1633,hn_anfi_harbour_view_90.jpg,plastic wrapper,no,no,0.614,1342.5
+1634,hn_anfi_harbour_view_91.jpg,trash,no,no,0.599,1342.5
+1635,hn_anfi_harbour_view_91.jpg,plastic bottle,no,no,0.606,1342.5
+1636,hn_anfi_harbour_view_91.jpg,plastic wrapper,no,no,0.609,1342.5
+1637,hn_anfi_harbour_view_95.jpg,trash,no,no,0.599,1342.5
+1638,hn_anfi_harbour_view_95.jpg,plastic bottle,no,no,0.564,1342.5
+1639,hn_anfi_harbour_view_95.jpg,plastic wrapper,no,no,0.596,1342.5
+1640,hn_anfi_isla_corazon_view_1.jpg,trash,no,no,0.662,1342.5
+1641,hn_anfi_isla_corazon_view_1.jpg,plastic bottle,no,no,0.602,1342.5
+1642,hn_anfi_isla_corazon_view_1.jpg,plastic wrapper,no,no,0.642,1342.5
+1643,hn_anfi_isla_corazon_view_100.jpg,trash,no,no,0.732,1342.5
+1644,hn_anfi_isla_corazon_view_100.jpg,plastic bottle,no,no,0.697,1342.5
+1645,hn_anfi_isla_corazon_view_100.jpg,plastic wrapper,no,no,0.65,1342.5
+1646,hn_anfi_isla_corazon_view_11.jpg,trash,no,no,0.647,1342.5
+1647,hn_anfi_isla_corazon_view_11.jpg,plastic bottle,no,no,0.596,1342.5
+1648,hn_anfi_isla_corazon_view_11.jpg,plastic wrapper,no,no,0.585,1342.5
+1649,hn_anfi_isla_corazon_view_13.jpg,trash,no,no,0.666,1342.5
+1650,hn_anfi_isla_corazon_view_13.jpg,plastic bottle,no,no,0.642,1342.5
+1651,hn_anfi_isla_corazon_view_13.jpg,plastic wrapper,no,no,0.642,1342.5
+1652,hn_anfi_isla_corazon_view_15.jpg,trash,no,no,0.644,1342.5
+1653,hn_anfi_isla_corazon_view_15.jpg,plastic bottle,no,no,0.595,1342.5
+1654,hn_anfi_isla_corazon_view_15.jpg,plastic wrapper,no,no,0.605,1342.5
+1655,hn_anfi_isla_corazon_view_2.jpg,trash,no,no,0.648,1342.5
+1656,hn_anfi_isla_corazon_view_2.jpg,plastic bottle,no,no,0.574,1342.5
+1657,hn_anfi_isla_corazon_view_2.jpg,plastic wrapper,no,no,0.599,1342.5
+1658,hn_anfi_isla_corazon_view_22.jpg,trash,no,no,0.585,1342.5
+1659,hn_anfi_isla_corazon_view_22.jpg,plastic bottle,no,no,0.573,1342.5
+1660,hn_anfi_isla_corazon_view_22.jpg,plastic wrapper,no,no,0.616,1342.5
+1661,hn_anfi_isla_corazon_view_25.jpg,trash,no,no,0.61,1342.5
+1662,hn_anfi_isla_corazon_view_25.jpg,plastic bottle,no,no,0.588,1342.5
+1663,hn_anfi_isla_corazon_view_25.jpg,plastic wrapper,no,no,0.591,1342.5
+1664,hn_anfi_isla_corazon_view_30.jpg,trash,no,no,0.62,1342.5
+1665,hn_anfi_isla_corazon_view_30.jpg,plastic bottle,no,no,0.583,1342.5
+1666,hn_anfi_isla_corazon_view_30.jpg,plastic wrapper,no,no,0.621,1342.5
+1667,hn_anfi_isla_corazon_view_35.jpg,trash,no,no,0.625,1342.5
+1668,hn_anfi_isla_corazon_view_35.jpg,plastic bottle,no,no,0.554,1342.5
+1669,hn_anfi_isla_corazon_view_35.jpg,plastic wrapper,no,no,0.653,1342.5
+1670,hn_anfi_isla_corazon_view_36.jpg,trash,no,no,0.6,1342.5
+1671,hn_anfi_isla_corazon_view_36.jpg,plastic bottle,no,no,0.563,1342.5
+1672,hn_anfi_isla_corazon_view_36.jpg,plastic wrapper,no,no,0.581,1342.5
+1673,hn_anfi_isla_corazon_view_39.jpg,trash,no,no,0.582,1342.5
+1674,hn_anfi_isla_corazon_view_39.jpg,plastic bottle,no,no,0.611,1342.5
+1675,hn_anfi_isla_corazon_view_39.jpg,plastic wrapper,no,no,0.576,1342.5
+1676,hn_anfi_isla_corazon_view_4.jpg,trash,no,no,0.546,1342.5
+1677,hn_anfi_isla_corazon_view_4.jpg,plastic bottle,no,no,0.721,1342.5
+1678,hn_anfi_isla_corazon_view_4.jpg,plastic wrapper,no,no,0.641,1342.5
+1679,hn_anfi_isla_corazon_view_40.jpg,trash,no,no,0.694,1342.5
+1680,hn_anfi_isla_corazon_view_40.jpg,plastic bottle,no,no,0.592,1342.5
+1681,hn_anfi_isla_corazon_view_40.jpg,plastic wrapper,no,no,0.623,1342.5
+1682,hn_anfi_isla_corazon_view_43.jpg,trash,no,no,0.616,1342.5
+1683,hn_anfi_isla_corazon_view_43.jpg,plastic bottle,no,no,0.616,1342.5
+1684,hn_anfi_isla_corazon_view_43.jpg,plastic wrapper,no,no,0.589,1342.5
+1685,hn_anfi_isla_corazon_view_45.jpg,trash,no,no,0.602,1342.5
+1686,hn_anfi_isla_corazon_view_45.jpg,plastic bottle,no,no,0.642,1342.5
+1687,hn_anfi_isla_corazon_view_45.jpg,plastic wrapper,no,no,0.621,1342.5
+1688,hn_anfi_isla_corazon_view_46.jpg,trash,no,no,0.667,1342.5
+1689,hn_anfi_isla_corazon_view_46.jpg,plastic bottle,no,no,0.577,1342.5
+1690,hn_anfi_isla_corazon_view_46.jpg,plastic wrapper,no,no,0.658,1342.5
+1691,hn_anfi_isla_corazon_view_48.jpg,trash,no,no,0.654,1342.5
+1692,hn_anfi_isla_corazon_view_48.jpg,plastic bottle,no,no,0.598,1342.5
+1693,hn_anfi_isla_corazon_view_48.jpg,plastic wrapper,no,no,0.607,1342.5
+1694,hn_anfi_isla_corazon_view_49.jpg,trash,no,no,0.658,1342.5
+1695,hn_anfi_isla_corazon_view_49.jpg,plastic bottle,no,no,0.623,1342.5
+1696,hn_anfi_isla_corazon_view_49.jpg,plastic wrapper,no,no,0.585,1342.5
+1697,hn_anfi_isla_corazon_view_50.jpg,trash,no,no,0.612,1342.5
+1698,hn_anfi_isla_corazon_view_50.jpg,plastic bottle,no,no,0.608,1342.5
+1699,hn_anfi_isla_corazon_view_50.jpg,plastic wrapper,no,no,0.579,1342.5
+1700,hn_anfi_isla_corazon_view_53.jpg,trash,no,no,0.642,1342.5
+1701,hn_anfi_isla_corazon_view_53.jpg,plastic bottle,no,no,0.568,1342.5
+1702,hn_anfi_isla_corazon_view_53.jpg,plastic wrapper,no,no,0.617,1342.5
+1703,hn_anfi_isla_corazon_view_57.jpg,trash,no,no,0.653,1342.5
+1704,hn_anfi_isla_corazon_view_57.jpg,plastic bottle,no,no,0.587,1342.5
+1705,hn_anfi_isla_corazon_view_57.jpg,plastic wrapper,no,no,0.646,1342.5
+1706,hn_anfi_isla_corazon_view_58.jpg,trash,no,no,0.62,1342.5
+1707,hn_anfi_isla_corazon_view_58.jpg,plastic bottle,no,no,0.602,1342.5
+1708,hn_anfi_isla_corazon_view_58.jpg,plastic wrapper,no,no,0.642,1342.5
+1709,hn_anfi_isla_corazon_view_59.jpg,trash,no,no,0.598,1342.5
+1710,hn_anfi_isla_corazon_view_59.jpg,plastic bottle,no,no,0.588,1342.5
+1711,hn_anfi_isla_corazon_view_59.jpg,plastic wrapper,no,no,0.637,1342.5
+1712,hn_anfi_isla_corazon_view_6.jpg,trash,no,no,0.598,1342.5
+1713,hn_anfi_isla_corazon_view_6.jpg,plastic bottle,no,no,0.574,1342.5
+1714,hn_anfi_isla_corazon_view_6.jpg,plastic wrapper,no,no,0.629,1342.5
+1715,hn_anfi_isla_corazon_view_60.jpg,trash,no,no,0.632,1342.5
+1716,hn_anfi_isla_corazon_view_60.jpg,plastic bottle,no,no,0.635,1342.5
+1717,hn_anfi_isla_corazon_view_60.jpg,plastic wrapper,no,no,0.613,1342.5
+1718,hn_anfi_isla_corazon_view_62.jpg,trash,no,no,0.605,1342.5
+1719,hn_anfi_isla_corazon_view_62.jpg,plastic bottle,no,no,0.56,1342.5
+1720,hn_anfi_isla_corazon_view_62.jpg,plastic wrapper,no,no,0.647,1342.5
+1721,hn_anfi_isla_corazon_view_63.jpg,trash,no,no,0.693,1342.5
+1722,hn_anfi_isla_corazon_view_63.jpg,plastic bottle,no,no,0.605,1342.5
+1723,hn_anfi_isla_corazon_view_63.jpg,plastic wrapper,no,no,0.627,1342.5
+1724,hn_anfi_isla_corazon_view_69.jpg,trash,no,no,0.64,1342.5
+1725,hn_anfi_isla_corazon_view_69.jpg,plastic bottle,no,no,0.63,1342.5
+1726,hn_anfi_isla_corazon_view_69.jpg,plastic wrapper,no,no,0.605,1342.5
+1727,hn_anfi_isla_corazon_view_74.jpg,trash,no,no,0.579,1342.5
+1728,hn_anfi_isla_corazon_view_74.jpg,plastic bottle,no,no,0.61,1342.5
+1729,hn_anfi_isla_corazon_view_74.jpg,plastic wrapper,no,no,0.597,1342.5
+1730,hn_anfi_isla_corazon_view_82.jpg,trash,no,no,0.685,1342.5
+1731,hn_anfi_isla_corazon_view_82.jpg,plastic bottle,no,no,0.642,1342.5
+1732,hn_anfi_isla_corazon_view_82.jpg,plastic wrapper,no,no,0.585,1342.5
+1733,hn_anfi_isla_corazon_view_84.jpg,trash,no,no,0.608,1342.5
+1734,hn_anfi_isla_corazon_view_84.jpg,plastic bottle,no,no,0.649,1342.5
+1735,hn_anfi_isla_corazon_view_84.jpg,plastic wrapper,no,no,0.604,1342.5
+1736,hn_anfi_isla_corazon_view_89.jpg,trash,no,no,0.588,1342.5
+1737,hn_anfi_isla_corazon_view_89.jpg,plastic bottle,no,no,0.625,1342.5
+1738,hn_anfi_isla_corazon_view_89.jpg,plastic wrapper,no,no,0.615,1342.5
+1739,hn_anfi_isla_corazon_view_9.jpg,trash,no,no,0.599,1342.5
+1740,hn_anfi_isla_corazon_view_9.jpg,plastic bottle,no,no,0.616,1342.5
+1741,hn_anfi_isla_corazon_view_9.jpg,plastic wrapper,no,no,0.548,1342.5
+1742,hn_anfi_isla_corazon_view_90.jpg,trash,no,no,0.556,1342.5
+1743,hn_anfi_isla_corazon_view_90.jpg,plastic bottle,no,no,0.619,1342.5
+1744,hn_anfi_isla_corazon_view_90.jpg,plastic wrapper,no,no,0.636,1342.5
+1745,hn_anfi_isla_corazon_view_91.jpg,trash,no,no,0.687,1342.5
+1746,hn_anfi_isla_corazon_view_91.jpg,plastic bottle,no,no,0.676,1342.5
+1747,hn_anfi_isla_corazon_view_91.jpg,plastic wrapper,no,no,0.659,1342.5
+1748,hn_anfi_isla_corazon_view_97.jpg,trash,no,no,0.584,1342.5
+1749,hn_anfi_isla_corazon_view_97.jpg,plastic bottle,no,no,0.641,1342.5
+1750,hn_anfi_isla_corazon_view_97.jpg,plastic wrapper,no,no,0.618,1342.5
+1751,hn_anfi_isla_corazon_view_98.jpg,trash,no,no,0.627,1342.5
+1752,hn_anfi_isla_corazon_view_98.jpg,plastic bottle,no,no,0.597,1342.5
+1753,hn_anfi_isla_corazon_view_98.jpg,plastic wrapper,no,no,0.561,1342.5
+1754,hn_anfi_isla_corazon_view_99.jpg,trash,no,no,0.637,1342.5
+1755,hn_anfi_isla_corazon_view_99.jpg,plastic bottle,no,no,0.593,1342.5
+1756,hn_anfi_isla_corazon_view_99.jpg,plastic wrapper,no,no,0.644,1342.5
+1757,hn_cabo_torres_view_harbour_entrance_1.jpg,trash,no,no,0.64,1342.5
+1758,hn_cabo_torres_view_harbour_entrance_1.jpg,plastic bottle,no,no,0.635,1342.5
+1759,hn_cabo_torres_view_harbour_entrance_1.jpg,plastic wrapper,no,no,0.588,1342.5
+1760,hn_cabo_torres_view_harbour_entrance_13.jpg,trash,no,no,0.596,1342.5
+1761,hn_cabo_torres_view_harbour_entrance_13.jpg,plastic bottle,no,no,0.621,1342.5
+1762,hn_cabo_torres_view_harbour_entrance_13.jpg,plastic wrapper,no,no,0.606,1342.5
+1763,hn_cabo_torres_view_harbour_entrance_14.jpg,trash,no,no,0.571,1342.5
+1764,hn_cabo_torres_view_harbour_entrance_14.jpg,plastic bottle,no,no,0.592,1342.5
+1765,hn_cabo_torres_view_harbour_entrance_14.jpg,plastic wrapper,no,no,0.596,1342.5
+1766,hn_cabo_torres_view_harbour_entrance_15.jpg,trash,no,no,0.639,1342.5
+1767,hn_cabo_torres_view_harbour_entrance_15.jpg,plastic bottle,no,no,0.577,1342.5
+1768,hn_cabo_torres_view_harbour_entrance_15.jpg,plastic wrapper,no,no,0.603,1342.5
+1769,hn_cabo_torres_view_harbour_entrance_19.jpg,trash,no,no,0.617,1342.5
+1770,hn_cabo_torres_view_harbour_entrance_19.jpg,plastic bottle,no,no,0.642,1342.5
+1771,hn_cabo_torres_view_harbour_entrance_19.jpg,plastic wrapper,no,no,0.654,1342.5
+1772,hn_cabo_torres_view_harbour_entrance_2.jpg,trash,no,no,0.646,1342.5
+1773,hn_cabo_torres_view_harbour_entrance_2.jpg,plastic bottle,no,no,0.712,1342.5
+1774,hn_cabo_torres_view_harbour_entrance_2.jpg,plastic wrapper,no,no,0.574,1342.5
+1775,hn_cabo_torres_view_harbour_entrance_21.jpg,trash,no,no,0.602,1342.5
+1776,hn_cabo_torres_view_harbour_entrance_21.jpg,plastic bottle,no,no,0.612,1342.5
+1777,hn_cabo_torres_view_harbour_entrance_21.jpg,plastic wrapper,no,no,0.587,1342.5
+1778,hn_cabo_torres_view_harbour_entrance_27.jpg,trash,no,no,0.667,1342.5
+1779,hn_cabo_torres_view_harbour_entrance_27.jpg,plastic bottle,no,no,0.604,1342.5
+1780,hn_cabo_torres_view_harbour_entrance_27.jpg,plastic wrapper,no,no,0.614,1342.5
+1781,hn_cabo_torres_view_harbour_entrance_28.jpg,trash,no,no,0.643,1342.5
+1782,hn_cabo_torres_view_harbour_entrance_28.jpg,plastic bottle,no,no,0.645,1342.5
+1783,hn_cabo_torres_view_harbour_entrance_28.jpg,plastic wrapper,no,no,0.613,1342.5
+1784,hn_cabo_torres_view_harbour_entrance_29.jpg,trash,no,no,0.603,1342.5
+1785,hn_cabo_torres_view_harbour_entrance_29.jpg,plastic bottle,no,no,0.564,1342.5
+1786,hn_cabo_torres_view_harbour_entrance_29.jpg,plastic wrapper,no,no,0.685,1342.5
+1787,hn_cabo_torres_view_harbour_entrance_3.jpg,trash,no,no,0.564,1342.5
+1788,hn_cabo_torres_view_harbour_entrance_3.jpg,plastic bottle,no,no,0.594,1342.5
+1789,hn_cabo_torres_view_harbour_entrance_3.jpg,plastic wrapper,no,no,0.55,1342.5
+1790,hn_cabo_torres_view_harbour_entrance_30.jpg,trash,no,no,0.608,1342.5
+1791,hn_cabo_torres_view_harbour_entrance_30.jpg,plastic bottle,no,no,0.579,1342.5
+1792,hn_cabo_torres_view_harbour_entrance_30.jpg,plastic wrapper,no,no,0.668,1342.5
+1793,hn_cabo_torres_view_harbour_entrance_32.jpg,trash,no,no,0.619,1342.5
+1794,hn_cabo_torres_view_harbour_entrance_32.jpg,plastic bottle,no,no,0.582,1342.5
+1795,hn_cabo_torres_view_harbour_entrance_32.jpg,plastic wrapper,no,no,0.574,1342.5
+1796,hn_cabo_torres_view_harbour_entrance_35.jpg,trash,no,no,0.652,1342.5
+1797,hn_cabo_torres_view_harbour_entrance_35.jpg,plastic bottle,no,no,0.586,1342.5
+1798,hn_cabo_torres_view_harbour_entrance_35.jpg,plastic wrapper,no,no,0.636,1342.5
+1799,hn_cabo_torres_view_harbour_entrance_37.jpg,trash,no,no,0.628,1342.5
+1800,hn_cabo_torres_view_harbour_entrance_37.jpg,plastic bottle,no,no,0.614,1342.5
+1801,hn_cabo_torres_view_harbour_entrance_37.jpg,plastic wrapper,no,no,0.653,1342.5
+1802,hn_cabo_torres_view_harbour_entrance_38.jpg,trash,no,no,0.59,1342.5
+1803,hn_cabo_torres_view_harbour_entrance_38.jpg,plastic bottle,no,no,0.691,1342.5
+1804,hn_cabo_torres_view_harbour_entrance_38.jpg,plastic wrapper,no,no,0.778,1342.5
+1805,hn_cabo_torres_view_harbour_entrance_39.jpg,trash,no,no,0.618,1342.5
+1806,hn_cabo_torres_view_harbour_entrance_39.jpg,plastic bottle,no,no,0.593,1342.5
+1807,hn_cabo_torres_view_harbour_entrance_39.jpg,plastic wrapper,no,no,0.543,1342.5
+1808,hn_cabo_torres_view_harbour_entrance_44.jpg,trash,no,no,0.533,1342.5
+1809,hn_cabo_torres_view_harbour_entrance_44.jpg,plastic bottle,no,no,0.494,1342.5
+1810,hn_cabo_torres_view_harbour_entrance_44.jpg,plastic wrapper,no,no,0.524,1342.5
+1811,hn_cabo_torres_view_harbour_entrance_5.jpg,trash,no,no,0.553,1342.5
+1812,hn_cabo_torres_view_harbour_entrance_5.jpg,plastic bottle,no,no,0.561,1342.5
+1813,hn_cabo_torres_view_harbour_entrance_5.jpg,plastic wrapper,no,no,0.698,1342.5
+1814,hn_cabo_torres_view_harbour_entrance_51.jpg,trash,no,no,0.54,1342.5
+1815,hn_cabo_torres_view_harbour_entrance_51.jpg,plastic bottle,no,no,0.568,1342.5
+1816,hn_cabo_torres_view_harbour_entrance_51.jpg,plastic wrapper,no,no,0.616,1342.5
+1817,hn_cabo_torres_view_harbour_entrance_53.jpg,trash,no,no,0.592,1342.5
+1818,hn_cabo_torres_view_harbour_entrance_53.jpg,plastic bottle,no,no,0.577,1342.5
+1819,hn_cabo_torres_view_harbour_entrance_53.jpg,plastic wrapper,no,no,0.604,1342.5
+1820,hn_cabo_torres_view_harbour_entrance_55.jpg,trash,no,no,0.612,1342.5
+1821,hn_cabo_torres_view_harbour_entrance_55.jpg,plastic bottle,no,no,0.599,1342.5
+1822,hn_cabo_torres_view_harbour_entrance_55.jpg,plastic wrapper,no,no,0.654,1342.5
+1823,hn_cabo_torres_view_harbour_entrance_56.jpg,trash,no,no,0.605,1342.5
+1824,hn_cabo_torres_view_harbour_entrance_56.jpg,plastic bottle,no,no,0.519,1342.5
+1825,hn_cabo_torres_view_harbour_entrance_56.jpg,plastic wrapper,no,no,0.548,1342.5
+1826,hn_cabo_torres_view_harbour_entrance_57.jpg,trash,no,no,0.651,1342.5
+1827,hn_cabo_torres_view_harbour_entrance_57.jpg,plastic bottle,no,no,0.575,1342.5
+1828,hn_cabo_torres_view_harbour_entrance_57.jpg,plastic wrapper,no,no,0.6,1342.5
+1829,hn_cabo_torres_view_harbour_entrance_59.jpg,trash,no,no,0.557,1342.5
+1830,hn_cabo_torres_view_harbour_entrance_59.jpg,plastic bottle,no,no,0.562,1342.5
+1831,hn_cabo_torres_view_harbour_entrance_59.jpg,plastic wrapper,no,no,0.593,1342.5
+1832,hn_cabo_torres_view_harbour_entrance_60.jpg,trash,no,no,0.633,1342.5
+1833,hn_cabo_torres_view_harbour_entrance_60.jpg,plastic bottle,no,no,0.566,1342.5
+1834,hn_cabo_torres_view_harbour_entrance_60.jpg,plastic wrapper,no,no,0.607,1342.5
+1835,hn_cabo_torres_view_harbour_entrance_61.jpg,trash,no,no,0.64,1342.5
+1836,hn_cabo_torres_view_harbour_entrance_61.jpg,plastic bottle,no,no,0.572,1342.5
+1837,hn_cabo_torres_view_harbour_entrance_61.jpg,plastic wrapper,no,no,0.707,1342.5
+1838,hn_cabo_torres_view_harbour_entrance_63.jpg,trash,no,no,0.579,1342.5
+1839,hn_cabo_torres_view_harbour_entrance_63.jpg,plastic bottle,no,no,0.549,1342.5
+1840,hn_cabo_torres_view_harbour_entrance_63.jpg,plastic wrapper,no,no,0.566,1342.5
+1841,hn_cabo_torres_view_harbour_entrance_64.jpg,trash,no,no,0.587,1342.5
+1842,hn_cabo_torres_view_harbour_entrance_64.jpg,plastic bottle,no,no,0.593,1342.5
+1843,hn_cabo_torres_view_harbour_entrance_64.jpg,plastic wrapper,no,no,0.631,1342.5
+1844,hn_cabo_torres_view_harbour_entrance_67.jpg,trash,no,no,0.586,1342.5
+1845,hn_cabo_torres_view_harbour_entrance_67.jpg,plastic bottle,no,no,0.788,1342.5
+1846,hn_cabo_torres_view_harbour_entrance_67.jpg,plastic wrapper,no,no,0.855,1342.5
+1847,hn_cabo_torres_view_harbour_entrance_69.jpg,trash,no,no,0.655,1342.5
+1848,hn_cabo_torres_view_harbour_entrance_69.jpg,plastic bottle,no,no,0.531,1342.5
+1849,hn_cabo_torres_view_harbour_entrance_69.jpg,plastic wrapper,no,no,0.596,1342.5
+1850,hn_cabo_torres_view_harbour_entrance_71.jpg,trash,no,no,0.629,1342.5
+1851,hn_cabo_torres_view_harbour_entrance_71.jpg,plastic bottle,no,no,0.629,1342.5
+1852,hn_cabo_torres_view_harbour_entrance_71.jpg,plastic wrapper,no,no,0.622,1342.5
+1853,hn_cabo_torres_view_harbour_entrance_72.jpg,trash,no,no,0.637,1342.5
+1854,hn_cabo_torres_view_harbour_entrance_72.jpg,plastic bottle,no,no,0.559,1342.5
+1855,hn_cabo_torres_view_harbour_entrance_72.jpg,plastic wrapper,no,no,0.53,1342.5
+1856,hn_cabo_torres_view_harbour_entrance_75.jpg,trash,no,no,0.552,1342.5
+1857,hn_cabo_torres_view_harbour_entrance_75.jpg,plastic bottle,no,no,0.619,1342.5
+1858,hn_cabo_torres_view_harbour_entrance_75.jpg,plastic wrapper,no,no,0.549,1342.5
+1859,hn_cabo_torres_view_harbour_entrance_76.jpg,trash,no,no,0.543,1342.5
+1860,hn_cabo_torres_view_harbour_entrance_76.jpg,plastic bottle,no,no,0.612,1342.5
+1861,hn_cabo_torres_view_harbour_entrance_76.jpg,plastic wrapper,no,no,0.552,1342.5
+1862,hn_cabo_torres_view_harbour_entrance_77.jpg,trash,no,no,0.642,1342.5
+1863,hn_cabo_torres_view_harbour_entrance_77.jpg,plastic bottle,no,no,0.573,1342.5
+1864,hn_cabo_torres_view_harbour_entrance_77.jpg,plastic wrapper,no,no,0.612,1342.5
+1865,hn_cabo_torres_view_harbour_entrance_78.jpg,trash,no,no,0.571,1342.5
+1866,hn_cabo_torres_view_harbour_entrance_78.jpg,plastic bottle,no,no,0.574,1342.5
+1867,hn_cabo_torres_view_harbour_entrance_78.jpg,plastic wrapper,no,no,0.563,1342.5
+1868,hn_cabo_torres_view_harbour_entrance_8.jpg,trash,no,no,0.6,1342.5
+1869,hn_cabo_torres_view_harbour_entrance_8.jpg,plastic bottle,no,no,0.605,1342.5
+1870,hn_cabo_torres_view_harbour_entrance_8.jpg,plastic wrapper,no,no,0.645,1342.5
+1871,hn_cabo_torres_view_harbour_entrance_80.jpg,trash,no,no,0.602,1342.5
+1872,hn_cabo_torres_view_harbour_entrance_80.jpg,plastic bottle,no,no,0.612,1342.5
+1873,hn_cabo_torres_view_harbour_entrance_80.jpg,plastic wrapper,no,no,0.578,1342.5
+1874,hn_cabo_torres_view_harbour_entrance_84.jpg,trash,no,no,0.598,1342.5
+1875,hn_cabo_torres_view_harbour_entrance_84.jpg,plastic bottle,no,no,0.608,1342.5
+1876,hn_cabo_torres_view_harbour_entrance_84.jpg,plastic wrapper,no,no,0.658,1342.5
+1877,hn_cabo_torres_view_harbour_entrance_85.jpg,trash,no,no,0.61,1342.5
+1878,hn_cabo_torres_view_harbour_entrance_85.jpg,plastic bottle,no,no,0.615,1342.5
+1879,hn_cabo_torres_view_harbour_entrance_85.jpg,plastic wrapper,no,no,0.612,1342.5
+1880,hn_cabo_torres_view_harbour_entrance_87.jpg,trash,no,no,0.596,1342.5
+1881,hn_cabo_torres_view_harbour_entrance_87.jpg,plastic bottle,no,no,0.583,1342.5
+1882,hn_cabo_torres_view_harbour_entrance_87.jpg,plastic wrapper,no,no,0.569,1342.5
+1883,hn_cabo_torres_view_harbour_entrance_9.jpg,trash,no,no,0.63,1342.5
+1884,hn_cabo_torres_view_harbour_entrance_9.jpg,plastic bottle,no,no,0.581,1342.5
+1885,hn_cabo_torres_view_harbour_entrance_9.jpg,plastic wrapper,no,no,0.591,1342.5
+1886,hn_cabo_torres_view_restinga_port_1.jpg,trash,no,no,0.609,1342.5
+1887,hn_cabo_torres_view_restinga_port_1.jpg,plastic bottle,no,no,0.59,1342.5
+1888,hn_cabo_torres_view_restinga_port_1.jpg,plastic wrapper,no,no,0.591,1342.5
+1889,hn_cabo_torres_view_restinga_port_11.jpg,trash,no,no,0.598,1342.5
+1890,hn_cabo_torres_view_restinga_port_11.jpg,plastic bottle,no,no,0.611,1342.5
+1891,hn_cabo_torres_view_restinga_port_11.jpg,plastic wrapper,no,no,0.66,1342.5
+1892,hn_cabo_torres_view_restinga_port_14.jpg,trash,no,no,0.637,1342.5
+1893,hn_cabo_torres_view_restinga_port_14.jpg,plastic bottle,no,no,0.661,1342.5
+1894,hn_cabo_torres_view_restinga_port_14.jpg,plastic wrapper,no,no,0.668,1342.5
+1895,hn_cabo_torres_view_restinga_port_19.jpg,trash,no,no,0.562,1342.5
+1896,hn_cabo_torres_view_restinga_port_19.jpg,plastic bottle,no,no,0.549,1342.5
+1897,hn_cabo_torres_view_restinga_port_19.jpg,plastic wrapper,no,no,0.567,1342.5
+1898,hn_cabo_torres_view_restinga_port_20.jpg,trash,no,no,0.555,1342.5
+1899,hn_cabo_torres_view_restinga_port_20.jpg,plastic bottle,no,no,0.612,1342.5
+1900,hn_cabo_torres_view_restinga_port_20.jpg,plastic wrapper,no,no,0.586,1342.5
+1901,hn_cabo_torres_view_restinga_port_24.jpg,trash,no,no,0.616,1342.5
+1902,hn_cabo_torres_view_restinga_port_24.jpg,plastic bottle,no,no,0.551,1342.5
+1903,hn_cabo_torres_view_restinga_port_24.jpg,plastic wrapper,no,no,0.583,1342.5
+1904,hn_cabo_torres_view_restinga_port_25.jpg,trash,no,no,0.601,1342.5
+1905,hn_cabo_torres_view_restinga_port_25.jpg,plastic bottle,no,no,0.579,1342.5
+1906,hn_cabo_torres_view_restinga_port_25.jpg,plastic wrapper,no,no,0.637,1342.5
+1907,hn_cabo_torres_view_restinga_port_28.jpg,trash,no,no,0.594,1342.5
+1908,hn_cabo_torres_view_restinga_port_28.jpg,plastic bottle,no,no,0.613,1342.5
+1909,hn_cabo_torres_view_restinga_port_28.jpg,plastic wrapper,no,no,0.642,1342.5
+1910,hn_cabo_torres_view_restinga_port_29.jpg,trash,no,no,0.578,1342.5
+1911,hn_cabo_torres_view_restinga_port_29.jpg,plastic bottle,no,no,0.637,1342.5
+1912,hn_cabo_torres_view_restinga_port_29.jpg,plastic wrapper,no,no,0.632,1342.5
+1913,hn_cabo_torres_view_restinga_port_3.jpg,trash,no,no,0.603,1342.5
+1914,hn_cabo_torres_view_restinga_port_3.jpg,plastic bottle,no,no,0.555,1342.5
+1915,hn_cabo_torres_view_restinga_port_3.jpg,plastic wrapper,no,no,0.618,1342.5
+1916,hn_cabo_torres_view_restinga_port_30.jpg,trash,no,no,0.636,1342.5
+1917,hn_cabo_torres_view_restinga_port_30.jpg,plastic bottle,no,no,0.58,1342.5
+1918,hn_cabo_torres_view_restinga_port_30.jpg,plastic wrapper,no,no,0.55,1342.5
+1919,hn_cabo_torres_view_restinga_port_32.jpg,trash,no,no,0.536,1342.5
+1920,hn_cabo_torres_view_restinga_port_32.jpg,plastic bottle,no,no,0.506,1342.5
+1921,hn_cabo_torres_view_restinga_port_32.jpg,plastic wrapper,no,no,0.531,1342.5
+1922,hn_cabo_torres_view_restinga_port_37.jpg,trash,no,no,0.523,1342.5
+1923,hn_cabo_torres_view_restinga_port_37.jpg,plastic bottle,no,no,0.552,1342.5
+1924,hn_cabo_torres_view_restinga_port_37.jpg,plastic wrapper,no,no,0.496,1342.5
+1925,hn_cabo_torres_view_restinga_port_38.jpg,trash,no,no,0.569,1342.5
+1926,hn_cabo_torres_view_restinga_port_38.jpg,plastic bottle,no,no,0.521,1342.5
+1927,hn_cabo_torres_view_restinga_port_38.jpg,plastic wrapper,no,no,0.505,1342.5
+1928,hn_cabo_torres_view_restinga_port_39.jpg,trash,no,no,0.535,1342.5
+1929,hn_cabo_torres_view_restinga_port_39.jpg,plastic bottle,no,no,0.565,1342.5
+1930,hn_cabo_torres_view_restinga_port_39.jpg,plastic wrapper,no,no,0.613,1342.5
+1931,hn_cabo_torres_view_restinga_port_4.jpg,trash,no,no,0.632,1342.5
+1932,hn_cabo_torres_view_restinga_port_4.jpg,plastic bottle,no,no,0.556,1342.5
+1933,hn_cabo_torres_view_restinga_port_4.jpg,plastic wrapper,no,no,0.619,1342.5
+1934,hn_cabo_torres_view_restinga_port_43.jpg,trash,no,no,0.583,1342.5
+1935,hn_cabo_torres_view_restinga_port_43.jpg,plastic bottle,no,no,0.564,1342.5
+1936,hn_cabo_torres_view_restinga_port_43.jpg,plastic wrapper,no,no,0.55,1342.5
+1937,hn_cabo_torres_view_restinga_port_47.jpg,trash,no,no,0.567,1342.5
+1938,hn_cabo_torres_view_restinga_port_47.jpg,plastic bottle,no,no,0.623,1342.5
+1939,hn_cabo_torres_view_restinga_port_47.jpg,plastic wrapper,no,no,0.559,1342.5
+1940,hn_cabo_torres_view_restinga_port_49.jpg,trash,no,no,0.584,1342.5
+1941,hn_cabo_torres_view_restinga_port_49.jpg,plastic bottle,no,no,0.598,1342.5
+1942,hn_cabo_torres_view_restinga_port_49.jpg,plastic wrapper,no,no,0.586,1342.5
+1943,hn_cabo_torres_view_restinga_port_51.jpg,trash,no,no,0.657,1342.5
+1944,hn_cabo_torres_view_restinga_port_51.jpg,plastic bottle,no,no,0.563,1342.5
+1945,hn_cabo_torres_view_restinga_port_51.jpg,plastic wrapper,no,no,0.646,1342.5
+1946,hn_cabo_torres_view_restinga_port_54.jpg,trash,no,no,0.6,1342.5
+1947,hn_cabo_torres_view_restinga_port_54.jpg,plastic bottle,no,no,0.564,1342.5
+1948,hn_cabo_torres_view_restinga_port_54.jpg,plastic wrapper,no,no,0.596,1342.5
+1949,hn_cabo_torres_view_restinga_port_61.jpg,trash,no,no,0.683,1342.5
+1950,hn_cabo_torres_view_restinga_port_61.jpg,plastic bottle,no,no,0.647,1342.5
+1951,hn_cabo_torres_view_restinga_port_61.jpg,plastic wrapper,no,no,0.613,1342.5
+1952,hn_cabo_torres_view_restinga_port_63.jpg,trash,no,no,0.557,1342.5
+1953,hn_cabo_torres_view_restinga_port_63.jpg,plastic bottle,no,no,0.633,1342.5
+1954,hn_cabo_torres_view_restinga_port_63.jpg,plastic wrapper,no,no,0.605,1342.5
+1955,hn_cabo_torres_view_restinga_port_64.jpg,trash,no,no,0.579,1342.5
+1956,hn_cabo_torres_view_restinga_port_64.jpg,plastic bottle,no,no,0.629,1342.5
+1957,hn_cabo_torres_view_restinga_port_64.jpg,plastic wrapper,no,no,0.588,1342.5
+1958,hn_cabo_torres_view_restinga_port_68.jpg,trash,no,no,0.575,1342.5
+1959,hn_cabo_torres_view_restinga_port_68.jpg,plastic bottle,no,no,0.593,1342.5
+1960,hn_cabo_torres_view_restinga_port_68.jpg,plastic wrapper,no,no,0.639,1342.5
+1961,hn_cabo_torres_view_restinga_port_69.jpg,trash,no,no,0.596,1342.5
+1962,hn_cabo_torres_view_restinga_port_69.jpg,plastic bottle,no,no,0.615,1342.5
+1963,hn_cabo_torres_view_restinga_port_69.jpg,plastic wrapper,no,no,0.587,1342.5
+1964,hn_cabo_torres_view_restinga_port_9.jpg,trash,no,no,0.622,1342.5
+1965,hn_cabo_torres_view_restinga_port_9.jpg,plastic bottle,no,no,0.583,1342.5
+1966,hn_cabo_torres_view_restinga_port_9.jpg,plastic wrapper,no,no,0.66,1342.5
+1967,hn_radisson_isla_corazon_anfi_1.jpg,trash,no,no,0.599,1342.5
+1968,hn_radisson_isla_corazon_anfi_1.jpg,plastic bottle,no,no,0.622,1342.5
+1969,hn_radisson_isla_corazon_anfi_1.jpg,plastic wrapper,no,no,0.609,1342.5
+1970,hn_radisson_isla_corazon_anfi_103.jpg,trash,no,no,0.663,1342.5
+1971,hn_radisson_isla_corazon_anfi_103.jpg,plastic bottle,no,no,0.589,1342.5
+1972,hn_radisson_isla_corazon_anfi_103.jpg,plastic wrapper,no,no,0.59,1342.5
+1973,hn_radisson_isla_corazon_anfi_104.jpg,trash,no,no,0.543,1342.5
+1974,hn_radisson_isla_corazon_anfi_104.jpg,plastic bottle,no,no,0.558,1342.5
+1975,hn_radisson_isla_corazon_anfi_104.jpg,plastic wrapper,no,no,0.582,1342.5
+1976,hn_radisson_isla_corazon_anfi_107.jpg,trash,no,no,0.592,1342.5
+1977,hn_radisson_isla_corazon_anfi_107.jpg,plastic bottle,no,no,0.622,1342.5
+1978,hn_radisson_isla_corazon_anfi_107.jpg,plastic wrapper,no,no,0.599,1342.5
+1979,hn_radisson_isla_corazon_anfi_112.jpg,trash,no,no,0.647,1342.5
+1980,hn_radisson_isla_corazon_anfi_112.jpg,plastic bottle,no,no,0.667,1342.5
+1981,hn_radisson_isla_corazon_anfi_112.jpg,plastic wrapper,no,no,0.659,1342.5
+1982,hn_radisson_isla_corazon_anfi_115.jpg,trash,no,no,0.611,1342.5
+1983,hn_radisson_isla_corazon_anfi_115.jpg,plastic bottle,no,no,0.567,1342.5
+1984,hn_radisson_isla_corazon_anfi_115.jpg,plastic wrapper,no,no,0.584,1342.5
+1985,hn_radisson_isla_corazon_anfi_119.jpg,trash,no,no,0.571,1342.5
+1986,hn_radisson_isla_corazon_anfi_119.jpg,plastic bottle,no,no,0.587,1342.5
+1987,hn_radisson_isla_corazon_anfi_119.jpg,plastic wrapper,no,no,0.597,1342.5
+1988,hn_radisson_isla_corazon_anfi_121.jpg,trash,no,no,0.572,1342.5
+1989,hn_radisson_isla_corazon_anfi_121.jpg,plastic bottle,no,no,0.572,1342.5
+1990,hn_radisson_isla_corazon_anfi_121.jpg,plastic wrapper,no,no,0.558,1342.5
+1991,hn_radisson_isla_corazon_anfi_123.jpg,trash,no,no,0.576,1342.5
+1992,hn_radisson_isla_corazon_anfi_123.jpg,plastic bottle,no,no,0.576,1342.5
+1993,hn_radisson_isla_corazon_anfi_123.jpg,plastic wrapper,no,no,0.613,1342.5
+1994,hn_radisson_isla_corazon_anfi_125.jpg,trash,no,no,0.582,1342.5
+1995,hn_radisson_isla_corazon_anfi_125.jpg,plastic bottle,no,no,0.612,1342.5
+1996,hn_radisson_isla_corazon_anfi_125.jpg,plastic wrapper,no,no,0.554,1342.5
+1997,hn_radisson_isla_corazon_anfi_130.jpg,trash,no,no,0.577,1342.5
+1998,hn_radisson_isla_corazon_anfi_130.jpg,plastic bottle,no,no,0.617,1342.5
+1999,hn_radisson_isla_corazon_anfi_130.jpg,plastic wrapper,no,no,0.551,1342.5
+2000,hn_radisson_isla_corazon_anfi_14.jpg,trash,no,no,0.595,1342.5
+2001,hn_radisson_isla_corazon_anfi_14.jpg,plastic bottle,no,no,0.597,1342.5
+2002,hn_radisson_isla_corazon_anfi_14.jpg,plastic wrapper,no,no,0.567,1342.5
+2003,hn_radisson_isla_corazon_anfi_20.jpg,trash,no,no,0.613,1342.5
+2004,hn_radisson_isla_corazon_anfi_20.jpg,plastic bottle,no,no,0.609,1342.5
+2005,hn_radisson_isla_corazon_anfi_20.jpg,plastic wrapper,no,no,0.613,1342.5
+2006,hn_radisson_isla_corazon_anfi_23.jpg,trash,no,no,0.546,1342.5
+2007,hn_radisson_isla_corazon_anfi_23.jpg,plastic bottle,no,no,0.628,1342.5
+2008,hn_radisson_isla_corazon_anfi_23.jpg,plastic wrapper,no,no,0.611,1342.5
+2009,hn_radisson_isla_corazon_anfi_24.jpg,trash,no,no,0.586,1342.5
+2010,hn_radisson_isla_corazon_anfi_24.jpg,plastic bottle,no,no,0.54,1342.5
+2011,hn_radisson_isla_corazon_anfi_24.jpg,plastic wrapper,no,no,0.573,1342.5
+2012,hn_radisson_isla_corazon_anfi_27.jpg,trash,no,no,0.665,1342.5
+2013,hn_radisson_isla_corazon_anfi_27.jpg,plastic bottle,no,no,0.586,1342.5
+2014,hn_radisson_isla_corazon_anfi_27.jpg,plastic wrapper,no,no,0.644,1342.5
+2015,hn_radisson_isla_corazon_anfi_28.jpg,trash,no,no,0.566,1342.5
+2016,hn_radisson_isla_corazon_anfi_28.jpg,plastic bottle,no,no,0.624,1342.5
+2017,hn_radisson_isla_corazon_anfi_28.jpg,plastic wrapper,no,no,0.556,1342.5
+2018,hn_radisson_isla_corazon_anfi_36.jpg,trash,no,no,0.575,1342.5
+2019,hn_radisson_isla_corazon_anfi_36.jpg,plastic bottle,no,no,0.536,1342.5
+2020,hn_radisson_isla_corazon_anfi_36.jpg,plastic wrapper,no,no,0.58,1342.5
+2021,hn_radisson_isla_corazon_anfi_37.jpg,trash,no,no,0.635,1342.5
+2022,hn_radisson_isla_corazon_anfi_37.jpg,plastic bottle,no,no,0.601,1342.5
+2023,hn_radisson_isla_corazon_anfi_37.jpg,plastic wrapper,no,no,0.569,1342.5
+2024,hn_radisson_isla_corazon_anfi_40.jpg,trash,no,no,0.566,1342.5
+2025,hn_radisson_isla_corazon_anfi_40.jpg,plastic bottle,no,no,0.602,1342.5
+2026,hn_radisson_isla_corazon_anfi_40.jpg,plastic wrapper,no,no,0.583,1342.5
+2027,hn_radisson_isla_corazon_anfi_41.jpg,trash,no,no,0.578,1342.5
+2028,hn_radisson_isla_corazon_anfi_41.jpg,plastic bottle,no,no,0.562,1342.5
+2029,hn_radisson_isla_corazon_anfi_41.jpg,plastic wrapper,no,no,0.597,1342.5
+2030,hn_radisson_isla_corazon_anfi_45.jpg,trash,no,no,0.591,1342.5
+2031,hn_radisson_isla_corazon_anfi_45.jpg,plastic bottle,no,no,0.575,1342.5
+2032,hn_radisson_isla_corazon_anfi_45.jpg,plastic wrapper,no,no,0.571,1342.5
+2033,hn_radisson_isla_corazon_anfi_5.jpg,trash,no,no,0.557,1342.5
+2034,hn_radisson_isla_corazon_anfi_5.jpg,plastic bottle,no,no,0.556,1342.5
+2035,hn_radisson_isla_corazon_anfi_5.jpg,plastic wrapper,no,no,0.667,1342.5
+2036,hn_radisson_isla_corazon_anfi_51.jpg,trash,no,no,0.601,1342.5
+2037,hn_radisson_isla_corazon_anfi_51.jpg,plastic bottle,no,no,0.59,1342.5
+2038,hn_radisson_isla_corazon_anfi_51.jpg,plastic wrapper,no,no,0.61,1342.5
+2039,hn_radisson_isla_corazon_anfi_58.jpg,trash,no,no,0.617,1342.5
+2040,hn_radisson_isla_corazon_anfi_58.jpg,plastic bottle,no,no,0.572,1342.5
+2041,hn_radisson_isla_corazon_anfi_58.jpg,plastic wrapper,no,no,0.58,1342.5
+2042,hn_radisson_isla_corazon_anfi_64.jpg,trash,no,no,0.597,1342.5
+2043,hn_radisson_isla_corazon_anfi_64.jpg,plastic bottle,no,no,0.677,1342.5
+2044,hn_radisson_isla_corazon_anfi_64.jpg,plastic wrapper,no,no,0.655,1342.5
+2045,hn_radisson_isla_corazon_anfi_7.jpg,trash,no,no,0.617,1342.5
+2046,hn_radisson_isla_corazon_anfi_7.jpg,plastic bottle,no,no,0.564,1342.5
+2047,hn_radisson_isla_corazon_anfi_7.jpg,plastic wrapper,no,no,0.522,1342.5
+2048,hn_radisson_isla_corazon_anfi_75.jpg,trash,no,no,0.637,1342.5
+2049,hn_radisson_isla_corazon_anfi_75.jpg,plastic bottle,no,no,0.581,1342.5
+2050,hn_radisson_isla_corazon_anfi_75.jpg,plastic wrapper,no,no,0.607,1342.5
+2051,hn_radisson_isla_corazon_anfi_82.jpg,trash,no,no,0.571,1342.5
+2052,hn_radisson_isla_corazon_anfi_82.jpg,plastic bottle,no,no,0.66,1342.5
+2053,hn_radisson_isla_corazon_anfi_82.jpg,plastic wrapper,no,no,0.712,1342.5
+2054,hn_radisson_isla_corazon_anfi_83.jpg,trash,no,no,0.726,1342.5
+2055,hn_radisson_isla_corazon_anfi_83.jpg,plastic bottle,no,no,0.597,1342.5
+2056,hn_radisson_isla_corazon_anfi_83.jpg,plastic wrapper,no,no,0.585,1342.5
+2057,hn_radisson_isla_corazon_anfi_9.jpg,trash,no,no,0.59,1342.5
+2058,hn_radisson_isla_corazon_anfi_9.jpg,plastic bottle,no,no,0.625,1342.5
+2059,hn_radisson_isla_corazon_anfi_9.jpg,plastic wrapper,no,no,0.597,1342.5
+2060,hn_radisson_isla_corazon_anfi_90.jpg,trash,no,no,0.547,1342.5
+2061,hn_radisson_isla_corazon_anfi_90.jpg,plastic bottle,no,no,0.624,1342.5
+2062,hn_radisson_isla_corazon_anfi_90.jpg,plastic wrapper,no,no,0.615,1342.5
+2063,hn_radisson_isla_corazon_anfi_95.jpg,trash,no,no,0.602,1342.5
+2064,hn_radisson_isla_corazon_anfi_95.jpg,plastic bottle,no,no,0.585,1342.5
+2065,hn_radisson_isla_corazon_anfi_95.jpg,plastic wrapper,no,no,0.586,1342.5
+2066,hn_scene_1006_1.jpg,trash,no,no,0.617,1342.5
+2067,hn_scene_1006_1.jpg,plastic bottle,no,no,0.585,1342.5
+2068,hn_scene_1006_1.jpg,plastic wrapper,no,no,0.625,1342.5
+2069,hn_scene_1006_10.jpg,trash,no,no,0.608,1342.5
+2070,hn_scene_1006_10.jpg,plastic bottle,no,no,0.566,1342.5
+2071,hn_scene_1006_10.jpg,plastic wrapper,no,no,0.592,1342.5
+2072,hn_scene_1006_103.jpg,trash,no,no,0.659,1342.5
+2073,hn_scene_1006_103.jpg,plastic bottle,no,no,0.62,1342.5
+2074,hn_scene_1006_103.jpg,plastic wrapper,no,no,0.592,1342.5
+2075,hn_scene_1006_104.jpg,trash,no,no,0.535,1342.5
+2076,hn_scene_1006_104.jpg,plastic bottle,no,no,0.553,1342.5
+2077,hn_scene_1006_104.jpg,plastic wrapper,no,no,0.683,1342.5
+2078,hn_scene_1006_108.jpg,trash,no,no,0.576,1342.5
+2079,hn_scene_1006_108.jpg,plastic bottle,no,no,0.614,1342.5
+2080,hn_scene_1006_108.jpg,plastic wrapper,no,no,0.629,1342.5
+2081,hn_scene_1006_114.jpg,trash,no,no,0.602,1342.5
+2082,hn_scene_1006_114.jpg,plastic bottle,no,no,0.575,1342.5
+2083,hn_scene_1006_114.jpg,plastic wrapper,no,no,0.589,1342.5
+2084,hn_scene_1006_116.jpg,trash,no,no,0.642,1342.5
+2085,hn_scene_1006_116.jpg,plastic bottle,no,no,0.683,1342.5
+2086,hn_scene_1006_116.jpg,plastic wrapper,no,no,0.64,1342.5
+2087,hn_scene_1006_121.jpg,trash,no,no,0.653,1342.5
+2088,hn_scene_1006_121.jpg,plastic bottle,no,no,0.579,1342.5
+2089,hn_scene_1006_121.jpg,plastic wrapper,no,no,0.668,1342.5
+2090,hn_scene_1006_127.jpg,trash,no,no,0.586,1342.5
+2091,hn_scene_1006_127.jpg,plastic bottle,no,no,0.625,1342.5
+2092,hn_scene_1006_127.jpg,plastic wrapper,no,no,0.615,1342.5
+2093,hn_scene_1006_128.jpg,trash,no,no,0.575,1342.5
+2094,hn_scene_1006_128.jpg,plastic bottle,no,no,0.625,1342.5
+2095,hn_scene_1006_128.jpg,plastic wrapper,no,no,0.607,1342.5
+2096,hn_scene_1006_130.jpg,trash,no,no,0.583,1342.5
+2097,hn_scene_1006_130.jpg,plastic bottle,no,no,0.652,1342.5
+2098,hn_scene_1006_130.jpg,plastic wrapper,no,no,0.575,1342.5
+2099,hn_scene_1006_131.jpg,trash,no,no,0.577,1342.5
+2100,hn_scene_1006_131.jpg,plastic bottle,no,no,0.604,1342.5
+2101,hn_scene_1006_131.jpg,plastic wrapper,no,no,0.56,1342.5
+2102,hn_scene_1006_14.jpg,trash,no,no,0.599,1342.5
+2103,hn_scene_1006_14.jpg,plastic bottle,no,no,0.634,1342.5
+2104,hn_scene_1006_14.jpg,plastic wrapper,no,no,0.546,1342.5
+2105,hn_scene_1006_17.jpg,trash,no,no,0.603,1342.5
+2106,hn_scene_1006_17.jpg,plastic bottle,no,no,0.539,1342.5
+2107,hn_scene_1006_17.jpg,plastic wrapper,no,no,0.567,1342.5
+2108,hn_scene_1006_21.jpg,trash,no,no,0.592,1342.5
+2109,hn_scene_1006_21.jpg,plastic bottle,no,no,0.622,1342.5
+2110,hn_scene_1006_21.jpg,plastic wrapper,no,no,0.585,1342.5
+2111,hn_scene_1006_24.jpg,trash,no,no,0.601,1342.5
+2112,hn_scene_1006_24.jpg,plastic bottle,no,no,0.602,1342.5
+2113,hn_scene_1006_24.jpg,plastic wrapper,no,no,0.584,1342.5
+2114,hn_scene_1006_3.jpg,trash,no,no,0.687,1342.5
+2115,hn_scene_1006_3.jpg,plastic bottle,no,no,0.544,1342.5
+2116,hn_scene_1006_3.jpg,plastic wrapper,no,no,0.555,1342.5
+2117,hn_scene_1006_30.jpg,trash,no,no,0.568,1342.5
+2118,hn_scene_1006_30.jpg,plastic bottle,no,no,0.594,1342.5
+2119,hn_scene_1006_30.jpg,plastic wrapper,no,no,0.65,1342.5
+2120,hn_scene_1006_37.jpg,trash,no,no,0.666,1342.5
+2121,hn_scene_1006_37.jpg,plastic bottle,no,no,0.587,1342.5
+2122,hn_scene_1006_37.jpg,plastic wrapper,no,no,0.578,1342.5
+2123,hn_scene_1006_39.jpg,trash,no,no,0.59,1342.5
+2124,hn_scene_1006_39.jpg,plastic bottle,no,no,0.602,1342.5
+2125,hn_scene_1006_39.jpg,plastic wrapper,no,no,0.691,1342.5
+2126,hn_scene_1006_43.jpg,trash,no,no,0.577,1342.5
+2127,hn_scene_1006_43.jpg,plastic bottle,no,no,0.571,1342.5
+2128,hn_scene_1006_43.jpg,plastic wrapper,no,no,0.696,1342.5
+2129,hn_scene_1006_47.jpg,trash,no,no,0.536,1342.5
+2130,hn_scene_1006_47.jpg,plastic bottle,no,no,0.612,1342.5
+2131,hn_scene_1006_47.jpg,plastic wrapper,no,no,0.636,1342.5
+2132,hn_scene_1006_48.jpg,trash,no,no,0.627,1342.5
+2133,hn_scene_1006_48.jpg,plastic bottle,no,no,0.62,1342.5
+2134,hn_scene_1006_48.jpg,plastic wrapper,no,no,0.561,1342.5
+2135,hn_scene_1006_5.jpg,trash,no,no,0.589,1342.5
+2136,hn_scene_1006_5.jpg,plastic bottle,no,no,0.619,1342.5
+2137,hn_scene_1006_5.jpg,plastic wrapper,no,no,0.581,1342.5
+2138,hn_scene_1006_63.jpg,trash,no,no,0.588,1342.5
+2139,hn_scene_1006_63.jpg,plastic bottle,no,no,0.541,1342.5
+2140,hn_scene_1006_63.jpg,plastic wrapper,no,no,0.577,1342.5
+2141,hn_scene_1006_67.jpg,trash,no,no,0.564,1342.5
+2142,hn_scene_1006_67.jpg,plastic bottle,no,no,0.573,1342.5
+2143,hn_scene_1006_67.jpg,plastic wrapper,no,no,0.586,1342.5
+2144,hn_scene_1006_69.jpg,trash,no,no,0.608,1342.5
+2145,hn_scene_1006_69.jpg,plastic bottle,no,no,0.57,1342.5
+2146,hn_scene_1006_69.jpg,plastic wrapper,no,no,0.576,1342.5
+2147,hn_scene_1006_70.jpg,trash,no,no,0.619,1342.5
+2148,hn_scene_1006_70.jpg,plastic bottle,no,no,0.613,1342.5
+2149,hn_scene_1006_70.jpg,plastic wrapper,no,no,0.723,1342.5
+2150,hn_scene_1006_72.jpg,trash,no,no,0.58,1342.5
+2151,hn_scene_1006_72.jpg,plastic bottle,no,no,0.53,1342.5
+2152,hn_scene_1006_72.jpg,plastic wrapper,no,no,0.554,1342.5
+2153,hn_scene_1006_74.jpg,trash,no,no,0.497,1342.5
+2154,hn_scene_1006_74.jpg,plastic bottle,no,no,0.507,1342.5
+2155,hn_scene_1006_74.jpg,plastic wrapper,no,no,0.584,1342.5
+2156,hn_scene_1006_76.jpg,trash,no,no,0.587,1342.5
+2157,hn_scene_1006_76.jpg,plastic bottle,no,no,0.554,1342.5
+2158,hn_scene_1006_76.jpg,plastic wrapper,no,no,0.521,1342.5
+2159,hn_scene_1006_81.jpg,trash,no,no,0.56,1342.5
+2160,hn_scene_1006_81.jpg,plastic bottle,no,no,0.542,1342.5
+2161,hn_scene_1006_81.jpg,plastic wrapper,no,no,0.51,1342.5
+2162,hn_scene_1006_83.jpg,trash,no,no,0.532,1342.5
+2163,hn_scene_1006_83.jpg,plastic bottle,no,no,0.535,1342.5
+2164,hn_scene_1006_83.jpg,plastic wrapper,no,no,0.581,1342.5
+2165,hn_scene_1006_85.jpg,trash,no,no,0.553,1342.5
+2166,hn_scene_1006_85.jpg,plastic bottle,no,no,0.641,1342.5
+2167,hn_scene_1006_85.jpg,plastic wrapper,no,no,0.589,1342.5
+2168,hn_scene_1006_9.jpg,trash,no,no,0.698,1342.5
+2169,hn_scene_1006_9.jpg,plastic bottle,no,no,0.623,1342.5
+2170,hn_scene_1006_9.jpg,plastic wrapper,no,no,0.596,1342.5
+2171,hn_scene_1006_92.jpg,trash,no,no,0.607,1342.5
+2172,hn_scene_1006_92.jpg,plastic bottle,no,no,0.676,1342.5
+2173,hn_scene_1006_92.jpg,plastic wrapper,no,no,0.591,1342.5
+2174,hn_scene_1006_93.jpg,trash,no,no,0.603,1342.5
+2175,hn_scene_1006_93.jpg,plastic bottle,no,no,0.579,1342.5
+2176,hn_scene_1006_93.jpg,plastic wrapper,no,no,0.563,1342.5
+2177,hn_scene_1006_94.jpg,trash,no,no,0.622,1342.5
+2178,hn_scene_1006_94.jpg,plastic bottle,no,no,0.619,1342.5
+2179,hn_scene_1006_94.jpg,plastic wrapper,no,no,0.588,1342.5
+2180,hn_scene_1006_96.jpg,trash,no,no,0.592,1342.5
+2181,hn_scene_1006_96.jpg,plastic bottle,no,no,0.584,1342.5
+2182,hn_scene_1006_96.jpg,plastic wrapper,no,no,0.632,1342.5
+2183,hn_scene_1006_97.jpg,trash,no,no,0.588,1342.5
+2184,hn_scene_1006_97.jpg,plastic bottle,no,no,0.584,1342.5
+2185,hn_scene_1006_97.jpg,plastic wrapper,no,no,0.595,1342.5
+2186,hn_scene_1006_99.jpg,trash,no,no,0.619,1342.5
+2187,hn_scene_1006_99.jpg,plastic bottle,no,no,0.586,1342.5
+2188,hn_scene_1006_99.jpg,plastic wrapper,no,no,0.553,1342.5
+2189,medium_distance_trash1001.jpg,can,yes,no,0.751,1342.5
+2190,medium_distance_trash1001.jpg,trash,no,no,0.728,1342.5
+2191,medium_distance_trash1004.jpg,can,yes,yes,0.59,1342.5
+2192,medium_distance_trash1004.jpg,trash,no,no,0.54,1342.5
+2193,medium_distance_trash1006.jpg,plastic wrapper,yes,no,0.687,1342.5
+2194,medium_distance_trash1006.jpg,trash,no,no,0.813,1342.5
+2195,medium_distance_trash1008.jpg,plastic wrapper,yes,no,0.698,1342.5
+2196,medium_distance_trash1008.jpg,trash,no,no,0.719,1342.5
+2197,medium_distance_trash101.jpg,trash,yes,no,0.573,1342.5
+2198,medium_distance_trash101.jpg,plastic bottle,no,no,0.524,1342.5
+2199,medium_distance_trash1017.jpg,trash,yes,no,0.665,1342.5
+2200,medium_distance_trash1017.jpg,plastic bottle,no,no,0.736,1342.5
+2201,medium_distance_trash102.jpg,plastic bottle,yes,no,0.613,1342.5
+2202,medium_distance_trash102.jpg,trash,no,no,0.598,1342.5
+2203,medium_distance_trash1026.jpg,can,yes,no,0.591,1342.5
+2204,medium_distance_trash1026.jpg,trash,no,no,0.663,1342.5
+2205,medium_distance_trash1030.jpg,plastic wrapper,yes,no,0.731,1342.5
+2206,medium_distance_trash1030.jpg,trash,no,no,0.678,1342.5
+2207,medium_distance_trash1031.jpg,plastic wrapper,yes,no,0.716,1342.5
+2208,medium_distance_trash1031.jpg,trash,no,no,0.757,1342.5
+2209,medium_distance_trash104.jpg,can,yes,no,0.652,1342.5
+2210,medium_distance_trash104.jpg,trash,no,no,0.573,1342.5
+2211,medium_distance_trash1040.jpg,trash,yes,no,0.707,1342.5
+2212,medium_distance_trash1040.jpg,plastic bottle,no,no,0.687,1342.5
+2213,medium_distance_trash1042.jpg,can,yes,no,0.648,1342.5
+2214,medium_distance_trash1042.jpg,trash,no,no,0.613,1342.5
+2215,medium_distance_trash1044.jpg,trash,yes,no,0.572,1342.5
+2216,medium_distance_trash1044.jpg,plastic bottle,no,no,0.576,1342.5
+2217,medium_distance_trash1046.jpg,trash,yes,no,0.589,1342.5
+2218,medium_distance_trash1046.jpg,plastic bottle,no,no,0.633,1342.5
+2219,medium_distance_trash1047.jpg,plastic bag,yes,no,0.762,1342.5
+2220,medium_distance_trash1047.jpg,trash,no,no,0.778,1342.5
+2221,medium_distance_trash105.jpg,trash,yes,no,0.548,1342.5
+2222,medium_distance_trash105.jpg,plastic bottle,no,no,0.571,1342.5
+2223,medium_distance_trash1052.jpg,trash,yes,no,0.609,1342.5
+2224,medium_distance_trash1052.jpg,plastic bottle,no,no,0.589,1342.5
+2225,medium_distance_trash1053.jpg,glass,yes,no,0.531,1342.5
+2226,medium_distance_trash1053.jpg,plastic wrapper,yes,no,0.588,1342.5
+2227,medium_distance_trash1053.jpg,trash,no,no,0.612,1342.5
+2228,medium_distance_trash1053.jpg,plastic bottle,no,no,0.604,1342.5
+2229,medium_distance_trash1063.jpg,plastic bottle,yes,no,0.567,1342.5
+2230,medium_distance_trash1063.jpg,trash,no,no,0.569,1342.5
+2231,medium_distance_trash1065.jpg,plastic bottle,yes,no,0.542,1342.5
+2232,medium_distance_trash1065.jpg,trash,no,no,0.531,1342.5
+2233,medium_distance_trash1066.jpg,plastic bottle,yes,no,0.583,1342.5
+2234,medium_distance_trash1066.jpg,trash,no,no,0.598,1342.5
+2235,medium_distance_trash107.jpg,trash,yes,no,0.622,1342.5
+2236,medium_distance_trash107.jpg,plastic bottle,no,no,0.579,1342.5
+2237,medium_distance_trash1072.jpg,trash,yes,no,0.573,1342.5
+2238,medium_distance_trash1072.jpg,plastic bottle,no,no,0.554,1342.5
+2239,medium_distance_trash1077.jpg,plastic bottle,yes,no,0.619,1342.5
+2240,medium_distance_trash1077.jpg,trash,yes,no,0.546,1342.5
+2241,medium_distance_trash1077.jpg,plastic wrapper,no,no,0.544,1342.5
+2242,medium_distance_trash1077.jpg,plastic bag,no,no,0.563,1342.5
+2243,medium_distance_trash1079.jpg,trash,yes,no,0.612,1342.5
+2244,medium_distance_trash1079.jpg,plastic bottle,no,no,0.623,1342.5
+2245,medium_distance_trash110.jpg,plastic bottle,yes,no,0.557,1342.5
+2246,medium_distance_trash110.jpg,trash,no,no,0.65,1342.5
+2247,medium_distance_trash114.jpg,plastic bottle,yes,no,0.522,1342.5
+2248,medium_distance_trash114.jpg,trash,no,no,0.583,1342.5
+2249,medium_distance_trash115.jpg,metal scrap,yes,no,0.566,1342.5
+2250,medium_distance_trash115.jpg,trash,yes,no,0.628,1342.5
+2251,medium_distance_trash115.jpg,plastic bottle,no,no,0.581,1342.5
+2252,medium_distance_trash115.jpg,plastic wrapper,no,no,0.542,1342.5
+2253,medium_distance_trash121.jpg,can,yes,no,0.56,1342.5
+2254,medium_distance_trash121.jpg,trash,no,no,0.654,1342.5
+2255,medium_distance_trash123.jpg,trash,yes,no,0.608,1342.5
+2256,medium_distance_trash123.jpg,plastic bottle,no,no,0.556,1342.5
+2257,medium_distance_trash125.jpg,trash,yes,no,0.646,1342.5
+2258,medium_distance_trash125.jpg,plastic bottle,no,no,0.66,1342.5
+2259,medium_distance_trash130.jpg,plastic bottle,yes,no,0.671,1342.5
+2260,medium_distance_trash130.jpg,glass,yes,no,0.622,1342.5
+2261,medium_distance_trash130.jpg,trash,no,no,0.505,1342.5
+2262,medium_distance_trash130.jpg,plastic wrapper,no,no,0.554,1342.5
+2263,medium_distance_trash135.jpg,plastic wrapper,yes,no,0.514,1342.5
+2264,medium_distance_trash135.jpg,trash,no,no,0.546,1342.5
+2265,medium_distance_trash137.jpg,trash,yes,no,0.518,1342.5
+2266,medium_distance_trash137.jpg,plastic bottle,no,no,0.543,1342.5
+2267,medium_distance_trash144.jpg,plastic wrapper,yes,no,0.543,1342.5
+2268,medium_distance_trash144.jpg,trash,no,no,0.596,1342.5
+2269,medium_distance_trash151.jpg,plastic bottle,yes,no,0.564,1342.5
+2270,medium_distance_trash151.jpg,plastic wrapper,yes,no,0.537,1342.5
+2271,medium_distance_trash151.jpg,trash,no,no,0.566,1342.5
+2272,medium_distance_trash151.jpg,plastic bag,no,no,0.513,1342.5
+2273,medium_distance_trash154.jpg,plastic bottle,yes,no,0.533,1342.5
+2274,medium_distance_trash154.jpg,trash,no,no,0.785,1342.5
+2275,medium_distance_trash156.jpg,can,yes,no,0.534,1342.5
+2276,medium_distance_trash156.jpg,trash,no,no,0.593,1342.5
+2277,medium_distance_trash161.jpg,trash,yes,no,0.567,1342.5
+2278,medium_distance_trash161.jpg,plastic bottle,no,no,0.597,1342.5
+2279,medium_distance_trash163.jpg,can,yes,no,0.53,1342.5
+2280,medium_distance_trash163.jpg,trash,no,no,0.576,1342.5
+2281,medium_distance_trash166.jpg,plastic bottle,yes,no,0.586,1342.5
+2282,medium_distance_trash166.jpg,can,yes,no,0.603,1342.5
+2283,medium_distance_trash166.jpg,trash,no,no,0.61,1342.5
+2284,medium_distance_trash166.jpg,plastic wrapper,no,no,0.579,1342.5
+2285,medium_distance_trash167.jpg,plastic bottle,yes,no,0.57,1342.5
+2286,medium_distance_trash167.jpg,trash,no,no,0.625,1342.5
+2287,medium_distance_trash169.jpg,plastic bottle,yes,no,0.525,1342.5
+2288,medium_distance_trash169.jpg,trash,no,no,0.64,1342.5
+2289,medium_distance_trash170.jpg,trash,yes,no,0.551,1342.5
+2290,medium_distance_trash170.jpg,plastic bottle,no,no,0.577,1342.5
+2291,medium_distance_trash179.jpg,plastic bag,yes,no,0.532,1342.5
+2292,medium_distance_trash179.jpg,trash,no,no,0.558,1342.5
+2293,medium_distance_trash18.jpg,plastic bottle,yes,no,0.549,1342.5
+2294,medium_distance_trash18.jpg,trash,no,no,0.542,1342.5
+2295,medium_distance_trash181.jpg,plastic bottle,yes,no,0.53,1342.5
+2296,medium_distance_trash181.jpg,trash,yes,no,0.597,1342.5
+2297,medium_distance_trash181.jpg,plastic wrapper,no,no,0.583,1342.5
+2298,medium_distance_trash181.jpg,plastic bag,no,no,0.55,1342.5
+2299,medium_distance_trash182.jpg,plastic bottle,yes,no,0.551,1342.5
+2300,medium_distance_trash182.jpg,trash,no,no,0.548,1342.5
+2301,medium_distance_trash185.jpg,can,yes,yes,0.597,1342.5
+2302,medium_distance_trash185.jpg,trash,no,no,0.562,1342.5
+2303,medium_distance_trash190.jpg,trash,yes,no,0.54,1342.5
+2304,medium_distance_trash190.jpg,plastic bottle,no,no,0.534,1342.5
+2305,medium_distance_trash195.jpg,plastic bottle,yes,no,0.536,1342.5
+2306,medium_distance_trash195.jpg,trash,no,no,0.568,1342.5
+2307,medium_distance_trash198.jpg,can,yes,no,0.547,1342.5
+2308,medium_distance_trash198.jpg,trash,no,no,0.589,1342.5
+2309,medium_distance_trash200.jpg,trash,yes,no,0.554,1342.5
+2310,medium_distance_trash200.jpg,plastic bottle,no,no,0.556,1342.5
+2311,medium_distance_trash204.jpg,trash,yes,no,0.557,1342.5
+2312,medium_distance_trash204.jpg,plastic bottle,no,no,0.568,1342.5
+2313,medium_distance_trash206.jpg,can,yes,no,0.52,1342.5
+2314,medium_distance_trash206.jpg,trash,yes,no,0.605,1342.5
+2315,medium_distance_trash206.jpg,plastic bottle,no,no,0.59,1342.5
+2316,medium_distance_trash206.jpg,plastic wrapper,no,no,0.607,1342.5
+2317,medium_distance_trash217.jpg,plastic bag,yes,no,0.532,1342.5
+2318,medium_distance_trash217.jpg,trash,no,no,0.511,1342.5
+2319,medium_distance_trash220.jpg,plastic bottle,yes,no,0.541,1342.5
+2320,medium_distance_trash220.jpg,trash,no,no,0.608,1342.5
+2321,medium_distance_trash221.jpg,trash,yes,no,0.619,1342.5
+2322,medium_distance_trash221.jpg,plastic bottle,no,no,0.606,1342.5
+2323,medium_distance_trash223.jpg,plastic bottle,yes,no,0.547,1342.5
+2324,medium_distance_trash223.jpg,trash,no,no,0.6,1342.5
+2325,medium_distance_trash226.jpg,glass,yes,no,0.6,1342.5
+2326,medium_distance_trash226.jpg,trash,yes,no,0.559,1342.5
+2327,medium_distance_trash226.jpg,plastic bottle,no,no,0.579,1342.5
+2328,medium_distance_trash226.jpg,plastic wrapper,no,no,0.564,1342.5
+2329,medium_distance_trash23.jpg,trash,yes,no,0.603,1342.5
+2330,medium_distance_trash23.jpg,plastic bottle,no,no,0.601,1342.5
+2331,medium_distance_trash235.jpg,plastic bag,yes,no,0.535,1342.5
+2332,medium_distance_trash235.jpg,trash,no,no,0.602,1342.5
+2333,medium_distance_trash237.jpg,plastic bottle,yes,no,0.584,1342.5
+2334,medium_distance_trash237.jpg,trash,yes,no,0.544,1342.5
+2335,medium_distance_trash237.jpg,plastic wrapper,no,no,0.544,1342.5
+2336,medium_distance_trash237.jpg,plastic bag,no,no,0.625,1342.5
+2337,medium_distance_trash239.jpg,glass,yes,no,0.567,1342.5
+2338,medium_distance_trash239.jpg,trash,no,no,0.573,1342.5
+2339,medium_distance_trash255.jpg,trash,yes,no,0.578,1342.5
+2340,medium_distance_trash255.jpg,plastic bottle,no,no,0.552,1342.5
+2341,medium_distance_trash257.jpg,plastic wrapper,yes,no,0.545,1342.5
+2342,medium_distance_trash257.jpg,trash,no,no,0.532,1342.5
+2343,medium_distance_trash258.jpg,plastic wrapper,yes,no,0.538,1342.5
+2344,medium_distance_trash258.jpg,trash,yes,no,0.568,1342.5
+2345,medium_distance_trash258.jpg,plastic bottle,no,no,0.615,1342.5
+2346,medium_distance_trash258.jpg,plastic bag,no,no,0.504,1342.5
+2347,medium_distance_trash263.jpg,plastic bag,yes,no,0.524,1342.5
+2348,medium_distance_trash263.jpg,trash,no,no,0.54,1342.5
+2349,medium_distance_trash264.jpg,plastic bottle,yes,no,0.646,1342.5
+2350,medium_distance_trash264.jpg,trash,no,no,0.562,1342.5
+2351,medium_distance_trash268.jpg,plastic bag,yes,no,0.562,1342.5
+2352,medium_distance_trash268.jpg,trash,no,no,0.578,1342.5
+2353,medium_distance_trash273.jpg,trash,yes,no,0.601,1342.5
+2354,medium_distance_trash273.jpg,plastic bottle,no,no,0.592,1342.5
+2355,medium_distance_trash274.jpg,can,yes,no,0.639,1342.5
+2356,medium_distance_trash274.jpg,trash,yes,no,0.632,1342.5
+2357,medium_distance_trash274.jpg,plastic bottle,no,no,0.594,1342.5
+2358,medium_distance_trash274.jpg,plastic wrapper,no,no,0.53,1342.5
+2359,medium_distance_trash279.jpg,plastic wrapper,yes,no,0.547,1342.5
+2360,medium_distance_trash279.jpg,trash,no,no,0.555,1342.5
+2361,medium_distance_trash29.jpg,plastic bag,yes,no,0.552,1342.5
+2362,medium_distance_trash29.jpg,trash,yes,no,0.568,1342.5
+2363,medium_distance_trash29.jpg,plastic bottle,no,no,0.587,1342.5
+2364,medium_distance_trash29.jpg,plastic wrapper,no,no,0.552,1342.5
+2365,medium_distance_trash35.jpg,plastic wrapper,yes,no,0.722,1342.5
+2366,medium_distance_trash35.jpg,trash,no,no,0.653,1342.5
+2367,medium_distance_trash36.jpg,trash,yes,no,0.645,1342.5
+2368,medium_distance_trash36.jpg,plastic bottle,no,no,0.564,1342.5
+2369,medium_distance_trash40.jpg,plastic bottle,yes,no,0.58,1342.5
+2370,medium_distance_trash40.jpg,trash,no,no,0.588,1342.5
+2371,medium_distance_trash418.jpg,glass,yes,no,0.576,1342.5
+2372,medium_distance_trash418.jpg,trash,no,no,0.71,1342.5
+2373,medium_distance_trash421.jpg,plastic bottle,yes,no,0.591,1342.5
+2374,medium_distance_trash421.jpg,trash,no,no,0.548,1342.5
+2375,medium_distance_trash428.jpg,plastic bag,yes,no,0.538,1342.5
+2376,medium_distance_trash428.jpg,trash,no,no,0.58,1342.5
+2377,medium_distance_trash43.jpg,trash,yes,no,0.571,1342.5
+2378,medium_distance_trash43.jpg,plastic bottle,no,no,0.527,1342.5
+2379,medium_distance_trash437.jpg,plastic wrapper,yes,no,0.53,1342.5
+2380,medium_distance_trash437.jpg,trash,no,no,0.512,1342.5
+2381,medium_distance_trash443.jpg,can,yes,no,0.45,1342.5
+2382,medium_distance_trash443.jpg,trash,no,no,0.496,1342.5
+2383,medium_distance_trash445.jpg,plastic wrapper,yes,no,0.482,1342.5
+2384,medium_distance_trash445.jpg,trash,no,no,0.478,1342.5
+2385,medium_distance_trash447.jpg,can,yes,no,0.527,1342.5
+2386,medium_distance_trash447.jpg,trash,no,no,0.486,1342.5
+2387,medium_distance_trash45.jpg,trash,yes,no,0.524,1342.5
+2388,medium_distance_trash45.jpg,plastic bottle,no,no,0.534,1342.5
+2389,medium_distance_trash453.jpg,trash,yes,no,0.542,1342.5
+2390,medium_distance_trash453.jpg,plastic bottle,no,no,0.529,1342.5
+2391,medium_distance_trash454.jpg,plastic bag,yes,no,0.533,1342.5
+2392,medium_distance_trash454.jpg,trash,no,no,0.573,1342.5
+2393,medium_distance_trash455.jpg,plastic bag,yes,no,0.551,1342.5
+2394,medium_distance_trash455.jpg,trash,no,no,0.544,1342.5
+2395,medium_distance_trash46.jpg,glass,yes,no,0.601,1342.5
+2396,medium_distance_trash46.jpg,trash,yes,no,0.597,1342.5
+2397,medium_distance_trash46.jpg,plastic bottle,no,no,0.584,1342.5
+2398,medium_distance_trash46.jpg,plastic wrapper,no,no,0.604,1342.5
+2399,medium_distance_trash461.jpg,plastic bottle,yes,no,0.507,1342.5
+2400,medium_distance_trash461.jpg,glass,yes,no,0.536,1342.5
+2401,medium_distance_trash461.jpg,trash,yes,no,0.703,1342.5
+2402,medium_distance_trash461.jpg,plastic wrapper,no,no,0.617,1342.5
+2403,medium_distance_trash461.jpg,plastic bag,no,no,0.62,1342.5
+2404,medium_distance_trash461.jpg,can,no,no,0.567,1342.5
+2405,medium_distance_trash463.jpg,plastic bag,yes,no,0.531,1342.5
+2406,medium_distance_trash463.jpg,trash,yes,no,0.599,1342.5
+2407,medium_distance_trash463.jpg,plastic bottle,no,no,0.54,1342.5
+2408,medium_distance_trash463.jpg,plastic wrapper,no,no,0.603,1342.5
+2409,medium_distance_trash466.jpg,can,yes,no,0.57,1342.5
+2410,medium_distance_trash466.jpg,trash,no,no,0.655,1342.5
+2411,medium_distance_trash467.jpg,plastic bottle,yes,no,0.552,1342.5
+2412,medium_distance_trash467.jpg,trash,yes,no,0.614,1342.5
+2413,medium_distance_trash467.jpg,plastic wrapper,no,no,0.657,1342.5
+2414,medium_distance_trash467.jpg,plastic bag,no,no,0.556,1342.5
+2415,medium_distance_trash470.jpg,trash,yes,no,0.535,1342.5
+2416,medium_distance_trash470.jpg,plastic bottle,no,no,0.52,1342.5
+2417,medium_distance_trash473.jpg,trash,yes,no,0.553,1342.5
+2418,medium_distance_trash473.jpg,plastic bottle,no,no,0.548,1342.5
+2419,medium_distance_trash474.jpg,plastic bag,yes,no,0.554,1342.5
+2420,medium_distance_trash474.jpg,trash,no,no,0.532,1342.5
+2421,medium_distance_trash480.jpg,trash,yes,no,0.625,1342.5
+2422,medium_distance_trash480.jpg,plastic bottle,no,no,0.553,1342.5
+2423,medium_distance_trash486.jpg,plastic bottle,yes,no,0.554,1342.5
+2424,medium_distance_trash486.jpg,glass,yes,no,0.58,1342.5
+2425,medium_distance_trash486.jpg,trash,yes,no,0.599,1342.5
+2426,medium_distance_trash486.jpg,plastic wrapper,no,no,0.591,1342.5
+2427,medium_distance_trash486.jpg,plastic bag,no,no,0.543,1342.5
+2428,medium_distance_trash486.jpg,can,no,no,0.536,1342.5
+2429,medium_distance_trash487.jpg,plastic bag,yes,no,0.576,1342.5
+2430,medium_distance_trash487.jpg,trash,yes,no,0.552,1342.5
+2431,medium_distance_trash487.jpg,plastic bottle,no,no,0.558,1342.5
+2432,medium_distance_trash487.jpg,plastic wrapper,no,no,0.528,1342.5
+2433,medium_distance_trash492.jpg,plastic bag,yes,no,0.537,1342.5
+2434,medium_distance_trash492.jpg,trash,yes,no,0.573,1342.5
+2435,medium_distance_trash492.jpg,plastic bottle,no,no,0.519,1342.5
+2436,medium_distance_trash492.jpg,plastic wrapper,no,no,0.511,1342.5
+2437,medium_distance_trash493.jpg,plastic bag,yes,no,0.507,1342.5
+2438,medium_distance_trash493.jpg,trash,yes,no,0.538,1342.5
+2439,medium_distance_trash493.jpg,plastic bottle,no,no,0.532,1342.5
+2440,medium_distance_trash493.jpg,plastic wrapper,no,no,0.582,1342.5
+2441,medium_distance_trash499.jpg,trash,yes,no,0.563,1342.5
+2442,medium_distance_trash499.jpg,plastic bottle,no,no,0.55,1342.5
+2443,medium_distance_trash501.jpg,trash,yes,no,0.662,1342.5
+2444,medium_distance_trash501.jpg,plastic bottle,no,no,0.556,1342.5
+2445,medium_distance_trash503.jpg,can,yes,no,0.62,1342.5
+2446,medium_distance_trash503.jpg,trash,yes,no,0.548,1342.5
+2447,medium_distance_trash503.jpg,plastic bottle,no,no,0.527,1342.5
+2448,medium_distance_trash503.jpg,plastic wrapper,no,no,0.578,1342.5
+2449,medium_distance_trash504.jpg,plastic wrapper,yes,no,0.544,1342.5
+2450,medium_distance_trash504.jpg,trash,no,no,0.517,1342.5
+2451,medium_distance_trash506.jpg,plastic wrapper,yes,no,0.621,1342.5
+2452,medium_distance_trash506.jpg,trash,no,no,0.557,1342.5
+2453,medium_distance_trash508.jpg,glass,yes,no,0.573,1342.5
+2454,medium_distance_trash508.jpg,trash,yes,no,0.517,1342.5
+2455,medium_distance_trash508.jpg,plastic bottle,no,no,0.52,1342.5
+2456,medium_distance_trash508.jpg,plastic wrapper,no,no,0.527,1342.5
+2457,medium_distance_trash512.jpg,glass,yes,no,0.556,1342.5
+2458,medium_distance_trash512.jpg,can,yes,no,0.59,1342.5
+2459,medium_distance_trash512.jpg,trash,yes,no,0.554,1342.5
+2460,medium_distance_trash512.jpg,plastic bottle,no,no,0.525,1342.5
+2461,medium_distance_trash512.jpg,plastic wrapper,no,no,0.561,1342.5
+2462,medium_distance_trash512.jpg,plastic bag,no,no,0.501,1342.5
+2463,medium_distance_trash515.jpg,plastic bottle,yes,no,0.553,1342.5
+2464,medium_distance_trash515.jpg,trash,no,no,0.53,1342.5
+2465,medium_distance_trash521.jpg,plastic bottle,yes,no,0.568,1342.5
+2466,medium_distance_trash521.jpg,trash,yes,no,0.562,1342.5
+2467,medium_distance_trash521.jpg,plastic wrapper,no,no,0.591,1342.5
+2468,medium_distance_trash521.jpg,plastic bag,no,no,0.546,1342.5
+2469,medium_distance_trash522.jpg,trash,yes,no,0.544,1342.5
+2470,medium_distance_trash522.jpg,plastic bottle,no,no,0.604,1342.5
+2471,medium_distance_trash526.jpg,plastic wrapper,yes,no,0.68,1445.9
+2472,medium_distance_trash526.jpg,trash,no,no,0.704,1445.9
+2473,medium_distance_trash528.jpg,plastic bottle,yes,no,0.576,1342.5
+2474,medium_distance_trash528.jpg,trash,no,no,0.635,1342.5
+2475,medium_distance_trash531.jpg,plastic bag,yes,no,0.748,1342.5
+2476,medium_distance_trash531.jpg,trash,yes,no,0.687,1342.5
+2477,medium_distance_trash531.jpg,plastic bottle,no,no,0.592,1342.5
+2478,medium_distance_trash531.jpg,plastic wrapper,no,no,0.551,1342.5
+2479,medium_distance_trash532.jpg,plastic wrapper,yes,no,0.517,1342.5
+2480,medium_distance_trash532.jpg,trash,no,no,0.564,1342.5
+2481,medium_distance_trash534.jpg,trash,yes,no,0.569,1342.5
+2482,medium_distance_trash534.jpg,plastic bottle,no,no,0.534,1342.5
+2483,medium_distance_trash537.jpg,plastic wrapper,yes,no,0.575,1342.5
+2484,medium_distance_trash537.jpg,trash,no,no,0.567,1342.5
+2485,medium_distance_trash550.jpg,plastic wrapper,yes,no,0.562,1342.5
+2486,medium_distance_trash550.jpg,trash,no,no,0.647,1342.5
+2487,medium_distance_trash553.jpg,plastic wrapper,yes,no,0.567,1342.5
+2488,medium_distance_trash553.jpg,trash,no,no,0.514,1342.5
+2489,medium_distance_trash554.jpg,plastic bag,yes,no,0.543,1342.5
+2490,medium_distance_trash554.jpg,trash,no,no,0.542,1342.5
+2491,medium_distance_trash556.jpg,plastic bottle,yes,no,0.512,1342.5
+2492,medium_distance_trash556.jpg,trash,no,no,0.529,1342.5
+2493,medium_distance_trash572.jpg,plastic wrapper,yes,no,0.573,1342.5
+2494,medium_distance_trash572.jpg,trash,no,no,0.541,1342.5
+2495,medium_distance_trash578.jpg,plastic wrapper,yes,no,0.538,1342.5
+2496,medium_distance_trash578.jpg,trash,no,no,0.533,1342.5
+2497,medium_distance_trash58.jpg,plastic bottle,yes,no,0.523,1342.5
+2498,medium_distance_trash58.jpg,trash,no,no,0.558,1342.5
+2499,medium_distance_trash585.jpg,plastic bag,yes,no,0.529,1342.5
+2500,medium_distance_trash585.jpg,trash,no,no,0.528,1342.5
+2501,medium_distance_trash586.jpg,trash,yes,no,0.546,1342.5
+2502,medium_distance_trash586.jpg,plastic bottle,no,no,0.585,1342.5
+2503,medium_distance_trash59.jpg,trash,yes,no,0.525,1342.5
+2504,medium_distance_trash59.jpg,plastic bottle,no,no,0.523,1342.5
+2505,medium_distance_trash591.jpg,plastic wrapper,yes,no,0.565,1342.5
+2506,medium_distance_trash591.jpg,trash,no,no,0.547,1342.5
+2507,medium_distance_trash592.jpg,plastic wrapper,yes,no,0.536,1342.5
+2508,medium_distance_trash592.jpg,trash,yes,no,0.508,1342.5
+2509,medium_distance_trash592.jpg,plastic bottle,no,no,0.505,1342.5
+2510,medium_distance_trash592.jpg,plastic bag,no,no,0.551,1342.5
+2511,medium_distance_trash594.jpg,plastic bag,yes,no,0.564,1342.5
+2512,medium_distance_trash594.jpg,plastic wrapper,yes,no,0.58,1342.5
+2513,medium_distance_trash594.jpg,trash,no,no,0.586,1342.5
+2514,medium_distance_trash594.jpg,plastic bottle,no,no,0.537,1342.5
+2515,medium_distance_trash595.jpg,plastic bag,yes,no,0.558,1342.5
+2516,medium_distance_trash595.jpg,plastic wrapper,yes,no,0.604,1342.5
+2517,medium_distance_trash595.jpg,trash,yes,no,0.547,1342.5
+2518,medium_distance_trash595.jpg,plastic bottle,no,no,0.566,1342.5
+2519,medium_distance_trash595.jpg,can,no,no,0.53,1342.5
+2520,medium_distance_trash595.jpg,trash pile,no,no,0.546,1342.5
+2521,medium_distance_trash6.jpg,can,yes,no,0.502,1342.5
+2522,medium_distance_trash6.jpg,trash,no,no,0.46,1342.5
+2523,medium_distance_trash60.jpg,trash,yes,no,0.524,1342.5
+2524,medium_distance_trash60.jpg,plastic bottle,no,no,0.464,1342.5
+2525,medium_distance_trash600.jpg,plastic bottle,yes,no,0.457,1342.5
+2526,medium_distance_trash600.jpg,trash,yes,no,0.515,1342.5
+2527,medium_distance_trash600.jpg,plastic wrapper,no,no,0.477,1342.5
+2528,medium_distance_trash600.jpg,plastic bag,no,no,0.476,1342.5
+2529,medium_distance_trash601.jpg,plastic bottle,yes,no,0.478,1342.5
+2530,medium_distance_trash601.jpg,trash,no,no,0.434,1342.5
+2531,medium_distance_trash602.jpg,can,yes,no,0.489,1342.5
+2532,medium_distance_trash602.jpg,trash,no,no,0.488,1342.5
+2533,medium_distance_trash604.jpg,plastic wrapper,yes,no,0.473,1342.5
+2534,medium_distance_trash604.jpg,trash,yes,no,0.534,1342.5
+2535,medium_distance_trash604.jpg,plastic bottle,no,no,0.543,1342.5
+2536,medium_distance_trash604.jpg,plastic bag,no,no,0.544,1342.5
+2537,medium_distance_trash608.jpg,plastic wrapper,yes,no,0.505,1342.5
+2538,medium_distance_trash608.jpg,trash,no,no,0.55,1342.5
+2539,medium_distance_trash609.jpg,trash,yes,no,0.533,1342.5
+2540,medium_distance_trash609.jpg,plastic bottle,no,no,0.557,1342.5
+2541,medium_distance_trash610.jpg,plastic bottle,yes,no,0.5,1342.5
+2542,medium_distance_trash610.jpg,trash,no,no,0.52,1342.5
+2543,medium_distance_trash612.jpg,trash,yes,no,0.505,1342.5
+2544,medium_distance_trash612.jpg,plastic bottle,no,no,0.541,1342.5
+2545,medium_distance_trash617.jpg,glass,yes,no,0.499,1342.5
+2546,medium_distance_trash617.jpg,trash,no,no,0.554,1342.5
+2547,medium_distance_trash624.jpg,trash,yes,no,0.498,1342.5
+2548,medium_distance_trash624.jpg,plastic bottle,no,no,0.541,1342.5
+2549,medium_distance_trash627.jpg,trash,yes,no,0.5,1342.5
+2550,medium_distance_trash627.jpg,plastic bottle,no,no,0.533,1342.5
+2551,medium_distance_trash628.jpg,plastic wrapper,yes,no,0.534,1342.5
+2552,medium_distance_trash628.jpg,trash,no,no,0.547,1342.5
+2553,medium_distance_trash630.jpg,plastic wrapper,yes,no,0.549,1342.5
+2554,medium_distance_trash630.jpg,trash,no,no,0.51,1342.5
+2555,medium_distance_trash631.jpg,plastic bottle,yes,no,0.515,1342.5
+2556,medium_distance_trash631.jpg,trash,no,no,0.565,1342.5
+2557,medium_distance_trash632.jpg,trash,yes,no,0.535,1342.5
+2558,medium_distance_trash632.jpg,plastic bottle,no,no,0.574,1342.5
+2559,medium_distance_trash643.jpg,trash,yes,no,0.617,1342.5
+2560,medium_distance_trash643.jpg,plastic bottle,no,no,0.525,1342.5
+2561,medium_distance_trash644.jpg,can,yes,no,0.556,1342.5
+2562,medium_distance_trash644.jpg,trash,no,no,0.565,1342.5
+2563,medium_distance_trash65.jpg,plastic bottle,yes,no,0.561,1342.5
+2564,medium_distance_trash65.jpg,trash,no,no,0.554,1342.5
+2565,medium_distance_trash654.jpg,can,yes,no,0.562,1342.5
+2566,medium_distance_trash654.jpg,plastic wrapper,yes,no,0.596,1342.5
+2567,medium_distance_trash654.jpg,trash,no,no,0.566,1342.5
+2568,medium_distance_trash654.jpg,plastic bottle,no,no,0.557,1342.5
+2569,medium_distance_trash657.jpg,plastic bag,yes,no,0.514,1342.5
+2570,medium_distance_trash657.jpg,trash,yes,no,0.548,1342.5
+2571,medium_distance_trash657.jpg,plastic bottle,no,no,0.562,1342.5
+2572,medium_distance_trash657.jpg,plastic wrapper,no,no,0.53,1342.5
+2573,medium_distance_trash661.jpg,trash,yes,no,0.536,1342.5
+2574,medium_distance_trash661.jpg,plastic bottle,no,no,0.544,1342.5
+2575,medium_distance_trash67.jpg,plastic wrapper,yes,no,0.784,1445.9
+2576,medium_distance_trash67.jpg,trash,no,no,0.718,1445.9
+2577,medium_distance_trash670.jpg,plastic wrapper,yes,no,0.531,1342.5
+2578,medium_distance_trash670.jpg,trash,no,no,0.549,1342.5
+2579,medium_distance_trash671.jpg,plastic bottle,yes,no,0.519,1342.5
+2580,medium_distance_trash671.jpg,can,yes,no,0.544,1342.5
+2581,medium_distance_trash671.jpg,trash,no,no,0.549,1342.5
+2582,medium_distance_trash671.jpg,plastic wrapper,no,no,0.557,1342.5
+2583,medium_distance_trash672.jpg,can,yes,no,0.522,1342.5
+2584,medium_distance_trash672.jpg,plastic wrapper,yes,no,0.54,1342.5
+2585,medium_distance_trash672.jpg,trash,no,no,0.614,1342.5
+2586,medium_distance_trash672.jpg,plastic bottle,no,no,0.547,1342.5
+2587,medium_distance_trash683.jpg,plastic bottle,yes,no,0.628,1342.5
+2588,medium_distance_trash683.jpg,trash,no,no,0.581,1342.5
+2589,medium_distance_trash689.jpg,plastic bottle,yes,no,0.589,1342.5
+2590,medium_distance_trash689.jpg,can,yes,no,0.534,1342.5
+2591,medium_distance_trash689.jpg,trash,yes,no,0.545,1342.5
+2592,medium_distance_trash689.jpg,plastic wrapper,no,no,0.524,1342.5
+2593,medium_distance_trash689.jpg,plastic bag,no,no,0.595,1342.5
+2594,medium_distance_trash689.jpg,trash pile,no,no,0.493,1342.5
+2595,medium_distance_trash69.jpg,plastic bottle,yes,no,0.598,1342.5
+2596,medium_distance_trash69.jpg,trash,no,no,0.503,1342.5
+2597,medium_distance_trash694.jpg,plastic bottle,yes,no,0.538,1342.5
+2598,medium_distance_trash694.jpg,can,yes,no,0.554,1342.5
+2599,medium_distance_trash694.jpg,plastic bag,yes,no,0.556,1342.5
+2600,medium_distance_trash694.jpg,trash,yes,no,0.604,1342.5
+2601,medium_distance_trash694.jpg,plastic wrapper,no,no,0.53,1342.5
+2602,medium_distance_trash694.jpg,trash pile,no,no,0.538,1342.5
+2603,medium_distance_trash694.jpg,glass,no,no,0.534,1342.5
+2604,medium_distance_trash694.jpg,metal scrap,no,no,0.558,1342.5
+2605,medium_distance_trash700.jpg,plastic bag,yes,no,0.599,1342.5
+2606,medium_distance_trash700.jpg,plastic wrapper,yes,no,0.576,1342.5
+2607,medium_distance_trash700.jpg,trash,yes,no,0.498,1342.5
+2608,medium_distance_trash700.jpg,plastic bottle,no,no,0.512,1342.5
+2609,medium_distance_trash700.jpg,can,no,no,0.531,1342.5
+2610,medium_distance_trash700.jpg,trash pile,no,no,0.505,1342.5
+2611,medium_distance_trash701.jpg,plastic wrapper,yes,no,0.549,1342.5
+2612,medium_distance_trash701.jpg,trash,no,no,0.52,1342.5
+2613,medium_distance_trash707.jpg,plastic wrapper,yes,no,0.551,1342.5
+2614,medium_distance_trash707.jpg,trash,yes,no,0.54,1342.5
+2615,medium_distance_trash707.jpg,plastic bottle,no,no,0.524,1342.5
+2616,medium_distance_trash707.jpg,plastic bag,no,no,0.559,1342.5
+2617,medium_distance_trash71.jpg,trash,yes,no,0.562,1342.5
+2618,medium_distance_trash71.jpg,plastic bottle,no,no,0.604,1342.5
+2619,medium_distance_trash714.jpg,plastic bottle,yes,no,0.529,1342.5
+2620,medium_distance_trash714.jpg,glass,yes,no,0.583,1342.5
+2621,medium_distance_trash714.jpg,trash,no,no,0.542,1342.5
+2622,medium_distance_trash714.jpg,plastic wrapper,no,no,0.523,1342.5
+2623,medium_distance_trash715.jpg,trash,yes,no,0.538,1342.5
+2624,medium_distance_trash715.jpg,plastic bottle,no,no,0.519,1342.5
+2625,medium_distance_trash722.jpg,plastic wrapper,yes,no,0.529,1342.5
+2626,medium_distance_trash722.jpg,trash,no,no,0.522,1342.5
+2627,medium_distance_trash724.jpg,plastic bag,yes,no,0.552,1342.5
+2628,medium_distance_trash724.jpg,trash,no,no,0.561,1342.5
+2629,medium_distance_trash728.jpg,plastic wrapper,yes,no,0.562,1342.5
+2630,medium_distance_trash728.jpg,trash,no,no,0.545,1342.5
+2631,medium_distance_trash729.jpg,trash,yes,no,0.558,1342.5
+2632,medium_distance_trash729.jpg,plastic bottle,no,no,0.51,1342.5
+2633,medium_distance_trash730.jpg,plastic wrapper,yes,no,0.547,1342.5
+2634,medium_distance_trash730.jpg,trash,yes,no,0.537,1342.5
+2635,medium_distance_trash730.jpg,plastic bottle,no,no,0.557,1342.5
+2636,medium_distance_trash730.jpg,plastic bag,no,no,0.625,1342.5
+2637,medium_distance_trash732.jpg,trash,yes,no,0.55,1342.5
+2638,medium_distance_trash732.jpg,plastic bottle,no,no,0.582,1342.5
+2639,medium_distance_trash734.jpg,trash,yes,no,0.523,1342.5
+2640,medium_distance_trash734.jpg,plastic bottle,no,no,0.576,1342.5
+2641,medium_distance_trash736.jpg,trash,yes,no,0.598,1342.5
+2642,medium_distance_trash736.jpg,plastic bottle,no,no,0.524,1342.5
+2643,medium_distance_trash742.jpg,plastic wrapper,yes,no,0.541,1342.5
+2644,medium_distance_trash742.jpg,trash,no,no,0.548,1342.5
+2645,medium_distance_trash747.jpg,glass,yes,no,0.525,1342.5
+2646,medium_distance_trash747.jpg,trash,yes,no,0.541,1342.5
+2647,medium_distance_trash747.jpg,plastic bottle,no,no,0.521,1342.5
+2648,medium_distance_trash747.jpg,plastic wrapper,no,no,0.564,1342.5
+2649,medium_distance_trash75.jpg,plastic wrapper,yes,no,0.561,1342.5
+2650,medium_distance_trash75.jpg,trash,no,no,0.513,1342.5
+2651,medium_distance_trash751.jpg,trash,yes,no,0.605,1342.5
+2652,medium_distance_trash751.jpg,plastic bottle,no,no,0.535,1342.5
+2653,medium_distance_trash752.jpg,trash,yes,no,0.583,1342.5
+2654,medium_distance_trash752.jpg,plastic bottle,no,no,0.499,1342.5
+2655,medium_distance_trash754.jpg,plastic bottle,yes,no,0.511,1342.5
+2656,medium_distance_trash754.jpg,trash,yes,no,0.553,1342.5
+2657,medium_distance_trash754.jpg,plastic wrapper,no,no,0.552,1342.5
+2658,medium_distance_trash754.jpg,plastic bag,no,no,0.56,1342.5
+2659,medium_distance_trash76.jpg,trash,yes,no,0.565,1342.5
+2660,medium_distance_trash76.jpg,plastic bottle,no,no,0.552,1342.5
+2661,medium_distance_trash767.jpg,glass,yes,no,0.54,1342.5
+2662,medium_distance_trash767.jpg,trash,yes,no,0.534,1342.5
+2663,medium_distance_trash767.jpg,plastic bottle,no,no,0.566,1342.5
+2664,medium_distance_trash767.jpg,plastic wrapper,no,no,0.531,1342.5
+2665,medium_distance_trash769.jpg,glass,yes,no,0.53,1342.5
+2666,medium_distance_trash769.jpg,trash,yes,no,0.497,1342.5
+2667,medium_distance_trash769.jpg,plastic bottle,no,no,0.503,1342.5
+2668,medium_distance_trash769.jpg,plastic wrapper,no,no,0.514,1342.5
+2669,medium_distance_trash779.jpg,glass,yes,no,0.52,1342.5
+2670,medium_distance_trash779.jpg,trash,yes,no,0.536,1342.5
+2671,medium_distance_trash779.jpg,plastic bottle,no,no,0.52,1342.5
+2672,medium_distance_trash779.jpg,plastic wrapper,no,no,0.493,1342.5
+2673,medium_distance_trash78.jpg,plastic wrapper,yes,no,0.552,1342.5
+2674,medium_distance_trash78.jpg,trash,no,no,0.528,1342.5
+2675,medium_distance_trash780.jpg,glass,yes,no,0.528,1342.5
+2676,medium_distance_trash780.jpg,trash,no,no,0.56,1342.5
+2677,medium_distance_trash79.jpg,plastic bag,yes,no,0.556,1342.5
+2678,medium_distance_trash79.jpg,metal scrap,yes,no,0.557,1342.5
+2679,medium_distance_trash79.jpg,trash,yes,no,0.543,1342.5
+2680,medium_distance_trash79.jpg,plastic bottle,no,no,0.529,1342.5
+2681,medium_distance_trash79.jpg,plastic wrapper,no,no,0.546,1342.5
+2682,medium_distance_trash79.jpg,can,no,no,0.505,1342.5
+2683,medium_distance_trash790.jpg,trash,yes,no,0.529,1342.5
+2684,medium_distance_trash790.jpg,plastic bottle,no,no,0.555,1342.5
+2685,medium_distance_trash792.jpg,plastic bag,yes,no,0.525,1342.5
+2686,medium_distance_trash792.jpg,trash,no,no,0.541,1342.5
+2687,medium_distance_trash797.jpg,trash,yes,no,0.571,1342.5
+2688,medium_distance_trash797.jpg,plastic bottle,no,no,0.524,1342.5
+2689,medium_distance_trash800.jpg,plastic wrapper,yes,no,0.542,1342.5
+2690,medium_distance_trash800.jpg,trash,no,no,0.527,1342.5
+2691,medium_distance_trash801.jpg,plastic bag,yes,no,0.618,1342.5
+2692,medium_distance_trash801.jpg,trash,no,no,0.527,1342.5
+2693,medium_distance_trash803.jpg,plastic bag,yes,no,0.553,1342.5
+2694,medium_distance_trash803.jpg,trash,yes,no,0.538,1342.5
+2695,medium_distance_trash803.jpg,plastic bottle,no,no,0.54,1342.5
+2696,medium_distance_trash803.jpg,plastic wrapper,no,no,0.566,1342.5
+2697,medium_distance_trash805.jpg,trash,yes,no,0.522,1342.5
+2698,medium_distance_trash805.jpg,plastic bottle,no,no,0.529,1342.5
+2699,medium_distance_trash807.jpg,trash,yes,no,0.518,1342.5
+2700,medium_distance_trash807.jpg,plastic bottle,no,no,0.568,1342.5
+2701,medium_distance_trash81.jpg,plastic bottle,yes,no,0.576,1342.5
+2702,medium_distance_trash81.jpg,trash,no,no,0.573,1342.5
+2703,medium_distance_trash813.jpg,plastic bag,yes,no,0.56,1342.5
+2704,medium_distance_trash813.jpg,trash,yes,no,0.552,1342.5
+2705,medium_distance_trash813.jpg,plastic bottle,no,no,0.496,1342.5
+2706,medium_distance_trash813.jpg,plastic wrapper,no,no,0.523,1342.5
+2707,medium_distance_trash814.jpg,trash,yes,no,0.559,1342.5
+2708,medium_distance_trash814.jpg,plastic bottle,no,no,0.541,1342.5
+2709,medium_distance_trash816.jpg,plastic bottle,yes,no,0.56,1342.5
+2710,medium_distance_trash816.jpg,plastic wrapper,yes,no,0.558,1342.5
+2711,medium_distance_trash816.jpg,trash,yes,no,0.551,1342.5
+2712,medium_distance_trash816.jpg,plastic bag,no,no,0.511,1342.5
+2713,medium_distance_trash816.jpg,can,no,no,0.533,1342.5
+2714,medium_distance_trash816.jpg,trash pile,no,no,0.549,1342.5
+2715,medium_distance_trash817.jpg,plastic bag,yes,no,0.548,1342.5
+2716,medium_distance_trash817.jpg,trash,yes,no,0.557,1342.5
+2717,medium_distance_trash817.jpg,plastic bottle,no,no,0.603,1342.5
+2718,medium_distance_trash817.jpg,plastic wrapper,no,no,0.551,1342.5
+2719,medium_distance_trash833.jpg,plastic bottle,yes,no,0.582,1342.5
+2720,medium_distance_trash833.jpg,trash,no,no,0.539,1342.5
+2721,medium_distance_trash836.jpg,trash,yes,no,0.616,1342.5
+2722,medium_distance_trash836.jpg,plastic bottle,no,no,0.541,1342.5
+2723,medium_distance_trash847.jpg,plastic bag,yes,no,0.535,1342.5
+2724,medium_distance_trash847.jpg,plastic wrapper,yes,no,0.54,1342.5
+2725,medium_distance_trash847.jpg,trash,no,no,0.581,1342.5
+2726,medium_distance_trash847.jpg,plastic bottle,no,no,0.571,1342.5
+2727,medium_distance_trash848.jpg,plastic bottle,yes,no,0.591,1342.5
+2728,medium_distance_trash848.jpg,trash,yes,no,0.558,1342.5
+2729,medium_distance_trash848.jpg,plastic wrapper,no,no,0.617,1342.5
+2730,medium_distance_trash848.jpg,plastic bag,no,no,0.533,1342.5
+2731,medium_distance_trash857.jpg,trash,yes,no,0.608,1342.5
+2732,medium_distance_trash857.jpg,plastic bottle,no,no,0.546,1342.5
+2733,medium_distance_trash858.jpg,trash,yes,no,0.542,1342.5
+2734,medium_distance_trash858.jpg,plastic bottle,no,no,0.539,1342.5
+2735,medium_distance_trash862.jpg,trash,yes,no,0.538,1342.5
+2736,medium_distance_trash862.jpg,plastic bottle,no,no,0.604,1342.5
+2737,medium_distance_trash864.jpg,plastic bottle,yes,no,0.517,1342.5
+2738,medium_distance_trash864.jpg,plastic wrapper,yes,no,0.604,1342.5
+2739,medium_distance_trash864.jpg,trash,yes,no,0.573,1342.5
+2740,medium_distance_trash864.jpg,plastic bag,no,no,0.484,1342.5
+2741,medium_distance_trash864.jpg,can,no,no,0.532,1342.5
+2742,medium_distance_trash864.jpg,trash pile,no,no,0.523,1342.5
+2743,medium_distance_trash865.jpg,plastic bottle,yes,no,0.51,1342.5
+2744,medium_distance_trash865.jpg,plastic wrapper,yes,no,0.555,1342.5
+2745,medium_distance_trash865.jpg,trash,no,no,0.592,1342.5
+2746,medium_distance_trash865.jpg,plastic bag,no,no,0.606,1342.5
+2747,medium_distance_trash872.jpg,plastic bottle,yes,no,0.51,1342.5
+2748,medium_distance_trash872.jpg,trash,yes,no,0.535,1342.5
+2749,medium_distance_trash872.jpg,plastic wrapper,no,no,0.524,1342.5
+2750,medium_distance_trash872.jpg,plastic bag,no,no,0.525,1342.5
+2751,medium_distance_trash873.jpg,plastic bottle,yes,no,0.581,1342.5
+2752,medium_distance_trash873.jpg,trash,yes,no,0.519,1342.5
+2753,medium_distance_trash873.jpg,plastic wrapper,no,no,0.526,1342.5
+2754,medium_distance_trash873.jpg,plastic bag,no,no,0.598,1342.5
+2755,medium_distance_trash880.jpg,plastic bottle,yes,no,0.56,1342.5
+2756,medium_distance_trash880.jpg,trash,yes,no,0.564,1342.5
+2757,medium_distance_trash880.jpg,plastic wrapper,no,no,0.557,1342.5
+2758,medium_distance_trash880.jpg,plastic bag,no,no,0.58,1342.5
+2759,medium_distance_trash884.jpg,can,yes,no,0.535,1342.5
+2760,medium_distance_trash884.jpg,trash,yes,no,0.573,1342.5
+2761,medium_distance_trash884.jpg,plastic bottle,no,no,0.512,1342.5
+2762,medium_distance_trash884.jpg,plastic wrapper,no,no,0.563,1342.5
+2763,medium_distance_trash885.jpg,trash,yes,no,0.622,1342.5
+2764,medium_distance_trash885.jpg,plastic bottle,no,no,0.62,1342.5
+2765,medium_distance_trash89.jpg,trash,yes,no,0.546,1342.5
+2766,medium_distance_trash89.jpg,plastic bottle,no,no,0.581,1342.5
+2767,medium_distance_trash890.jpg,trash,yes,no,0.605,1342.5
+2768,medium_distance_trash890.jpg,plastic bottle,no,no,0.519,1342.5
+2769,medium_distance_trash897.jpg,can,yes,no,0.548,1342.5
+2770,medium_distance_trash897.jpg,plastic bag,yes,no,0.595,1342.5
+2771,medium_distance_trash897.jpg,trash,no,no,0.621,1342.5
+2772,medium_distance_trash897.jpg,plastic bottle,no,no,0.586,1342.5
+2773,medium_distance_trash898.jpg,can,yes,no,0.564,1342.5
+2774,medium_distance_trash898.jpg,trash,no,no,0.568,1342.5
+2775,medium_distance_trash902.jpg,plastic bag,yes,no,0.812,1342.5
+2776,medium_distance_trash902.jpg,trash,no,no,0.77,1342.5
+2777,medium_distance_trash907.jpg,plastic bag,yes,no,0.743,1342.5
+2778,medium_distance_trash907.jpg,trash,no,no,0.826,1342.5
+2779,medium_distance_trash914.jpg,plastic wrapper,yes,no,0.684,1342.5
+2780,medium_distance_trash914.jpg,trash,no,no,0.745,1342.5
+2781,medium_distance_trash917.jpg,metal scrap,yes,no,0.628,1342.5
+2782,medium_distance_trash917.jpg,trash,no,no,0.579,1342.5
+2783,medium_distance_trash918.jpg,can,yes,no,0.683,1342.5
+2784,medium_distance_trash918.jpg,trash,no,no,0.72,1342.5
+2785,medium_distance_trash919.jpg,plastic wrapper,yes,no,0.688,1342.5
+2786,medium_distance_trash919.jpg,trash,no,no,0.7,1342.5
+2787,medium_distance_trash921.jpg,metal scrap,yes,no,0.638,1342.5
+2788,medium_distance_trash921.jpg,plastic wrapper,yes,no,0.632,1342.5
+2789,medium_distance_trash921.jpg,trash,yes,no,0.675,1342.5
+2790,medium_distance_trash921.jpg,plastic bottle,no,no,0.709,1342.5
+2791,medium_distance_trash921.jpg,plastic bag,no,no,0.682,1342.5
+2792,medium_distance_trash921.jpg,can,no,no,0.649,1342.5
+2793,medium_distance_trash926.jpg,plastic bottle,yes,no,0.714,1445.9
+2794,medium_distance_trash926.jpg,trash,no,no,0.685,1445.9
+2795,medium_distance_trash927.jpg,can,yes,no,0.724,1445.9
+2796,medium_distance_trash927.jpg,trash,no,no,0.775,1445.9
+2797,medium_distance_trash929.jpg,plastic bottle,yes,no,0.719,1445.9
+2798,medium_distance_trash929.jpg,trash,no,no,0.761,1445.9
+2799,medium_distance_trash930.jpg,plastic wrapper,yes,no,0.841,1342.5
+2800,medium_distance_trash930.jpg,trash,no,no,0.714,1342.5
+2801,medium_distance_trash931.jpg,can,yes,no,0.761,1342.5
+2802,medium_distance_trash931.jpg,trash,no,no,0.757,1342.5
+2803,medium_distance_trash939.jpg,trash,yes,no,0.854,1342.5
+2804,medium_distance_trash939.jpg,plastic bottle,no,no,0.791,1342.5
+2805,medium_distance_trash943.jpg,can,yes,no,0.758,1342.5
+2806,medium_distance_trash943.jpg,trash,no,no,0.654,1342.5
+2807,medium_distance_trash945.jpg,plastic bottle,yes,no,0.746,1445.9
+2808,medium_distance_trash945.jpg,trash,no,no,0.725,1445.9
+2809,medium_distance_trash951.jpg,can,yes,no,0.686,1342.5
+2810,medium_distance_trash951.jpg,trash,no,no,0.769,1342.5
+2811,medium_distance_trash954.jpg,glass,yes,no,0.728,1342.5
+2812,medium_distance_trash954.jpg,trash,no,no,0.763,1342.5
+2813,medium_distance_trash957.jpg,can,yes,no,0.625,1342.5
+2814,medium_distance_trash957.jpg,trash,no,no,0.589,1342.5
+2815,medium_distance_trash966.jpg,plastic bottle,yes,no,0.763,1445.9
+2816,medium_distance_trash966.jpg,trash,no,no,0.77,1445.9
+2817,medium_distance_trash967.jpg,plastic wrapper,yes,no,0.652,1342.5
+2818,medium_distance_trash967.jpg,trash,no,no,0.839,1342.5
+2819,medium_distance_trash970.jpg,can,yes,no,0.631,1342.5
+2820,medium_distance_trash970.jpg,trash,yes,no,0.71,1342.5
+2821,medium_distance_trash970.jpg,plastic bottle,no,no,0.716,1342.5
+2822,medium_distance_trash970.jpg,plastic wrapper,no,no,0.755,1342.5
+2823,medium_distance_trash974.jpg,trash,yes,no,0.68,1342.5
+2824,medium_distance_trash974.jpg,plastic bottle,no,no,0.743,1342.5
+2825,medium_distance_trash980.jpg,trash,yes,no,0.703,1342.5
+2826,medium_distance_trash980.jpg,plastic bottle,no,no,0.658,1342.5
+2827,medium_distance_trash981.jpg,can,yes,no,0.657,1342.5
+2828,medium_distance_trash981.jpg,trash,no,no,0.729,1342.5
+2829,medium_distance_trash983.jpg,trash,yes,no,0.6,1342.5
+2830,medium_distance_trash983.jpg,plastic bottle,no,no,0.628,1342.5
+2831,medium_distance_trash987.jpg,plastic wrapper,yes,no,0.691,1342.5
+2832,medium_distance_trash987.jpg,trash,no,no,0.733,1342.5
+2833,medium_distance_trash990.jpg,trash,yes,no,0.774,1342.5
+2834,medium_distance_trash990.jpg,plastic bottle,no,no,0.735,1342.5
+2835,medium_distance_trash991.jpg,plastic bottle,yes,no,0.561,1342.5
+2836,medium_distance_trash991.jpg,trash,no,no,0.74,1342.5
