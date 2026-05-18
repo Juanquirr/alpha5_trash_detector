@@ -1,0 +1,2 @@
+class_id,class_name,Precision,Recall,F1,mAP50,mAP50-95,contrib_%
+0,trash,0.8009,0.7252,0.7612,0.7958,0.6922,100.0
