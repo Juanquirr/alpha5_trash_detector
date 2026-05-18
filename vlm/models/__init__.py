@@ -12,13 +12,19 @@ from .internvl2 import InternVL2
 # .transformers-5.X-venv  → transformers 5.x    → setup.ps1
 # .transformers-4.46-venv → transformers 4.46.x → setup_compat.ps1
 # ─────────────────────────────────────────────────────────────────────────────
+# NOTE: llava_ov (lmms-lab/llava-onevision-qwen2-0.5b-ov) is incompatible
+# with both available venvs:
+#   5.x : key structure refactored — ALL checkpoint weights MISSING/UNEXPECTED
+#   4.46: SiGLIP strict check fails (embed_dim=1152, num_heads=14, 1152%14≠0)
+# Kept in REGISTRY for reference but excluded from pope_run / pope_finetune.
+# ─────────────────────────────────────────────────────────────────────────────
 
 VENV = {
     "smolvlm":      ".transformers-5.X-venv",
     "smolvlm_500m": ".transformers-5.X-venv",
     "qwen_vl":      ".transformers-5.X-venv",
     "qwen_2b":      ".transformers-5.X-venv",
-    "llava_ov":     ".transformers-4.46-venv",
+    "llava_ov":     ".transformers-4.46-venv",   # kept but non-functional
     "llava":        ".transformers-4.46-venv",
     "moondream":    ".transformers-4.46-venv",
     "clip":         ".transformers-4.46-venv",

@@ -198,6 +198,11 @@ def _run_eval_phase(
         to_note = f"  ({n_timeout} timeouts)" if n_timeout else ""
         print(f"[{model_key}/{phase}/{tier}] Done in {_fmt_time(time.perf_counter() - t_start)}.{to_note}")
 
+        # Release fragmented CUDA allocations between tiers so the next tier
+        # doesn't OOM on a 32 GiB GPU after processing thousands of images.
+        if is_cuda:
+            torch.cuda.empty_cache()
+
 
 # ── LoRA fine-tuning ──────────────────────────────────────────────────────────
 
