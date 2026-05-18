@@ -149,6 +149,12 @@ def _run_eval_phase(
         n_timeout  = 0
 
         for i, q in enumerate(pending, 1):
+            # Periodic cache flush to prevent allocator fragmentation on long runs.
+            # Qwen3-VL tiles images dynamically; reserved-but-unallocated memory
+            # grows across thousands of images and eventually causes OOM.
+            if is_cuda and i % 100 == 0:
+                torch.cuda.empty_cache()
+
             image_path = _resolve_image(images_dir, q["image"])
             if not image_path:
                 continue

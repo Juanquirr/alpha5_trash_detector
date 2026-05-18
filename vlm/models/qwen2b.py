@@ -46,8 +46,13 @@ class QwenVL2B(BaseVLM):
         text = self.processor.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
         )
+        # Cap image resolution: Qwen3-VL tiles images dynamically; without a
+        # limit large images produce hundreds of vision tokens and exhaust VRAM
+        # across a long evaluation run. 512*28*28 ≈ 400K pixels is sufficient
+        # for trash detection at POPE binary-question granularity.
         inputs = self.processor(
-            text=[text], images=[image], return_tensors="pt"
+            text=[text], images=[image], return_tensors="pt",
+            max_pixels=512 * 28 * 28,
         ).to(self.device)
 
         with self._torch.no_grad():
