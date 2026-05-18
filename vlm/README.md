@@ -24,7 +24,7 @@ Run once on the execution machine:
 
 | Venv | transformers | Models |
 |------|-------------|--------|
-| `.transformers-5.X-venv` | ≥5.0 | `smolvlm`, `smolvlm_500m`, `qwen_vl`, `qwen_2b`, `llava_ov` |
+| `.transformers-5.X-venv` | ≥5.0 | `smolvlm`, `smolvlm_500m`, `qwen_vl`, `qwen_2b` |
 | `.transformers-4.46-venv` | 4.46.3 | `llava`, `moondream`, `clip`, `internvl2` |
 
 ---
@@ -37,7 +37,6 @@ Run once on the execution machine:
 | `smolvlm_500m` | HuggingFaceTB/SmolVLM-500M-Instruct | 500M | ~1 GB | ✅ LoRA SFT |
 | `qwen_vl` | Qwen/Qwen2.5-VL-3B-Instruct | 3B | ~6 GB | ✅ LoRA SFT |
 | `qwen_2b` | Qwen/Qwen3-VL-2B-Instruct | 2B | ~4 GB | ✅ LoRA SFT |
-| `llava_ov` | lmms-lab/llava-onevision-qwen2-0.5b-ov | 500M | ~1 GB | ✅ LoRA SFT |
 | `llava` | llava-hf/llava-1.5-7b-hf | 7B | ~14 GB | ✅ LoRA SFT |
 | `moondream` | vikhyatk/moondream2 | 2B | ~4 GB | ❌ trust_remote_code |
 | `clip` | openai/clip-vit-large-patch14 | 307M | ~1 GB | ❌ zero-shot classifier |
@@ -311,7 +310,6 @@ The comparison chart shows per-class F1 before (blue) and after (green) fine-tun
 |-------|-------------|---------------|
 | `smolvlm`, `smolvlm_500m` | ✅ | Standard HuggingFace + chat template |
 | `qwen_vl`, `qwen_2b` | ✅ | Standard HuggingFace + chat template |
-| `llava_ov` | ✅ | Standard HuggingFace + chat template |
 | `llava` | ✅ | LlavaForConditionalGeneration, manual prompt |
 | `moondream` | ❌ | Custom architecture (`trust_remote_code`) |
 | `clip` | ❌ | Zero-shot classifier, not a generative model |
@@ -458,7 +456,6 @@ vlm/
 │   ├── smolvlm_500m.py        HuggingFaceTB/SmolVLM-500M-Instruct (500M)
 │   ├── qwen_vl.py             Qwen/Qwen2.5-VL-3B-Instruct (3B)
 │   ├── qwen2b.py              Qwen/Qwen3-VL-2B-Instruct (2B)
-│   ├── llava_ov.py            lmms-lab/llava-onevision-qwen2-0.5b-ov (500M)
 │   ├── llava.py               llava-hf/llava-1.5-7b-hf (7B)
 │   ├── moondream.py           vikhyatk/moondream2 (2B)
 │   ├── clip.py                openai/clip-vit-large-patch14 (zero-shot, 307M)

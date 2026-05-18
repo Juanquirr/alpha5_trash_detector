@@ -1,5 +1,5 @@
 # .transformers-5.X-venv dependencies
-# Models: smolvlm, smolvlm_500m, qwen_vl, qwen_2b, llava_ov
+# Models: smolvlm, smolvlm_500m, qwen_vl, qwen_2b
 # PyTorch installed separately in setup.ps1 (needs --index-url for CUDA)
 
 transformers>=5.0.0

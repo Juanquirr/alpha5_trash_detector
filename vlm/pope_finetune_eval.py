@@ -12,7 +12,7 @@ Pipeline per model
 Note: train and eval sets share the same images (domain adaptation study, not
 generalisation benchmark). Mention data leakage in any write-up.
 
-Fine-tunable  : smolvlm  smolvlm_500m  qwen_vl  qwen_2b  llava_ov  llava
+Fine-tunable  : smolvlm  smolvlm_500m  qwen_vl  qwen_2b  llava
 Not supported : clip (zero-shot)  moondream (trust_remote_code)  internvl2
 
 Usage
@@ -76,8 +76,6 @@ CLASSES = [
 # Models that support LoRA SFT via PEFT
 FINETUNE_CAPABLE = frozenset({
     "smolvlm", "smolvlm_500m", "qwen_vl", "qwen_2b", "llava",
-    # llava_ov excluded: checkpoint uses transformers 4.46 key structure;
-    # fine-tuning via PEFT in that venv is untested.
 })
 
 # Chart colours
