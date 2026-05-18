@@ -46,12 +46,11 @@ sam3_model/
 # Data / result files
 *.csv
 !generator/config/*.csv
+!alpha5/class_contribution_yolo/*/*.csv
+!alpha5/class_contribution_yolo/*/*.png
 *.json
 *.jsonl
 
-# Data files at root
-/*.json
-/*.yaml
 
 # Module-specific
 generator/outputs_*/
