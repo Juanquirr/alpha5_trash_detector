@@ -1,8 +1,8 @@
 # venv: .transformers-5.X-venv (transformers 5.x)
 #
 # Qwen3-VL-2B-Instruct: 2B vision-language model from Qwen3 series.
-# Uses AutoModelForVision2Seq (generic) instead of series-specific class
-# so it works regardless of the exact Transformers class name for Qwen3-VL.
+# Loads via AutoModelForImageTextToText (transformers 5.x) with fallback to
+# AutoModelForVision2Seq for older installs.
 #
 # Variant options:
 #   Qwen/Qwen3-VL-2B-Instruct  (~4GB)  ← active

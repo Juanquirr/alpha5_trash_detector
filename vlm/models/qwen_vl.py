@@ -1,5 +1,5 @@
-# venv: .venv (transformers 5.x)
-# Uses Qwen2.5-VL. Model ID for Qwen3-VL if available: replace variant below.
+# venv: .transformers-5.X-venv (transformers 5.x)
+# Qwen2.5-VL-3B: vision-language model with dynamic image tiling.
 # Variant options: Qwen/Qwen2.5-VL-3B-Instruct (~6GB)
 #                  Qwen/Qwen2.5-VL-7B-Instruct (~14GB)
 from .base import BaseVLM
@@ -15,6 +15,11 @@ class QwenVL(BaseVLM):
 
         self._torch = torch
         self.processor = AutoProcessor.from_pretrained(self.variant)
+        # Cap image resolution globally so both eval and LoRA training stay
+        # within VRAM budget. Qwen2.5-VL tiles images dynamically; without this,
+        # large images produce hundreds of vision tokens and OOM on a 32 GiB GPU.
+        if hasattr(self.processor, "image_processor"):
+            self.processor.image_processor.max_pixels = 512 * 28 * 28
         self.model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             self.variant,
             torch_dtype=torch.bfloat16,
