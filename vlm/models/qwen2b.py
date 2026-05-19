@@ -23,6 +23,11 @@ class QwenVL2B(BaseVLM):
 
         self._torch = torch
         self.processor = AutoProcessor.from_pretrained(self.variant)
+        # Cap image resolution globally so both eval and LoRA training stay
+        # within VRAM budget. Qwen3-VL tiles images dynamically; without this,
+        # large images produce hundreds of vision tokens and OOM on a 32 GiB GPU.
+        if hasattr(self.processor, "image_processor"):
+            self.processor.image_processor.max_pixels = 512 * 28 * 28
         self.model = _ModelCls.from_pretrained(
             self.variant,
             torch_dtype=torch.bfloat16,
@@ -46,13 +51,8 @@ class QwenVL2B(BaseVLM):
         text = self.processor.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
         )
-        # Cap image resolution: Qwen3-VL tiles images dynamically; without a
-        # limit large images produce hundreds of vision tokens and exhaust VRAM
-        # across a long evaluation run. 512*28*28 ≈ 400K pixels is sufficient
-        # for trash detection at POPE binary-question granularity.
         inputs = self.processor(
             text=[text], images=[image], return_tensors="pt",
-            max_pixels=512 * 28 * 28,
         ).to(self.device)
 
         with self._torch.no_grad():
