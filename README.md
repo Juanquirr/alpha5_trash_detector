@@ -53,7 +53,6 @@ pipeline. Each module can run independently and has its own Dockerfile.
 ```
 alpha5_trash_detector/
 ├── alpha5/          Detection model — training, inference, GUI visualizer
-├── autolabel/       Automatic labelling with SAM3
 ├── generator/       Synthetic dataset generation with FLUX inpainting
 ├── vlm/             Vision-Language Model evaluation benchmark
 ├── LICENSE.md
@@ -65,7 +64,6 @@ alpha5_trash_detector/
 | Branch | Component | Commits |
 |--------|-----------|---------|
 | `main` | Unified monorepo + original Alpha5 history | full |
-| `history/autolabel-sam3` | SAM3 auto-labelling pipeline | 7 |
 | `history/vlm-detector` | VLM evaluation framework | 10+ |
 | `history/trash-generator` | FLUX-based data generator | 30+ |
 
@@ -73,29 +71,22 @@ alpha5_trash_detector/
 
 ## Pipeline Overview
 
-All modules share the same **8 waste categories**:
+All modules share the same **7 waste categories** (shape-first taxonomy):
 
 | ID | Class | Description |
 |----|-------|-------------|
-| 0 | `plastic_bottle` | PET / water bottles |
-| 1 | `glass` | Glass bottles and jars |
-| 2 | `can` | Aluminium / metal cans |
-| 3 | `plastic_bag` | Shopping bags, film |
-| 4 | `metal_scrap` | Corroded metal fragments |
-| 5 | `plastic_wrapper` | Foil, food packaging |
-| 6 | `trash_pile` | Mixed debris clusters |
-| 7 | `trash` | Generic fallback class |
+| 0 | `container` | Rigid non-metal container — bottles (plastic/glass), jars, rigid cups |
+| 1 | `plastic` | Flat, flexible, translucent plastic — bags, film, soft wrappers |
+| 2 | `metal` | Specular metallic reflection — cans, aluminium foil, metal scrap |
+| 3 | `polystyrene` | White opaque matte foam — EPS blocks, polystyrene cups/plates |
+| 4 | `plastic_fragment` | Small, compact, rigid 3D plastic — caps, fragments, cutlery, straws |
+| 5 | `trash_pile` | Dense cluster of multiple objects — indistinguishable mixed waste |
+| 6 | `trash` | Single unclassifiable item — pallets, pellets, fauna, glass, other |
 
 ```
                           ┌──────────────┐
   Real harbour images ──► │  generator/  │ ──► Synthetic training images
                           │  FLUX models │     + YOLO annotations
-                          └──────────────┘
-                                 │
-                                 ▼
-                          ┌──────────────┐
-  Unlabelled images ────► │  autolabel/  │ ──► YOLO .txt labels
-                          │  SAM3        │
                           └──────────────┘
                                  │
                                  ▼

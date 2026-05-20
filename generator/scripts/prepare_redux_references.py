@@ -40,12 +40,11 @@ from PIL import Image
 # Supported classes — must match inputs/references/ subfolder names
 # ---------------------------------------------------------------------------
 _CLASSES = [
-    "plastic_bottle",
-    "glass",
-    "can",
-    "plastic_bag",
-    "metal_scrap",
-    "plastic_wrapper",
+    "container",
+    "plastic",
+    "metal",
+    "polystyrene",
+    "plastic_fragment",
     "trash_pile",
     "trash",
 ]
@@ -54,14 +53,13 @@ _CLASSES = [
 # Intentionally large: the object should dominate the reference so Redux
 # encodes "what the object looks like" rather than "what the background looks like".
 _CLASS_SCALE: dict[str, tuple[float, float]] = {
-    "plastic_bottle":  (0.45, 0.65),
-    "glass":           (0.45, 0.65),
-    "can":             (0.40, 0.60),
-    "plastic_bag":     (0.55, 0.75),
-    "metal_scrap":     (0.45, 0.65),
-    "plastic_wrapper": (0.50, 0.70),
-    "trash_pile":      (0.65, 0.85),
-    "trash":           (0.40, 0.60),
+    "container":        (0.45, 0.65),
+    "plastic":          (0.55, 0.75),
+    "metal":            (0.40, 0.60),
+    "polystyrene":      (0.50, 0.70),
+    "plastic_fragment": (0.25, 0.45),
+    "trash_pile":       (0.65, 0.85),
+    "trash":            (0.40, 0.60),
 }
 
 

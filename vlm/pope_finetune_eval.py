@@ -69,8 +69,8 @@ from pope_run import (
 TIERS = ("random", "popular", "adversarial")
 
 CLASSES = [
-    "plastic bottle", "glass", "can", "plastic bag",
-    "metal scrap", "plastic wrapper", "trash pile", "trash",
+    "container", "plastic", "metal", "polystyrene",
+    "plastic fragment", "trash pile", "trash",
 ]
 
 # Models that support LoRA SFT via PEFT

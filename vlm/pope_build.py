@@ -33,12 +33,11 @@ from collections import defaultdict
 from pathlib import Path
 
 CLASSES = [
-    "plastic bottle",
-    "glass",
-    "can",
-    "plastic bag",
-    "metal scrap",
-    "plastic wrapper",
+    "container",
+    "plastic",
+    "metal",
+    "polystyrene",
+    "plastic fragment",
     "trash pile",
     "trash",
 ]
@@ -46,32 +45,31 @@ CLASSES = [
 # Per-class descriptive prompts — more informative than bare class name.
 # Each prompt ends with "Answer yes or no." for consistent parsing.
 CLASS_PROMPTS: dict[str, str] = {
-    "plastic bottle":
-        "Is there a plastic bottle or plastic container with a visible cap or lid"
+    "container":
+        "Is there a rigid non-metal container with an elongated or cylindrical shape,"
+        " such as a plastic or glass bottle, jar, or rigid cup,"
         " in this image? Answer yes or no.",
-    "glass":
-        "Is there a glass bottle with a visible neck shape, such as a beer, wine"
-        " or spirits bottle, in this image? Answer yes or no.",
-    "can":
-        "Is there a fizzy drink can, cylindrical, whole or crushed, identifiable"
-        " by its metallic surface, in this image? Answer yes or no.",
-    "plastic bag":
-        "Is there a plastic bag such as a grocery bag, garbage bag or zip-lock bag"
+    "plastic":
+        "Is there flat, flexible, translucent plastic material such as a plastic bag,"
+        " plastic film, or soft plastic wrapper floating in this image? Answer yes or no.",
+    "metal":
+        "Is there any item with a specular metallic reflection such as a metal can,"
+        " aluminium foil, or metal scrap in this image? Answer yes or no.",
+    "polystyrene":
+        "Is there white opaque matte foam material such as EPS foam blocks,"
+        " polystyrene cups, polystyrene plates, or white foam debris"
         " in this image? Answer yes or no.",
-    "metal scrap":
-        "Is there metal scrap or small aluminium litter such as aluminium foil,"
-        " tuna cans, spray cans or small scattered metal pieces"
-        " in this image? Answer yes or no.",
-    "plastic wrapper":
-        "Is there a plastic wrapper, usually colorful, such as a snack bag, chips"
-        " packet, candy or chocolate bar wrapper in this image? Answer yes or no.",
+    "plastic fragment":
+        "Is there a small compact rigid plastic piece such as a bottle cap, broken"
+        " plastic fragment, plastic cutlery, or straw in this image? Answer yes or no.",
     "trash pile":
-        "Is there a visible pile or accumulation of mixed garbage — a heap of waste"
-        " where individual items are mixed together — in this image? Answer yes or no.",
+        "Is there a dense cluster or accumulation of multiple waste objects forming"
+        " a heap of mixed garbage where individual items may be indistinguishable"
+        " in this image? Answer yes or no.",
     "trash":
-        "Is there any waste or litter in this image that cannot be clearly identified"
-        " as a plastic bottle, glass bottle, can, plastic bag, metal scrap, plastic"
-        " wrapper, or pile of garbage? Answer yes or no.",
+        "Is there a single unclassifiable waste item that cannot be identified as a"
+        " container, plastic material, metal, polystyrene, plastic fragment, or trash"
+        " pile in this image? Answer yes or no.",
 }
 
 YOLO_ID_TO_CLASS = {i: c for i, c in enumerate(CLASSES)}

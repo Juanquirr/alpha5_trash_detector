@@ -42,14 +42,13 @@ from PIL import Image, ImageFilter
 # Multiple prompts = more recall; NMS removes duplicates afterward.
 # ---------------------------------------------------------------------------
 _CLASS_PROMPTS: dict[str, list[str]] = {
-    "plastic_bottle":  ["plastic bottle", "bottle", "plastic container"],
-    "glass":           ["glass bottle", "glass jar", "bottle"],
-    "can":             ["can", "metal can", "aluminum can", "tin can"],
-    "plastic_bag":     ["plastic bag", "bag", "plastic film"],
-    "metal_scrap":     ["metal scrap", "scrap metal", "metal debris", "rusty metal"],
-    "plastic_wrapper": ["plastic wrapper", "plastic packaging", "plastic film"],
-    "trash_pile":      ["trash pile", "garbage pile", "litter"],
-    "trash":           ["trash", "garbage", "litter", "debris"],
+    "container":        ["plastic bottle", "glass bottle", "jar", "rigid container", "cup"],
+    "plastic":          ["plastic bag", "plastic film", "plastic wrapper", "plastic sheet"],
+    "metal":            ["metal can", "aluminium can", "tin can", "metal scrap", "aluminium foil"],
+    "polystyrene":      ["styrofoam", "polystyrene foam", "foam block", "white foam"],
+    "plastic_fragment": ["plastic cap", "bottle cap", "plastic fragment", "plastic straw"],
+    "trash_pile":       ["trash pile", "garbage pile", "litter pile", "waste accumulation"],
+    "trash":            ["trash", "garbage", "litter", "debris"],
 }
 
 # ---------------------------------------------------------------------------

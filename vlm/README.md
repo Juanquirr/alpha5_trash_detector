@@ -76,7 +76,7 @@ Two prompt modes available via `--mode`:
 | Mode | Prompt style | Parser |
 |------|-------------|--------|
 | `text` (default) | Describe scene → `DETECTED: class, class` or `CLEAN` | Regex, longest-match-first |
-| `json` | Fill fixed 8-key JSON with per-class counts | JSON parser |
+| `json` | Fill fixed 7-key JSON with per-class counts | JSON parser |
 
 The text parser uses longest-match-first with consume to avoid substring bugs (e.g. "trash" matching inside "trash pile").
 
@@ -93,7 +93,7 @@ Reads YOLO `.txt` annotations from `images/`. Generates a 3-row plot:
 
 - **Row 1:** Accuracy / Precision / Recall per model (binary: garbage vs. clean)
 - **Row 2:** F1 / Inference Time / VRAM per model
-- **Row 3:** Per-class recall heatmap (8 classes × all models)
+- **Row 3:** Per-class recall heatmap (7 classes × all models)
 
 > Include clean images in your test set. If every image contains trash, Precision = 100% trivially and binary metrics are meaningless.
 
@@ -122,7 +122,7 @@ Instead of asking *"describe this image"*, POPE asks one targeted question per c
 
 > *"Is there a plastic bottle in this image? Answer with yes or no."*
 
-This is done for **all 8 classes** on **every image**. The model answers YES or NO. We already know the ground truth from the YOLO annotations. So for each question we know whether the answer was:
+This is done for **all 7 classes** on **every image**. The model answers YES or NO. We already know the ground truth from the YOLO annotations. So for each question we know whether the answer was:
 
 | | Model says YES | Model says NO |
 |---|---|---|
@@ -245,7 +245,7 @@ Prints a per-tier summary table and saves `vlm\pope_results\pope_eval.png`:
 
 ### POPE Adaptation Note
 
-This implementation applies POPE to a **closed-set domain** of 8 trash categories rather than the original open-vocabulary COCO setting. The methodology is identical; only the class pool differs (8 vs ~80). Tier differentiation is inherently narrower with a smaller pool, so tier F1 gaps will be smaller than in the original paper. Results should be referenced as *"POPE-style evaluation adapted to a closed-set trash detection domain (8 classes)"*.
+This implementation applies POPE to a **closed-set domain** of 7 trash categories rather than the original open-vocabulary COCO setting. The methodology is identical; only the class pool differs (7 vs ~80). Tier differentiation is inherently narrower with a smaller pool, so tier F1 gaps will be smaller than in the original paper. Results should be referenced as *"POPE-style evaluation adapted to a closed-set trash detection domain (7 classes)"*.
 
 ---
 

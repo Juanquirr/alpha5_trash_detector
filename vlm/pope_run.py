@@ -18,7 +18,7 @@ Usage:
 
 CLIP special case:
     CLIP.describe() ignores the prompt and returns scored lines:
-        "plastic bottle: 0.45 | glass: 0.12 | ..."
+        "container: 0.45 | plastic: 0.12 | ..."
     pope_run.py parses the queried class score (threshold 0.25) instead of
     calling parse_yesno() on free-text output.
 

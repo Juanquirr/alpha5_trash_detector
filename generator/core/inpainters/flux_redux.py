@@ -30,14 +30,13 @@ from diffusers import FluxFillPipeline, FluxPriorReduxPipeline
 # Explicit mapping from class_id to reference folder name.
 # This avoids fuzzy matching issues (space vs underscore, partial matches).
 _CLASS_FOLDER_MAP = {
-    0: "plastic_bottle",
-    1: "glass",
-    2: "can",
-    3: "plastic_bag",
-    4: "metal_scrap",
-    5: "plastic_wrapper",
-    6: "trash_pile",
-    7: "trash",
+    0: "container",
+    1: "plastic",
+    2: "metal",
+    3: "polystyrene",
+    4: "plastic_fragment",
+    5: "trash_pile",
+    6: "trash",
 }
 
 

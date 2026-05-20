@@ -22,19 +22,18 @@ from matplotlib.gridspec import GridSpec
 # ── Class maps ────────────────────────────────────────────────────────────────
 
 YOLO_ID_TO_CLASS = {
-    0: "plastic bottle",
-    1: "glass",
-    2: "can",
-    3: "plastic bag",
-    4: "metal scrap",
-    5: "plastic wrapper",
-    6: "trash pile",
-    7: "trash",
+    0: "container",
+    1: "plastic",
+    2: "metal",
+    3: "polystyrene",
+    4: "plastic fragment",
+    5: "trash pile",
+    6: "trash",
 }
 
 VLM_COMPARABLE_CLASSES = [
-    "plastic bottle", "glass", "can", "plastic bag",
-    "metal scrap", "plastic wrapper", "trash pile", "trash",
+    "container", "plastic", "metal", "polystyrene",
+    "plastic fragment", "trash pile", "trash",
 ]
 
 PALETTE = [

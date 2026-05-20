@@ -29,12 +29,11 @@ import pandas as pd
 from pope_run import derive_pred
 
 CLASSES = [
-    "plastic bottle",
-    "glass",
-    "can",
-    "plastic bag",
-    "metal scrap",
-    "plastic wrapper",
+    "container",
+    "plastic",
+    "metal",
+    "polystyrene",
+    "plastic fragment",
     "trash pile",
     "trash",
 ]

@@ -6,12 +6,11 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 CLASSES = [
-    "plastic bottle",
-    "glass",
-    "can",
-    "plastic bag",
-    "metal scrap",
-    "plastic wrapper",
+    "container",
+    "plastic",
+    "metal",
+    "polystyrene",
+    "plastic fragment",
     "trash pile",
     "trash",
 ]
@@ -20,69 +19,64 @@ CLASSES = [
 
 DETECTION_PROMPT = (
     "Examine this image carefully and describe what you see, paying attention to any waste, "
-    "litter, or garbage on the ground, surfaces, or environment.\n\n"
+    "litter, or garbage floating on or near water surfaces.\n\n"
     "Use the following class definitions to identify waste:\n"
-    "- plastic bottle: any plastic CONTAINER with a visible CAP or LID (bottles, jugs, flasks).\n"
-    "- glass: glass BOTTLES distinguishable by a bottle NECK shape and glass appearance "
-    "(beer, wine, spirits). Does NOT include glass jars.\n"
-    "- can: fizzy drink can — cylindrical, whole or crushed — identifiable by its metallic surface.\n"
-    "- plastic bag: clearly a BAG (grocery, garbage, zip-lock). Distinguished from wrappers "
-    "by its larger size and bag-like dimensions.\n"
-    "- metal scrap: small metal/aluminium items that can be litter — tuna cans, spray cans, "
-    "aluminium foil, small metal pieces. NOT structural metal like bars, sheets, or planks "
-    "(those are trash).\n"
-    "- plastic wrapper: small, usually colourful plastic wrapping — snack bags, chips packets, "
-    "candy or chocolate bar wrappers. Smaller and flatter than a plastic bag.\n"
-    "- trash pile: an ACCUMULATION of mixed garbage where individual items may or may not "
-    "be distinguishable. Must be a visible pile or heap of waste.\n"
-    "- trash: any waste that cannot be identified as a plastic bottle, glass bottle, can, "
-    "plastic bag, metal scrap, plastic wrapper, or trash pile. Catch-all for unclassifiable "
-    "litter, including structural metal debris.\n\n"
+    "- container: rigid non-metal container with elongated or cylindrical shape — plastic "
+    "or glass bottles, jars, rigid cups. Identified by shape, not material.\n"
+    "- plastic: flat, amorphous, flexible, translucent plastic material — bags, film, "
+    "soft wrappers, floating soft plastic sheets.\n"
+    "- metal: any item with a specular METALLIC REFLECTION — cans, aluminium foil, "
+    "metal scrap. Identified by its shiny metallic surface.\n"
+    "- polystyrene: white opaque MATTE foam material — EPS foam blocks, polystyrene cups "
+    "or plates, white cork-like foam debris.\n"
+    "- plastic fragment: small, compact, rigid 3D plastic piece — bottle caps, broken "
+    "plastic fragments, plastic cutlery, straws.\n"
+    "- trash pile: dense CLUSTER or ACCUMULATION of multiple waste objects forming a heap "
+    "of mixed garbage where individual items may be indistinguishable.\n"
+    "- trash: single unclassifiable waste item that cannot be identified as any of the "
+    "above — pallets, pellets, fauna, glass shards, other debris.\n\n"
     "After your description, write exactly one of:\n"
     "DETECTED: <comma-separated classes present from the list above>\n"
     "CLEAN\n\n"
     "Example:\n"
-    "The ground shows a crushed plastic bottle near a crumpled snack wrapper. "
-    "A small pile of mixed rubbish is visible in the corner.\n"
-    "DETECTED: plastic bottle, plastic wrapper, trash pile"
+    "The water surface shows a plastic bottle floating near a sheet of translucent film. "
+    "A dense cluster of mixed refuse is visible in the corner.\n"
+    "DETECTED: container, plastic, trash pile"
 )
 
 DETECTION_PROMPT_JSON = (
-    "Examine this image for waste or litter.\n\n"
+    "Examine this image for waste or litter floating on or near water.\n\n"
     "Return ONLY a JSON object. Each value is the count of that item visible (0 if absent):\n\n"
     "{\n"
-    '  "plastic_bottle": 0,\n'
-    '  "glass": 0,\n'
-    '  "can": 0,\n'
-    '  "plastic_bag": 0,\n'
-    '  "metal_scrap": 0,\n'
-    '  "plastic_wrapper": 0,\n'
+    '  "container": 0,\n'
+    '  "plastic": 0,\n'
+    '  "metal": 0,\n'
+    '  "polystyrene": 0,\n'
+    '  "plastic_fragment": 0,\n'
     '  "trash_pile": 0,\n'
     '  "trash": 0\n'
     "}\n\n"
     "Definitions:\n"
-    "- plastic_bottle: plastic CONTAINER with a visible CAP or LID (bottles, jugs, flasks)\n"
-    "- glass: glass BOTTLE with NECK shape (beer, wine, spirits — NOT jars)\n"
-    "- can: fizzy drink can — cylindrical, whole or crushed — identifiable by its metallic surface\n"
-    "- plastic_bag: BAG shape — grocery, garbage, zip-lock\n"
-    "- metal_scrap: small metal/aluminium litter — tuna cans, foil, spray cans\n"
-    "- plastic_wrapper: small, usually colourful plastic wrapping — snack bags, chips packets, candy or chocolate bar wrappers\n"
-    "- trash_pile: ACCUMULATION of mixed garbage — visible pile or heap\n"
-    "- trash: waste that cannot be identified as plastic bottle, glass bottle, can, plastic bag, metal scrap, plastic wrapper, or trash pile\n\n"
+    "- container: rigid non-metal container with elongated/cylindrical shape — bottles, jars, rigid cups\n"
+    "- plastic: flat, flexible, translucent plastic — bags, film, soft wrappers, floating plastic sheets\n"
+    "- metal: specular metallic reflection — cans, aluminium foil, metal scrap\n"
+    "- polystyrene: white opaque matte foam — EPS foam blocks, polystyrene cups or plates\n"
+    "- plastic_fragment: small compact rigid plastic — bottle caps, broken fragments, cutlery, straws\n"
+    "- trash_pile: dense cluster of multiple waste objects forming a mixed heap\n"
+    "- trash: single unclassifiable item — pallets, pellets, fauna, glass shards, other\n\n"
     "Output only the JSON object, no explanation."
 )
 
 # ── Parsers ────────────────────────────────────────────────────────────────────
 
 _JSON_KEY_TO_CLASS = {
-    "plastic_bottle":  "plastic bottle",
-    "glass":           "glass",
-    "can":             "can",
-    "plastic_bag":     "plastic bag",
-    "metal_scrap":     "metal scrap",
-    "plastic_wrapper": "plastic wrapper",
-    "trash_pile":      "trash pile",
-    "trash":           "trash",
+    "container":        "container",
+    "plastic":          "plastic",
+    "metal":            "metal",
+    "polystyrene":      "polystyrene",
+    "plastic_fragment": "plastic fragment",
+    "trash_pile":       "trash pile",
+    "trash":            "trash",
 }
 
 
