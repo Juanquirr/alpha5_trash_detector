@@ -447,6 +447,16 @@ def finetune_lora(
     print(f"[{model_key}] Merging LoRA weights…")
     vlm.model = peft_model.merge_and_unload()
     vlm.model.eval()
+
+    # Release training artefacts (gradients, optimizer states, activations)
+    # from the CUDA allocator pool before post-eval starts. Without this,
+    # the reserved-but-unallocated pool fills the GPU and OOMs on the first
+    # image of the next eval tier.
+    import gc
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
     print(f"[{model_key}] Fine-tuning complete.")
     return True
 
