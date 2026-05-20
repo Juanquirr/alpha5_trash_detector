@@ -1,33 +1,29 @@
 prompt,class_name,class_id
-"a crushed plastic water bottle floating on the water, partially submerged, wet, photorealistic",plastic bottle,0
-"a deformed PET bottle drifting on sea water, wet surface reflecting light, photorealistic",plastic bottle,0
-"a transparent plastic bottle half-submerged in water, realistic, natural lighting",plastic bottle,0
-"a small crumpled plastic bottle floating among gentle waves, wet, photorealistic",plastic bottle,0
-"a green glass beer bottle floating on water, partially submerged, wet and reflective, photorealistic",glass bottle,1
-"a clear glass bottle drifting on sea water, water droplets on surface, natural lighting, realistic",glass bottle,1
-"a brown glass bottle half-submerged in water, wet, realistic, natural light",glass bottle,1
-"a glass bottle floating on calm water, sunlight reflecting off wet surface, photorealistic",glass bottle,1
-"an aluminum soda can floating on water, partially crushed, wet metal surface, photorealistic",can,2
-"a crushed metal drink can drifting on sea water, rusted edges, wet, natural lighting",can,2
-"a rusted aluminum can partially submerged in water, water droplets visible, photorealistic",can,2
-"a beverage can floating on water surface, dented and wet, photorealistic",can,2
-"a white plastic bag spread on water surface, partially transparent, waterlogged, photorealistic",plastic bag,3
-"a translucent plastic bag floating on water, partially underwater, natural lighting, realistic",plastic bag,3
-"a crumpled plastic bag drifting on sea surface, wet and clinging to water, photorealistic",plastic bag,3
-"a plastic shopping bag floating on water, partially submerged and spread out, realistic",plastic bag,3
-"a dark plastic bag spread flat on water surface, waterlogged, photorealistic",plastic bag,3
-"crumpled aluminium foil floating on water, shiny surface, wet, photorealistic",metal scrap,4
-"a round food tin can floating on sea water, label worn, partially submerged, photorealistic",metal scrap,4
-"an empty spray can drifting on water, cylindrical, wet, natural lighting, photorealistic",metal scrap,4
-"a food packaging wrapper floating on water, crumpled, wet, photorealistic",plastic wrapper,5
-"a crumpled plastic wrapper drifting on sea water, partially submerged, realistic",plastic wrapper,5
-"a candy wrapper floating on water surface, wet and shiny, natural lighting, photorealistic",plastic wrapper,5
-"a shiny foil wrapper partially submerged in water, reflecting light, photorealistic",plastic wrapper,5
-"a floating patch of marine debris on water, clearly visible plastic bottles, plastic bags and wrappers mixed together, photorealistic",trash pile,6
-"a cluster of floating garbage on sea water, distinguishable plastic bottles and bags, mixed waste accumulation, photorealistic",trash pile,6
-"an accumulation of floating rubbish on water surface, plastic bottles, crumpled bags and food packaging visible, realistic",trash pile,6
-"a raft of floating litter on sea water, identifiable plastic bottles and colourful bags among mixed debris, photorealistic",trash pile,6
-"a small piece of floating garbage on water surface, wet and waterlogged, photorealistic",trash,7
-"unidentified debris drifting on sea water, partially submerged, natural lighting, realistic",trash,7
-"a piece of floating trash in water, wet and discolored, photorealistic",trash,7
-"small floating waste on water surface, waterlogged, natural lighting, photorealistic",trash,7
+"a plastic water bottle floating on the water surface, partially submerged, wet, photorealistic",container,0
+"a transparent plastic bottle drifting on sea water, water droplets on surface, natural lighting, realistic",container,0
+"a glass jar floating on calm water, sunlight reflecting on wet surface, photorealistic",container,0
+"a rigid plastic container half-submerged in water, wet, realistic, natural light",container,0
+"a white plastic bag spread on water surface, partially transparent, waterlogged, photorealistic",plastic,1
+"a translucent plastic film floating on water, partially underwater, natural lighting, realistic",plastic,1
+"a crumpled plastic bag drifting on sea surface, wet and clinging to water, photorealistic",plastic,1
+"a dark plastic sheet spread flat on water surface, waterlogged, photorealistic",plastic,1
+"an aluminum soda can floating on water, partially crushed, wet metal surface, photorealistic",metal,2
+"crumpled aluminium foil floating on water, shiny surface, wet, photorealistic",metal,2
+"a rusted metal can partially submerged in water, wet metallic surface, natural lighting, realistic",metal,2
+"a metal food tin drifting on sea water, label worn, partially submerged, photorealistic",metal,2
+"a white polystyrene foam block floating on water surface, matte texture, waterlogged edges, photorealistic",polystyrene,3
+"a piece of expanded polystyrene drifting on sea water, white and buoyant, natural lighting, realistic",polystyrene,3
+"a polystyrene foam cup floating on water, white opaque, partially submerged, photorealistic",polystyrene,3
+"a chunk of EPS foam floating on calm water, white matte surface, realistic, natural light",polystyrene,3
+"a plastic bottle cap floating on water surface, small, colourful, wet, photorealistic",plastic_fragment,4
+"a small plastic fragment drifting on sea water, compact, rigid, partially submerged, realistic",plastic_fragment,4
+"a plastic straw floating on water, small cylindrical piece, wet, natural lighting, photorealistic",plastic_fragment,4
+"small broken plastic pieces floating on water surface, rigid fragments, wet, photorealistic",plastic_fragment,4
+"a floating patch of marine debris on water, clearly visible containers, plastic bags and mixed waste, photorealistic",trash_pile,5
+"a cluster of floating garbage on sea water, mixed plastic waste accumulation, photorealistic",trash_pile,5
+"an accumulation of floating rubbish on water surface, plastic containers and bags visible, realistic",trash_pile,5
+"a raft of floating litter on sea water, mixed marine debris, photorealistic",trash_pile,5
+"a small piece of floating garbage on water surface, wet and waterlogged, photorealistic",trash,6
+"unidentified debris drifting on sea water, partially submerged, natural lighting, realistic",trash,6
+"a piece of floating trash in water, wet and discolored, photorealistic",trash,6
+"small floating waste on water surface, waterlogged, natural lighting, photorealistic",trash,6

@@ -14,14 +14,13 @@ EDGE_MARGIN = 30      # Safety margin from water boundaries
 # Depth scaling in pipeline.py (×0.5 to ×1.0) is applied on top of these.
 # (min_w, max_w, min_h, max_h)
 OBJECT_SIZES = {
-    0: (35,  65,  18,  35),   # plastic bottle - elongated
-    1: (35,  60,  18,  32),   # glass bottle - similar
-    2: (35,  55,  30,  50),   # can - more square
-    3: (50,  90,  35,  65),   # plastic bag - larger, spread out
-    4: (35,  65,  28,  50),   # metal scrap - irregular
-    5: (40,  70,  28,  50),   # plastic wrapper - rectangular
-    6: (75, 120,  60,  95),   # trash pile - largest
-    7: (30,  52,  22,  40),   # trash - generic small
+    0: (35,  65,  18,  35),   # container       - elongated/cylindrical (bottles, jars)
+    1: (50,  90,  35,  65),   # plastic          - flat, spread out (bags, film)
+    2: (30,  60,  25,  50),   # metal            - variable (cans, foil, scrap)
+    3: (50,  85,  40,  70),   # polystyrene      - chunky, medium-large (foam blocks)
+    4: (15,  35,  12,  28),   # plastic_fragment - small, compact (caps, fragments)
+    5: (75, 120,  60,  95),   # trash_pile       - largest (dense cluster)
+    6: (30,  52,  22,  40),   # trash            - generic single item
 }
 
 # Crop-based inpainting settings.

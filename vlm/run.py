@@ -11,9 +11,8 @@ Modes:
     json            model fills a fixed JSON schema with per-class counts
 
 Venv reference:
-    .transformers-5.X-venv  (transformers 5.x) : smolvlm, qwen_vl
-    .transformers-4.46-venv (transformers 4.46): moondream, llava, blip2, instructblip,
-                                                 clip, paligemma, idefics, mplug_owl3
+    .transformers-5.X-venv  (transformers 5.x) : smolvlm, smolvlm_500m, qwen_vl, qwen_2b
+    .transformers-4.46-venv (transformers 4.46): llava, moondream, clip, internvl2
 
 --model all: spawns a subprocess per model using the correct venv Python automatically.
              Can be run from any Python (system or any venv).

@@ -9,7 +9,22 @@ from pathlib import Path
 from .base import BaseVLM, CLASSES
 
 
-CANDIDATES = CLASSES + ["no garbage, clean environment"]
+# Bare labels used in output and by parse_clip_score — must match POPE question cls field.
+_LABELS = CLASSES + ["no garbage"]
+
+# Richer descriptions fed to the CLIP text encoder — better semantic signal than bare names.
+# CLIP zero-shot quality depends on natural-language prompt quality.
+_TEXTS = [
+    "a floating rigid container such as a plastic or glass bottle",
+    "floating plastic material such as a plastic bag or film sheet",
+    "floating metal waste such as an aluminium can or crumpled foil",
+    "floating white polystyrene foam block or cup",
+    "a small floating plastic fragment or bottle cap",
+    "a cluster of floating mixed marine waste",
+    "floating unidentified debris",
+    "no garbage, clean water surface",
+]
+
 THRESHOLD = 0.25  # softmax score to consider a class present
 
 
@@ -29,14 +44,13 @@ class CLIP(BaseVLM):
         from PIL import Image
 
         image = Image.open(image_path).convert("RGB")
-        texts = [f"a photo of {c}" for c in CANDIDATES]
-        inputs = self.processor(text=texts, images=image, return_tensors="pt", padding=True).to(self.device)
+        inputs = self.processor(text=_TEXTS, images=image, return_tensors="pt", padding=True).to(self.device)
 
         with torch.no_grad():
             outputs = self.model(**inputs)
             probs = outputs.logits_per_image.softmax(dim=1)[0]
 
-        scored = sorted(zip(CANDIDATES, probs.tolist()), key=lambda x: -x[1])
+        scored = sorted(zip(_LABELS, probs.tolist()), key=lambda x: -x[1])
         return " | ".join(f"{c}: {s:.2f}" for c, s in scored)
 
     def detect_garbage(self, image_path: str, mode: str = "text") -> dict:
@@ -46,9 +60,8 @@ class CLIP(BaseVLM):
         is_cuda = self.device == "cuda" and torch.cuda.is_available()
 
         image = Image.open(image_path).convert("RGB")
-        texts = [f"a photo of {c}" for c in CANDIDATES]
         inputs = self.processor(
-            text=texts, images=image, return_tensors="pt", padding=True
+            text=_TEXTS, images=image, return_tensors="pt", padding=True
         ).to(self.device)
 
         if is_cuda:
@@ -62,10 +75,10 @@ class CLIP(BaseVLM):
             torch.cuda.synchronize()
         elapsed = round(time.perf_counter() - t0, 3)
 
-        scored = list(zip(CANDIDATES, probs.tolist()))
+        scored = list(zip(_LABELS, probs.tolist()))
         garbage_classes = [
             c for c, s in scored
-            if c != "no garbage, clean environment" and s >= THRESHOLD
+            if c != "no garbage" and s >= THRESHOLD
         ]
         detected = len(garbage_classes) > 0
 
