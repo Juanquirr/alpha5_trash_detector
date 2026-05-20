@@ -39,7 +39,7 @@ DETECTION_PROMPT = (
     "DETECTED: <comma-separated classes present from the list above>\n"
     "CLEAN\n\n"
     "Example:\n"
-    "The water surface shows a plastic bottle floating near a sheet of translucent film. "
+    "The water surface shows a rigid container floating near a sheet of translucent plastic film. "
     "A dense cluster of mixed refuse is visible in the corner.\n"
     "DETECTED: container, plastic, trash pile"
 )

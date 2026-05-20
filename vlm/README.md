@@ -120,7 +120,7 @@ POPE (Polling-based Object Probing Evaluation) is a methodology designed specifi
 
 Instead of asking *"describe this image"*, POPE asks one targeted question per class per image:
 
-> *"Is there a plastic bottle in this image? Answer with yes or no."*
+> *"Is there a rigid non-metal container such as a bottle or jar in this image? Answer yes or no."*
 
 This is done for **all 7 classes** on **every image**. The model answers YES or NO. We already know the ground truth from the YOLO annotations. So for each question we know whether the answer was:
 
@@ -141,14 +141,14 @@ POPE runs three times on the same image set. Each tier asks all positive questio
 Negative classes are **chosen at random** from the absent classes. This is the **baseline** — no particular pressure to hallucinate any specific class.
 
 #### Tier 2 — Popular
-Negative classes are the **most frequently occurring** in the dataset as a whole. The idea: a model biased by training frequency might "expect" plastic bottles everywhere and hallucinate them even when absent.
+Negative classes are the **most frequently occurring** in the dataset as a whole. The idea: a model biased by training frequency might "expect" containers everywhere and hallucinate them even when absent.
 
-*Example: if plastic bottles appear in 70% of images, they are selected as negatives first. A hallucination-prone model will say YES far too often.*
+*Example: if containers appear in 70% of images, they are selected as negatives first. A hallucination-prone model will say YES far too often.*
 
 #### Tier 3 — Adversarial
-Negative classes are those that **most often co-occur** with the ground-truth classes in that specific image. This is the hardest tier: if a trash pile is in the image, the model is asked about classes that frequently appear alongside trash piles (e.g. plastic bags) — semantically tempting even when absent.
+Negative classes are those that **most often co-occur** with the ground-truth classes in that specific image. This is the hardest tier: if a trash pile is in the image, the model is asked about classes that frequently appear alongside trash piles (e.g. plastic fragments) — semantically tempting even when absent.
 
-*Example: an image has a trash pile. The model is asked "Is there a plastic bag?" — plastic bags often appear near trash piles, so a hallucination-prone model says YES by association.*
+*Example: an image has a trash pile. The model is asked "Is there a plastic fragment?" — plastic fragments often appear near trash piles, so a hallucination-prone model says YES by association.*
 
 **Balance:** each tier uses n_neg = n_pos per image (~50 % yes / 50 % no). Clean images (no annotated classes) receive three fixed negative questions to test hallucination on background-only scenes.
 
@@ -164,7 +164,7 @@ Negative classes are those that **most often co-occur** with the ground-truth cl
 Precision = TP / (TP + FP)
 ```
 - High precision = few false alarms
-- Low precision = the model cries wolf — it says "there's a can here" when there isn't
+- Low precision = the model cries wolf — it says "there's metal here" when there isn't
 
 #### Recall — *Does the model find all the real trash?*
 ```
@@ -204,8 +204,8 @@ Reads YOLO `.txt` annotations. Writes three JSONL files to `vlm\pope_questions\`
 
 Each line is one binary question:
 ```json
-{"question_id": 1, "image": "foto1.jpg", "cls": "plastic bottle",
- "text": "Is there a plastic bottle in this image? Answer with yes or no.",
+{"question_id": 1, "image": "foto1.jpg", "cls": "container",
+ "text": "Is there a rigid non-metal container such as a bottle or jar in this image? Answer yes or no.",
  "label": "yes"}
 ```
 
@@ -259,7 +259,7 @@ This implementation applies POPE to a **closed-set domain** of 7 trash categorie
 **Red flags:**
 - Yes-ratio >> 60%: model is guessing YES too often — will trigger false alarms constantly
 - F1 drops significantly from random → adversarial: model confuses semantically related classes
-- Recall very low on specific classes (e.g. metal scrap = 10%): model systematically misses that class regardless of prompt
+- Recall very low on specific classes (e.g. polystyrene = 10%): model systematically misses that class regardless of prompt
 
 **CLIP note:** CLIP does not generate text — it ranks candidates by similarity score. POPE handles CLIP differently: instead of parsing yes/no from generated text, it checks whether the similarity score for the queried class exceeds 0.25. Results are valid but not directly comparable to generative models.
 
@@ -275,7 +275,7 @@ This implementation applies POPE to a **closed-set domain** of 7 trash categorie
 
 Standard POPE evaluation reveals *where* a model fails. The fine-tuning step uses those same questions as a training signal:
 
-1. The model sees an image and a question: *"Is there a plastic bottle in this image?"*
+1. The model sees an image and a question: *"Is there a rigid non-metal container in this image?"*
 2. It answers YES or NO.
 3. We know the ground-truth answer from YOLO annotations.
 4. If the model is wrong, the error is back-propagated to adjust its weights.

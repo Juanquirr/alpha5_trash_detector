@@ -10,8 +10,8 @@ selects a DIFFERENT subset of negatives, making tier difficulty meaningful.
 Clean images (0 GT classes) get CLEAN_IMAGE_NEGATIVES=3 negative questions.
 
 Output line format:
-    {"question_id": 1, "image": "foto1.jpg", "cls": "plastic bottle",
-     "text": "Is there a plastic bottle in this image? Answer with yes or no.",
+    {"question_id": 1, "image": "foto1.jpg", "cls": "container",
+     "text": "Is there a rigid non-metal container such as a bottle or jar in this image? Answer yes or no.",
      "label": "yes"}
 
 Tier negative selection:
