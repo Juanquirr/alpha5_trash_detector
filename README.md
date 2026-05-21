@@ -73,15 +73,22 @@ alpha5_trash_detector/
 
 All modules share the same **7 waste categories** (shape-first taxonomy):
 
-| ID | Class | Description |
-|----|-------|-------------|
-| 0 | `container` | Rigid non-metal container — bottles (plastic/glass), jars, rigid cups |
-| 1 | `plastic` | Flat, flexible, translucent plastic — bags, film, soft wrappers |
-| 2 | `metal` | Specular metallic reflection — cans, aluminium foil, metal scrap |
-| 3 | `polystyrene` | White opaque matte foam — EPS blocks, polystyrene cups/plates |
-| 4 | `plastic_fragment` | Small, compact, rigid 3D plastic — caps, fragments, cutlery, straws |
-| 5 | `trash_pile` | Dense cluster of multiple objects — indistinguishable mixed waste |
-| 6 | `trash` | Single unclassifiable item — pallets, pellets, fauna, glass, other |
+| ID | Class | Description | Includes | Excludes |
+|----|-------|-------------|----------|---------|
+| 0 | `container` | Rigid non-metal container with recognisable shape | PET/glass bottles, jars, tins, tubes (toothpaste, tomato), rigid/transparent plastic cups, plastic food cans, drums, jerrycans | Foam EPS cups → `polystyrene`; crushed shapeless containers → `trash`; metal cans → `metal` |
+| 1 | `plastic` | Flexible, flat, amorphous plastic | Plastic bags, transparent film, wrappers, shrink wrap, bubble wrap, carrier bags | Rigid plastic → `container`; small fragments → `plastic_fragment` |
+| 2 | `metal` | Object with specular metallic reflection | Soda/beer cans, metal food tins, aluminium foil, metal scrap, metal caps, pull-rings | Plastic cans → `container`; unidentifiable metal objects → `trash` |
+| 3 | `polystyrene` | EPS foam material — white opaque matte, spongy texture | McDonald's/coffee foam cups, foam plates, supermarket foam trays, expanded polystyrene blocks, white cork | Rigid white plastic cups → `container`; crushed shapeless foam → `trash` |
+| 4 | `plastic_fragment` | Small compact rigid plastic, intact 3D shape | Bottle caps, lids, plastic cutlery, straws, identifiable broken fragments, lighters | Flexible plastic → `plastic`; fragment too small to identify → `trash` |
+| 5 | `trash_pile` | Dense cluster of multiple mixed objects | Groups where ≥3 objects are visible together with no possibility of separating individual bboxes | Any single object of any class → its own class |
+| 6 | `trash` | Single item unclassifiable into any above class | Cardboard/paper (paper cups, bread bags, boxes), pallets, pellets, wood, fabric, marine fauna, deformed shapeless objects, glass, cigarettes | Any identifiable object with clear shape/material |
+
+### Class tiebreaker rules
+
+- **`container` vs `polystyrene`** → check texture. Matte spongy foam = `polystyrene`. Smooth/shiny/transparent = `container`.
+- **`plastic` vs `plastic_fragment`** → check flexibility. Bends/ripples = `plastic`. Rigid and compact = `plastic_fragment`.
+- **Crushed/deformed object** → if material is still identifiable, keep its class. If shape and material are both unrecognisable → `trash`.
+- **Any remaining doubt** → `trash` by default.
 
 ```
                           ┌──────────────┐
