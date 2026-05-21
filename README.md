@@ -75,7 +75,7 @@ All modules share the same **7 waste categories** (shape-first taxonomy):
 
 | ID | Class | Description | Includes | Excludes |
 |----|-------|-------------|----------|---------|
-| 0 | `container` | Rigid non-metal container with recognisable shape | PET/glass bottles, jars, tins, tubes (toothpaste, tomato), rigid/transparent plastic cups, plastic food cans, drums, jerrycans | Foam EPS cups → `polystyrene`; crushed shapeless containers → `trash`; metal cans → `metal` |
+| 0 | `container` | Rigid non-metal container with recognisable shape | PET/glass bottles, jars, pots, tubes (toothpaste, tomato), rigid/transparent plastic cups, plastic food cans, drums, jerrycans | Foam EPS cups → `polystyrene`; crushed shapeless containers → `trash`; metal cans/tins → `metal` |
 | 1 | `plastic` | Flexible, flat, amorphous plastic | Plastic bags, transparent film, wrappers, shrink wrap, bubble wrap, carrier bags | Rigid plastic → `container`; small fragments → `plastic_fragment` |
 | 2 | `metal` | Object with specular metallic reflection | Soda/beer cans, metal food tins, aluminium foil, metal scrap, metal caps, pull-rings | Plastic cans → `container`; unidentifiable metal objects → `trash` |
 | 3 | `polystyrene` | EPS foam material — white opaque matte, spongy texture | McDonald's/coffee foam cups, foam plates, supermarket foam trays, expanded polystyrene blocks, white cork | Rigid white plastic cups → `container`; crushed shapeless foam → `trash` |
