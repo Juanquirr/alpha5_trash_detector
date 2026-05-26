@@ -64,7 +64,7 @@ vlm/images/
 !vlm/pope_results/**
 !vlm/pope_questions/**
 vlm/pope_questions/metadata.json
-alpha5/datasets/alpha5*/
+alpha5/datasets/
 runs/
 InternImage/
 InternImage_backup/
