@@ -159,7 +159,7 @@ def run_model_tier(
     model_key:     str,
     tier:          str,
     questions_dir: Path,
-    images_dir:    Path,
+    images_dirs:   list[Path],
     out_dir:       Path,
     timeout_s:     float = 20.0,
 ) -> None:
@@ -197,19 +197,23 @@ def run_model_tier(
     n_timeout = 0
 
     for i, q in enumerate(pending, 1):
-        # Resolve image path (try original name, then alternate extensions)
-        image_path = images_dir / q["image"]
-        if not image_path.exists():
-            found = None
+        # Resolve image path across all image directories
+        image_path = None
+        for d in images_dirs:
+            candidate = d / q["image"]
+            if candidate.exists():
+                image_path = candidate
+                break
             for ext in IMAGE_EXTS:
-                alt = (images_dir / q["image"]).with_suffix(ext)
+                alt = (d / q["image"]).with_suffix(ext)
                 if alt.exists():
-                    found = alt
+                    image_path = alt
                     break
-            if not found:
-                print(f"  [{i}/{len(pending)}] SKIP (image not found): {q['image']}")
-                continue
-            image_path = found
+            if image_path:
+                break
+        if image_path is None:
+            print(f"  [{i}/{len(pending)}] SKIP (image not found): {q['image']}")
+            continue
 
         if is_cuda:
             torch.cuda.reset_peak_memory_stats()
@@ -292,7 +296,7 @@ def run_all(
     model_keys:    list[str],
     tiers:         list[str],
     questions_arg: str,
-    images_arg:    str,
+    images_arg:    str | None,
     out_arg:       str,
     timeout_s:     float = 20.0,
 ) -> None:
@@ -324,10 +328,11 @@ def run_all(
             "--model",     key,
             "--tier",      tier,
             "--questions", questions_arg,
-            "--images",    images_arg,
             "--out",       out_arg,
             "--timeout",   str(timeout_s),
         ]
+        if images_arg is not None:
+            cmd += ["--images", images_arg]
         t0     = time.perf_counter()
         result = subprocess.run(cmd)
         elapsed = _fmt_time(time.perf_counter() - t0)
@@ -384,16 +389,22 @@ def main() -> None:
                         help="Max seconds per inference question (0 = disabled, default: 20)")
     args = parser.parse_args()
 
-    # Resolve images dir: explicit arg > metadata.json > fallback "images/"
-    if args.images is None:
+    # Resolve images dirs: explicit arg > metadata.json > fallback "images/"
+    if args.images is not None:
+        images_dirs = [Path(args.images)]
+        print(f"[pope_run] images dir from --images: {args.images}")
+    else:
         meta_path = Path(args.questions) / "metadata.json"
         if meta_path.exists():
             meta = json.loads(meta_path.read_text(encoding="utf-8"))
-            args.images = meta["images_dir"]
-            print(f"[pope_run] images dir from metadata: {args.images}")
+            if "images_dirs" in meta:
+                images_dirs = [Path(d) for d in meta["images_dirs"]]
+            else:
+                images_dirs = [Path(meta["images_dir"])]
+            print(f"[pope_run] images dirs from metadata: {images_dirs}")
         else:
-            args.images = "images"
-            print(f"[pope_run] metadata.json not found, using default: {args.images}")
+            images_dirs = [Path("images")]
+            print(f"[pope_run] metadata.json not found, using default: images/")
 
     tiers   = list(TIERS) if args.tier == "all" else [args.tier]
     exclude = {k.strip() for k in args.without.split(",") if k.strip()}
@@ -403,7 +414,9 @@ def main() -> None:
         keys = [k for k in REGISTRY if k not in exclude]
         if exclude:
             print(f"[pope_run] Excluding: {', '.join(sorted(exclude))}")
-        run_all(keys, tiers, args.questions, args.images, args.out, timeout_s=args.timeout)
+        # Subprocess path passes --images as first dir; subprocess re-reads metadata
+        images_arg = str(images_dirs[0]) if len(images_dirs) == 1 else None
+        run_all(keys, tiers, args.questions, images_arg, args.out, timeout_s=args.timeout)
         return
 
     keys    = [k.strip() for k in args.model.split(",")]
@@ -414,7 +427,8 @@ def main() -> None:
 
     if len(keys) > 1:
         keys = [k for k in keys if k not in exclude]
-        run_all(keys, tiers, args.questions, args.images, args.out, timeout_s=args.timeout)
+        images_arg = str(images_dirs[0]) if len(images_dirs) == 1 else None
+        run_all(keys, tiers, args.questions, images_arg, args.out, timeout_s=args.timeout)
         return
 
     # ── Single model: run all tiers in current process (correct venv already) ──
@@ -424,7 +438,7 @@ def main() -> None:
             model_key=key,
             tier=tier,
             questions_dir=Path(args.questions),
-            images_dir=Path(args.images),
+            images_dirs=images_dirs,
             out_dir=Path(args.out),
             timeout_s=args.timeout,
         )

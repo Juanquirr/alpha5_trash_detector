@@ -1,7 +1,7 @@
 """
 pope_build.py  —  Build POPE-style binary question files from YOLO annotations.
 
-Reads YOLO .txt labels from images/ and writes three JSONL question files,
+Reads YOLO .txt labels and writes three JSONL question files,
 one per tier (random, popular, adversarial).
 
 Balance: n_neg = n_pos per image (POPE standard ~50/50 yes/no ratio).
@@ -20,8 +20,9 @@ Tier negative selection:
     adversarial — classes that co-occur most with GT classes selected first (hardest)
 
 Usage:
-    python pope_build.py
+    python pope_build.py --dataset ../alpha5/datasets/alpha6
     python pope_build.py --images images/ --out pope_questions/
+    python pope_build.py --images imgs/ --labels lbls/ --out pope_questions/
     python pope_build.py --seed 0
 """
 
@@ -74,15 +75,25 @@ CLASS_PROMPTS: dict[str, str] = {
 
 YOLO_ID_TO_CLASS = {i: c for i, c in enumerate(CLASSES)}
 IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".bmp")
+SPLITS     = ("train", "val", "test")
 
 
 # ── Label loading ─────────────────────────────────────────────────────────────
 
-def load_yolo_labels(images_dir: Path) -> list[dict]:
-    """Return list of {image: str, gt_classes: set[str]} from YOLO .txt files."""
+def load_yolo_labels(images_dir: Path, labels_dir: Path | None = None) -> list[dict]:
+    """
+    Return list of {image: str, gt_classes: set[str]} from YOLO .txt files.
+
+    If labels_dir is provided, reads .txt from there (standard YOLO split
+    layout where images/ and labels/ are separate directories).
+    Otherwise falls back to looking for .txt files next to images (flat layout).
+    """
+    if labels_dir is None:
+        labels_dir = images_dir
+
     records = []
-    for txt in sorted(images_dir.glob("*.txt")):
-        # Find matching image file
+    for txt in sorted(labels_dir.glob("*.txt")):
+        # Find matching image file in images_dir
         image_name = txt.with_suffix(".jpg").name
         for ext in IMAGE_EXTS:
             candidate = images_dir / txt.with_suffix(ext).name
@@ -105,6 +116,36 @@ def load_yolo_labels(images_dir: Path) -> list[dict]:
 
         records.append({"image": image_name, "gt_classes": gt_classes})
     return records
+
+
+def load_yolo_dataset(dataset_root: Path) -> tuple[list[dict], list[Path]]:
+    """
+    Load labels from a standard YOLO dataset directory (train/val/test splits).
+
+    Expects structure:
+        dataset_root/
+            train/images/  train/labels/
+            val/images/    val/labels/
+            test/images/   test/labels/   (optional)
+
+    Returns (records, images_dirs) where images_dirs lists all image
+    directories found (for metadata).
+    """
+    records: list[dict] = []
+    images_dirs: list[Path] = []
+
+    for split in SPLITS:
+        split_images = dataset_root / split / "images"
+        split_labels = dataset_root / split / "labels"
+        if not split_images.exists() or not split_labels.exists():
+            continue
+        split_records = load_yolo_labels(split_images, split_labels)
+        if split_records:
+            records.extend(split_records)
+            images_dirs.append(split_images)
+            print(f"  [{split:5s}]  {len(split_records)} images")
+
+    return records, images_dirs
 
 
 # ── Question builders ─────────────────────────────────────────────────────────
@@ -180,39 +221,62 @@ def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build POPE question JSONL files")
-    parser.add_argument("--images", default="images",
-                        help="Directory with images + YOLO .txt labels")
+    parser.add_argument("--dataset", default=None,
+                        help="YOLO dataset root (with train/images + train/labels). "
+                             "Reads all splits automatically. Mutually exclusive with --images.")
+    parser.add_argument("--images", default=None,
+                        help="Flat directory with images + YOLO .txt labels side by side. "
+                             "Ignored when --dataset is provided.")
+    parser.add_argument("--labels", default=None,
+                        help="Separate labels directory (used with --images when labels "
+                             "are not next to images). Ignored when --dataset is provided.")
     parser.add_argument("--out",    default="pope_questions",
                         help="Output directory for JSONL files (created if missing)")
     parser.add_argument("--seed",   type=int, default=42,
                         help="Random seed for 'random' tier (default: 42)")
     args = parser.parse_args()
 
-    images_dir = Path(args.images)
-    out_dir    = Path(args.out)
+    out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Loading labels from {images_dir} ...")
-    records = load_yolo_labels(images_dir)
+    # ── Load records from dataset or flat images dir ─────────────────────────
+    if args.dataset:
+        dataset_root = Path(args.dataset)
+        if not dataset_root.exists():
+            print(f"ERROR: Dataset path not found: {dataset_root}")
+            return
+        print(f"Loading YOLO dataset from {dataset_root} ...")
+        records, images_dirs = load_yolo_dataset(dataset_root)
+        # Store all image directories so pope_run/pope_finetune_eval can find them
+        images_dir_meta = [str(d.resolve()) for d in images_dirs]
+    else:
+        images_dir = Path(args.images or "images")
+        labels_dir = Path(args.labels) if args.labels else None
+        label_src  = labels_dir or images_dir
+        print(f"Loading labels from {label_src} (images: {images_dir}) ...")
+        records    = load_yolo_labels(images_dir, labels_dir)
+        images_dir_meta = [str(images_dir.resolve())]
+
     if not records:
-        print(f"ERROR: No .txt annotation files found in {images_dir}")
+        print(f"ERROR: No .txt annotation files found.")
         return
 
     n_images  = len(records)
     n_labeled = sum(1 for r in records if r["gt_classes"])
     n_clean   = n_images - n_labeled
-    print(f"  {n_images} images  |  {n_labeled} with labels  |  {n_clean} clean\n")
+    print(f"  Total: {n_images} images  |  {n_labeled} with labels  |  {n_clean} clean\n")
 
-    # Write metadata so pope_run.py can locate images without --images flag
+    # Write metadata so pope_run.py / pope_finetune_eval.py can locate images
     meta = {
-        "images_dir": str(images_dir.resolve()),
-        "built_at":   datetime.datetime.now().isoformat(timespec="seconds"),
-        "n_images":   n_images,
-        "seed":       args.seed,
+        "images_dirs": images_dir_meta,
+        "built_at":    datetime.datetime.now().isoformat(timespec="seconds"),
+        "n_images":    n_images,
+        "seed":        args.seed,
     }
     meta_path = out_dir / "metadata.json"
     meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    print(f"  [metadata  ]  images_dir = {meta['images_dir']}  →  {meta_path}\n")
+    print(f"  [metadata  ]  images = {images_dir_meta}")
+    print(f"               saved  = {meta_path}\n")
 
     for tier in ("random", "popular", "adversarial"):
         questions = build_questions(records, tier=tier, seed=args.seed)
@@ -224,7 +288,7 @@ def main() -> None:
         n_no  = len(questions) - n_yes
         print(
             f"  [{tier:<12s}]  {len(questions):5d} questions  "
-            f"|  {n_yes} yes  |  {n_no} no  →  {out_path}"
+            f"|  {n_yes} yes  |  {n_no} no  ->  {out_path}"
         )
 
     print(f"\nDone. Run pope_run.py --model <model> --tier all to start inference.")

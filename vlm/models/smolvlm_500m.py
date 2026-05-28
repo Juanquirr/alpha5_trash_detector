@@ -43,7 +43,7 @@ class SmolVLM500M(BaseVLM):
         inputs = self.processor(text=text, images=[image], return_tensors="pt").to(self.device)
 
         with self._torch.no_grad():
-            output_ids = self.model.generate(**inputs, max_new_tokens=200)
+            output_ids = self.model.generate(**inputs, max_new_tokens=20)
 
         generated = output_ids[:, inputs["input_ids"].shape[1]:]
         return self.processor.decode(generated[0], skip_special_tokens=True)

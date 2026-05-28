@@ -86,14 +86,16 @@ C_SKIP = "#8C8C8C"   # grey         — eval-only (no fine-tuning)
 
 # ── Image resolution ──────────────────────────────────────────────────────────
 
-def _resolve_image(images_dir: Path, name: str) -> Path | None:
-    p = images_dir / name
-    if p.exists():
-        return p
-    for ext in IMAGE_EXTS:
-        alt = (images_dir / name).with_suffix(ext)
-        if alt.exists():
-            return alt
+def _resolve_image(images_dirs: list[Path], name: str) -> Path | None:
+    """Search for an image across multiple directories (e.g. train/images + val/images)."""
+    for d in images_dirs:
+        p = d / name
+        if p.exists():
+            return p
+        for ext in IMAGE_EXTS:
+            alt = (d / name).with_suffix(ext)
+            if alt.exists():
+                return alt
     return None
 
 
@@ -114,7 +116,7 @@ def _run_eval_phase(
     model_key:    str,
     tiers:        list[str],
     questions_dir: Path,
-    images_dir:   Path,
+    images_dirs:  list[Path],
     out_dir:      Path,
     timeout_s:    float,
     phase:        str = "pre",      # "pre" or "post"
@@ -155,7 +157,7 @@ def _run_eval_phase(
             if is_cuda and i % 100 == 0:
                 torch.cuda.empty_cache()
 
-            image_path = _resolve_image(images_dir, q["image"])
+            image_path = _resolve_image(images_dirs, q["image"])
             if not image_path:
                 continue
 
@@ -310,7 +312,7 @@ def finetune_lora(
     vlm,
     model_key:   str,
     questions_dir: Path,
-    images_dir:  Path,
+    images_dirs: list[Path],
     tiers:       list[str],
     epochs:      int   = 1,
     lr:          float = 5e-5,
@@ -342,7 +344,7 @@ def finetune_lora(
             if key in seen:
                 continue
             seen.add(key)
-            img_path = _resolve_image(images_dir, q["image"])
+            img_path = _resolve_image(images_dirs, q["image"])
             if img_path is None:
                 continue
             samples_meta.append({
@@ -690,17 +692,21 @@ def run_single_model(model_key: str, args) -> None:
 
     questions_dir = Path(args.questions)
 
-    # Resolve images dir from args or metadata
+    # Resolve images dirs from args or metadata
     if args.images:
-        images_dir = Path(args.images)
+        images_dirs = [Path(args.images)]
     else:
         meta_path = questions_dir / "metadata.json"
         if meta_path.exists():
-            meta       = json.loads(meta_path.read_text(encoding="utf-8"))
-            images_dir = Path(meta["images_dir"])
-            print(f"[{model_key}] Images dir from metadata: {images_dir}")
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            # Support both new "images_dirs" (list) and legacy "images_dir" (str)
+            if "images_dirs" in meta:
+                images_dirs = [Path(d) for d in meta["images_dirs"]]
+            else:
+                images_dirs = [Path(meta["images_dir"])]
+            print(f"[{model_key}] Images dirs from metadata: {images_dirs}")
         else:
-            images_dir = Path("images")
+            images_dirs = [Path("images")]
 
     tiers = list(TIERS) if args.tier == "all" else [args.tier]
 
@@ -718,7 +724,7 @@ def run_single_model(model_key: str, args) -> None:
     else:
         print(f"\n[{model_key}] === Phase 1/3: PRE-EVAL ===")
         _run_eval_phase(vlm, model_key, tiers, questions_dir,
-                        images_dir, pre_dir, args.timeout, phase="pre")
+                        images_dirs, pre_dir, args.timeout, phase="pre")
 
     # ── 3. Fine-tune ──────────────────────────────────────────────────────────
     ft_done = False
@@ -731,7 +737,7 @@ def run_single_model(model_key: str, args) -> None:
         ft_done = finetune_lora(
             vlm, model_key,
             questions_dir = questions_dir,
-            images_dir    = images_dir,
+            images_dirs   = images_dirs,
             tiers         = tiers,
             epochs        = args.epochs,
             lr            = args.lr,
@@ -744,7 +750,7 @@ def run_single_model(model_key: str, args) -> None:
     if ft_done:
         print(f"\n[{model_key}] === Phase 3/3: POST-EVAL ===")
         _run_eval_phase(vlm, model_key, tiers, questions_dir,
-                        images_dir, post_dir, args.timeout, phase="post")
+                        images_dirs, post_dir, args.timeout, phase="post")
 
     vlm.unload()
 
