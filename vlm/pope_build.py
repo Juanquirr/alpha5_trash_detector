@@ -150,7 +150,7 @@ def load_yolo_dataset(dataset_root: Path) -> tuple[list[dict], list[Path]]:
 
 # ── Question builders ─────────────────────────────────────────────────────────
 
-CLEAN_IMAGE_NEGATIVES = 3   # negatives asked per clean image (0 GT classes)
+CLEAN_IMAGE_NEGATIVES = 0   # clean images (0 GT classes) generate no questions
 
 
 def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict]:
