@@ -150,17 +150,22 @@ def load_yolo_dataset(dataset_root: Path) -> tuple[list[dict], list[Path]]:
 
 # ── Question builders ─────────────────────────────────────────────────────────
 
-CLEAN_IMAGE_NEGATIVES = 0   # clean images (0 GT classes) generate no questions
+CLEAN_IMAGE_NEGATIVES = 3   # negatives asked per clean image (0 GT classes)
 
 
 def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict]:
     """
     Generate POPE binary questions for one tier.
 
-    Balance: n_neg = n_pos per image (POPE standard 50/50 yes/no).
-    Clean images (0 GT classes): CLEAN_IMAGE_NEGATIVES negatives, 0 positives.
-    Negatives are ordered by tier strategy before slicing, so each tier
-    selects a different subset → tier difficulty is meaningful.
+    Per-image generation:
+      - Labeled images: n_pos positives + n_neg = min(n_pos, available) negatives
+      - Clean images (0 GT): CLEAN_IMAGE_NEGATIVES negative-only questions
+        (pure hallucination test — model should always say "no")
+      - Negatives ordered by tier strategy before slicing
+
+    Post-hoc 50/50 balance (POPE standard):
+      Clean images add excess negatives. After generating all questions,
+      subsample "no" to match "yes" count for exact 50/50.
     """
     # Class frequency across dataset (for popular/adversarial tiers)
     class_freq: dict[str, int] = defaultdict(int)
@@ -179,7 +184,6 @@ def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict
 
     rng = random.Random(seed)
     questions: list[dict] = []
-    qid = 1
 
     for r in records:
         gt_classes = r["gt_classes"]
@@ -190,31 +194,45 @@ def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict
         if tier == "random":
             rng.shuffle(negatives)
         elif tier == "popular":
-            # Most-frequent class in dataset first → model most tempted to say YES
             negatives.sort(key=lambda c: -class_freq.get(c, 0))
         elif tier == "adversarial":
-            # Classes that co-occur most with this image's GT classes first
             def _cooccur_score(c: str) -> int:
                 return sum(class_cooccur[c].get(gt_cls, 0) for gt_cls in gt_classes)
             negatives.sort(key=_cooccur_score, reverse=True)
 
-        # Select balanced subset: n_neg == n_pos.
-        # Clean images use a fixed quota so they still test hallucination.
         n_neg = len(positives) if positives else CLEAN_IMAGE_NEGATIVES
         selected_negatives = negatives[:n_neg]
 
         for cls in positives + selected_negatives:
             label = "yes" if cls in gt_classes else "no"
             questions.append({
-                "question_id": qid,
-                "image":       r["image"],
-                "cls":         cls,
-                "text":        CLASS_PROMPTS[cls],
-                "label":       label,
+                "image": r["image"],
+                "cls":   cls,
+                "text":  CLASS_PROMPTS[cls],
+                "label": label,
             })
-            qid += 1
 
-    return questions
+    # ── Post-hoc 50/50 balance (POPE standard) ──────────────────────────────
+    yes_qs = [q for q in questions if q["label"] == "yes"]
+    no_qs  = [q for q in questions if q["label"] == "no"]
+
+    if len(no_qs) > len(yes_qs):
+        rng2 = random.Random(seed + 1)
+        rng2.shuffle(no_qs)
+        no_qs = no_qs[:len(yes_qs)]
+    elif len(yes_qs) > len(no_qs):
+        rng2 = random.Random(seed + 1)
+        rng2.shuffle(yes_qs)
+        yes_qs = yes_qs[:len(no_qs)]
+
+    balanced = yes_qs + no_qs
+    random.Random(seed + 2).shuffle(balanced)
+
+    # Assign sequential question_ids after balancing
+    for qid, q in enumerate(balanced, 1):
+        q["question_id"] = qid
+
+    return balanced
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
