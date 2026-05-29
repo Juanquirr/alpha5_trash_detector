@@ -397,10 +397,13 @@ def finetune_lora(
     except Exception:
         scheduler = None
 
+    LOG_EVERY = 100   # print progress every N samples
+
     for epoch in range(1, epochs + 1):
         total_loss = 0.0
         n_valid    = 0
         optimizer.zero_grad()
+        t_epoch    = time.perf_counter()
 
         for step_idx, meta in enumerate(samples_meta, 1):
             try:
@@ -433,6 +436,17 @@ def finetune_lora(
                 optimizer.zero_grad()
             except Exception as e:
                 continue
+
+            # Progress log every LOG_EVERY samples
+            if step_idx % LOG_EVERY == 0:
+                elapsed   = time.perf_counter() - t_epoch
+                avg_so_far = total_loss / n_valid if n_valid > 0 else float("nan")
+                eta        = elapsed / step_idx * (len(samples_meta) - step_idx)
+                print(
+                    f"  Epoch {epoch} [{step_idx}/{len(samples_meta)}]  "
+                    f"loss={avg_so_far:.4f}  "
+                    f"ETA {_fmt_time(eta)}"
+                )
 
         # Flush remaining gradients
         if n_valid % accum_steps != 0:
