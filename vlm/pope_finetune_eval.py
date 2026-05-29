@@ -24,17 +24,18 @@ Usage
 
 Flags
 ─────
-    --skip-pre      skip pre-eval if CSVs already exist
-    --skip-ft       skip fine-tuning (chart shows pre-eval only if no post CSVs)
-    --epochs N      LoRA training epochs            (default 1)
-    --lr LR         learning rate                   (default 5e-5)
-    --lora-r R      LoRA rank                       (default 8)
-    --lora-alpha A  LoRA alpha                      (default 16)
-    --accum N       gradient accumulation steps     (default 4)
-    --timeout S     per-question inference timeout  (default 15)
-    --questions DIR pope_questions directory        (default pope_questions)
-    --images DIR    images directory                (default from metadata.json)
-    --out DIR       output root                     (default pope_results)
+    --skip-pre           skip pre-eval if CSVs already exist
+    --skip-ft            skip fine-tuning (chart shows pre-eval only if no post CSVs)
+    --epochs N           LoRA training epochs            (default 1)
+    --lr LR              learning rate                   (default 5e-5)
+    --lora-r R           LoRA rank                       (default 8)
+    --lora-alpha A       LoRA alpha                      (default 16)
+    --accum N            gradient accumulation steps     (default 4)
+    --timeout S          per-question inference timeout  (default 15)
+    --max-train-samples  cap training samples (random subset, seeded). None=all
+    --questions DIR      pope_questions directory        (default pope_questions)
+    --images DIR         images directory                (default from metadata.json)
+    --out DIR            output root                     (default pope_results)
 """
 
 import argparse
@@ -310,15 +311,16 @@ def _get_lora_target_modules(model) -> list[str]:
 
 def finetune_lora(
     vlm,
-    model_key:   str,
-    questions_dir: Path,
-    images_dirs: list[Path],
-    tiers:       list[str],
-    epochs:      int   = 1,
-    lr:          float = 5e-5,
-    lora_r:      int   = 8,
-    lora_alpha:  int   = 16,
-    accum_steps: int   = 4,
+    model_key:         str,
+    questions_dir:     Path,
+    images_dirs:       list[Path],
+    tiers:             list[str],
+    epochs:            int        = 1,
+    lr:                float      = 5e-5,
+    lora_r:            int        = 8,
+    lora_alpha:        int        = 16,
+    accum_steps:       int        = 4,
+    max_train_samples: int | None = None,
 ) -> bool:
     """
     Fine-tune vlm.model in-place with LoRA SFT on POPE questions.
@@ -356,6 +358,13 @@ def finetune_lora(
     if not samples_meta:
         print(f"[{model_key}] No training samples found — skipping fine-tuning")
         return False
+
+    # Cap training samples if requested (random reproducible subset)
+    if max_train_samples and len(samples_meta) > max_train_samples:
+        import random as _rnd
+        _rnd.Random(42).shuffle(samples_meta)
+        samples_meta = samples_meta[:max_train_samples]
+        print(f"[{model_key}] Capped to {max_train_samples} training samples (--max-train-samples)")
 
     print(f"[{model_key}] Training samples: {len(samples_meta)}")
 
@@ -750,14 +759,15 @@ def run_single_model(model_key: str, args) -> None:
         print(f"\n[{model_key}] === Phase 2/3: FINE-TUNING ===")
         ft_done = finetune_lora(
             vlm, model_key,
-            questions_dir = questions_dir,
-            images_dirs   = images_dirs,
-            tiers         = tiers,
-            epochs        = args.epochs,
-            lr            = args.lr,
-            lora_r        = args.lora_r,
-            lora_alpha    = args.lora_alpha,
-            accum_steps   = args.accum,
+            questions_dir      = questions_dir,
+            images_dirs        = images_dirs,
+            tiers              = tiers,
+            epochs             = args.epochs,
+            lr                 = args.lr,
+            lora_r             = args.lora_r,
+            lora_alpha         = args.lora_alpha,
+            accum_steps        = args.accum,
+            max_train_samples  = args.max_train_samples,
         )
 
     # ── 4. Post-eval (only if fine-tuning ran) ────────────────────────────────
@@ -827,6 +837,8 @@ def run_all_models(model_keys: list[str], args) -> None:
                "--out", args.out]
         if args.images:
             cmd += ["--images", args.images]
+        if args.max_train_samples:
+            cmd += ["--max-train-samples", str(args.max_train_samples)]
         if args.skip_pre:
             cmd.append("--skip-pre")
         if args.skip_ft:
@@ -873,6 +885,8 @@ def main() -> None:
     parser.add_argument("--lora-r",     type=int,   default=8,  dest="lora_r")
     parser.add_argument("--lora-alpha", type=int,   default=16, dest="lora_alpha")
     parser.add_argument("--accum",      type=int,   default=4)
+    parser.add_argument("--max-train-samples", type=int, default=None, dest="max_train_samples",
+                        help="Cap LoRA training to N random samples (default: use all)")
     parser.add_argument("--skip-pre",   action="store_true", dest="skip_pre")
     parser.add_argument("--skip-ft",    action="store_true", dest="skip_ft")
     args = parser.parse_args()
