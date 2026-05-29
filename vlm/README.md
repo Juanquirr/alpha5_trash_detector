@@ -1,6 +1,6 @@
 # Vision-Language Model Benchmark
 
-Evaluates 9 VLMs on trash detection: accuracy, inference time, VRAM usage, and hallucination analysis via POPE. Outputs per-image CSVs and comparative evaluation plots.
+Evaluates 8 VLMs on trash detection: accuracy, inference time, VRAM usage, and hallucination analysis via POPE. Outputs per-image CSVs and comparative evaluation plots.
 
 ---
 
@@ -195,6 +195,10 @@ This is the **hallucination bias detector**. A perfectly calibrated model on a b
 
 **Step 1 — Build questions** (only once per image set):
 ```powershell
+# From a YOLO dataset root (train/images + train/labels layout) — recommended
+python vlm\pope_build.py --dataset ..\alpha5\datasets\alpha6
+
+# From a flat directory (images and .txt labels side by side)
 python vlm\pope_build.py --images images\
 ```
 Reads YOLO `.txt` annotations. Writes three JSONL files to `vlm\pope_questions\`:
@@ -342,8 +346,8 @@ Key flags:
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--epochs N` | 3 | LoRA training epochs |
-| `--lr LR` | 2e-4 | Learning rate |
+| `--epochs N` | 1 | LoRA training epochs |
+| `--lr LR` | 5e-5 | Learning rate |
 | `--lora-r R` | 8 | LoRA rank (higher = more capacity, more VRAM) |
 | `--lora-alpha A` | 16 | LoRA alpha (scaling factor) |
 | `--accum N` | 4 | Gradient accumulation steps |
