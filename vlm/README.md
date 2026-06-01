@@ -75,6 +75,92 @@ Output: accuracy, precision, recall, F1, inference time, VRAM, and per-class rec
 
 ---
 
+### POPE Evaluation — Understanding if Models Actually See What They Say
+
+#### The Problem with Standard Evaluation
+
+Standard evaluation asks: *"did the model correctly say YES or NO for the whole image?"*
+
+That is useful, but it hides two very different types of failure:
+
+1. **Misses** — trash is there, the model doesn't mention it *(false negative)*
+2. **Hallucinations** — trash is NOT there, but the model invents it *(false positive)*
+
+These failures have completely different causes and completely different consequences for a real deployment. A model that hallucinates a lot will trigger constant false alarms. A model that misses a lot will fail to catch real litter. Standard accuracy cannot tell them apart.
+
+POPE (Polling-based Object Probing Evaluation) is a methodology designed specifically to measure both problems, class by class, with a focused yes/no question format.
+
+#### How POPE Works — The Core Idea
+
+Instead of asking *"describe this image"*, POPE asks one targeted question per class per image:
+
+> *"Is there a rigid non-metal container such as a bottle or jar in this image? Answer yes or no."*
+
+This is done for **all 7 classes** on **every image**. The model answers YES or NO. We already know the ground truth from the YOLO annotations. So for each question we know whether the answer was:
+
+| | Model says YES | Model says NO |
+|---|---|---|
+| **Trash actually present** | ✅ True Positive (TP) | ❌ False Negative (FN) — **miss** |
+| **Trash NOT present** | ❌ False Positive (FP) — **hallucination** | ✅ True Negative (TN) |
+
+By accumulating these counts across all images and all questions, we get precise metrics per model and per class.
+
+#### The Three Difficulty Tiers
+
+POPE runs three times on the same image set. Each tier asks all positive questions (classes present in the image) plus an equal number of **negative questions** (classes not present). The tier controls *which* negatives are selected — each tier picks a different subset, making the difficulty genuinely different:
+
+**Tier 1 — Random**
+Negative classes are **chosen at random** from the absent classes. This is the **baseline** — no particular pressure to hallucinate any specific class.
+
+**Tier 2 — Popular**
+Negative classes are the **most frequently occurring** in the dataset as a whole. The idea: a model biased by training frequency might "expect" containers everywhere and hallucinate them even when absent.
+
+*Example: if containers appear in 70% of images, they are selected as negatives first. A hallucination-prone model will say YES far too often.*
+
+**Tier 3 — Adversarial**
+Negative classes are those that **most often co-occur** with the ground-truth classes in that specific image. This is the hardest tier: if a trash pile is in the image, the model is asked about classes that frequently appear alongside trash piles (e.g. plastic fragments) — semantically tempting even when absent.
+
+*Example: an image has a trash pile. The model is asked "Is there a plastic fragment?" — plastic fragments often appear near trash piles, so a hallucination-prone model says YES by association.*
+
+**Balance:** each tier uses n_neg = n_pos per image (~50 % yes / 50 % no). Clean images (no annotated classes) receive three fixed negative questions to test hallucination on background-only scenes.
+
+**If a model's F1 and Yes-ratio stay similar across all three tiers** → hallucinations are random/unsystematic.
+**If F1 drops and Yes-ratio rises from random → adversarial** → the model has a semantic hallucination bias (it says YES based on context, not actual visual evidence).
+
+#### Metrics Explained
+
+**Precision — When the model says YES, is it right?**
+```
+Precision = TP / (TP + FP)
+```
+- High precision = few false alarms
+- Low precision = the model cries wolf — it says "there's metal here" when there isn't
+
+**Recall — Does the model find all the real trash?**
+```
+Recall = TP / (TP + FN)
+```
+- High recall = the model catches most real instances
+- Low recall = trash is being missed — dangerous for a detection system
+
+**F1 — The balanced summary**
+```
+F1 = 2 × (Precision × Recall) / (Precision + Recall)
+```
+The harmonic mean of Precision and Recall. If you need a single number, use F1. A model that says YES to everything gets Recall=100% but Precision=very low → F1 punishes this.
+
+**Yes-ratio — How often does the model say YES overall?**
+```
+Yes-ratio = (TP + FP) / total questions
+```
+This is the **hallucination bias detector**. A perfectly calibrated model on a balanced dataset would have Yes-ratio ≈ 50% (since half the questions are positive, half negative). If a model has Yes-ratio = 80%, it is saying YES far too often — it is hallucinating things that aren't there.
+
+- Yes-ratio ≈ 50% → balanced, no systematic bias
+- Yes-ratio >> 50% → model has a strong YES bias (hallucination-prone)
+- Yes-ratio << 50% → model is overly conservative (misses real trash)
+
+---
+
 ### 3. `pope_build.py` — Build POPE questions
 
 Generates binary yes/no questions from YOLO annotations. Three tiers (random, popular, adversarial) with 50/50 yes/no balance.
