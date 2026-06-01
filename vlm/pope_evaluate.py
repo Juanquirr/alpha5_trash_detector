@@ -55,7 +55,7 @@ def load_results(results_dir: Path) -> dict[tuple[str, str], pd.DataFrame]:
     Filename pattern: pope_{model}_{tier}.csv
     """
     dfs: dict[tuple[str, str], pd.DataFrame] = {}
-    for f in sorted(results_dir.glob("pope_*.csv")):
+    for f in sorted(results_dir.rglob("pope_*.csv")):
         stem = re.sub(r"^pope_", "", f.stem)   # strip leading "pope_"
         for tier in TIERS:
             if stem.endswith(f"_{tier}"):
