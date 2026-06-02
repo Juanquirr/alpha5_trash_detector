@@ -300,8 +300,12 @@ def _get_lora_target_modules(model) -> list[str]:
     for name, module in model.named_modules():
         if module.__class__.__name__ == "Linear":
             suffix = name.split(".")[-1]
-            if suffix not in _EXCLUDE:
-                seen.add(suffix)
+            # Skip purely numeric suffixes (e.g. ".0", ".2" from indexed layers).
+            # These match container blocks (Qwen2_5_VLVisionBlock) by name,
+            # causing PEFT to error: "Target module ... is not supported".
+            if suffix in _EXCLUDE or suffix.isdigit():
+                continue
+            seen.add(suffix)
     targets = sorted(seen)
     if not targets:
         # Fallback: use all-linear (better than nothing)
@@ -467,6 +471,16 @@ def finetune_lora(
 
         avg_loss = total_loss / n_valid if n_valid > 0 else float("nan")
         print(f"  Epoch {epoch}/{epochs}: loss={avg_loss:.4f}  ({n_valid}/{len(samples_meta)} valid samples)")
+
+    # Save LoRA adapters before merging (small, reusable).
+    # Saved to pope_results/{model_key}_lora/ next to other artefacts.
+    adapter_dir = Path(__file__).parent / "pope_results" / f"{model_key}_lora"
+    adapter_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        peft_model.save_pretrained(str(adapter_dir))
+        print(f"[{model_key}] LoRA adapters saved -> {adapter_dir}")
+    except Exception as e:
+        print(f"[{model_key}] [WARN] Failed to save adapters: {e}")
 
     # Merge LoRA weights back into base model
     print(f"[{model_key}] Merging LoRA weights…")
