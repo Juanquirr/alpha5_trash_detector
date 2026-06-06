@@ -28,7 +28,7 @@ import pandas as pd
 
 from pope_run import derive_pred
 
-CLASSES = [
+DEFAULT_CLASSES = [
     "container",
     "plastic",
     "metal",
@@ -100,7 +100,8 @@ def _cell(df: pd.DataFrame) -> dict:
     }
 
 
-def compute_metrics(dfs: dict[tuple[str, str], pd.DataFrame]) -> dict:
+def compute_metrics(dfs: dict[tuple[str, str], pd.DataFrame],
+                    classes: list[str] | None = None) -> dict:
     """
     Returns nested dict:
         metrics[model][tier] = {
@@ -126,8 +127,10 @@ def compute_metrics(dfs: dict[tuple[str, str], pd.DataFrame]) -> dict:
             overall["n_timeout"] = n_timeout
             overall["n_total"]   = len(df)   # including timeouts
 
+            if classes is None:
+                classes = DEFAULT_CLASSES
             per_class = {}
-            for cls in CLASSES:
+            for cls in classes:
                 sub_all   = df[df["cls"] == cls]
                 sub_valid = sub_all[sub_all["response"] != "TIMEOUT"]
                 if not sub_all.empty:
@@ -223,9 +226,12 @@ def _bar_grouped(ax, models, values_per_tier, tiers_present, title, ylabel,
 
 # ── Main figure ───────────────────────────────────────────────────────────────
 
-def build_figure(metrics: dict, out: Path) -> None:
+def build_figure(metrics: dict, out: Path, classes: list[str] | None = None) -> None:
     models         = list(metrics)
     tiers_present  = [t for t in TIERS if any(t in metrics[m] for m in models)]
+
+    if classes is None:
+        classes = DEFAULT_CLASSES
 
     if not models or not tiers_present:
         print("No data to plot.")
@@ -250,7 +256,7 @@ def build_figure(metrics: dict, out: Path) -> None:
         ax_bar  = axes[row_idx, 1]
 
         # Build (classes × models) F1 matrix
-        f1_mat  = np.full((len(CLASSES), len(models)), np.nan)
+        f1_mat  = np.full((len(classes), len(models)), np.nan)
         yr_vals = []
 
         for j, model in enumerate(models):
@@ -258,12 +264,12 @@ def build_figure(metrics: dict, out: Path) -> None:
                 yr_vals.append(float("nan"))
                 continue
             pc = metrics[model][tier]["per_class"]
-            for i, cls in enumerate(CLASSES):
+            for i, cls in enumerate(classes):
                 if cls in pc:
                     f1_mat[i, j] = pc[cls]["f1"]
             yr_vals.append(metrics[model][tier]["overall"]["yes_ratio"])
 
-        im = _heatmap(ax_heat, f1_mat, models, CLASSES,
+        im = _heatmap(ax_heat, f1_mat, models, classes,
                       f"[{tier}]  Per-class F1 (%)")
         cbar = fig.colorbar(im, ax=ax_heat, shrink=0.65, pad=0.01)
         cbar.set_label("F1 (%)", fontsize=7)
@@ -325,9 +331,21 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate POPE VLM results")
     parser.add_argument("--results", default="pope_results",
                         help="Directory containing pope_*.csv files")
+    parser.add_argument("--questions", default="pope_questions",
+                        help="Questions directory (reads metadata.json for classes)")
     parser.add_argument("--out",     default="pope_results/pope_eval.png",
                         help="Output figure path")
     args = parser.parse_args()
+
+    # Read classes from metadata if available
+    meta_path = Path(args.questions) / "metadata.json"
+    if meta_path.exists():
+        import json
+        meta    = json.loads(meta_path.read_text(encoding="utf-8"))
+        classes = meta.get("classes", DEFAULT_CLASSES)
+        print(f"Classes from metadata ({len(classes)}): {classes}")
+    else:
+        classes = DEFAULT_CLASSES
 
     results_dir = Path(args.results)
     print(f"Loading results from {results_dir} ...")
@@ -336,9 +354,9 @@ def main() -> None:
     for (model, tier) in sorted(dfs):
         print(f"  {model}/{tier}: {len(dfs[(model, tier)])} rows")
 
-    metrics = compute_metrics(dfs)
+    metrics = compute_metrics(dfs, classes)
     print_summary(metrics)
-    build_figure(metrics, Path(args.out))
+    build_figure(metrics, Path(args.out), classes)
 
 
 if __name__ == "__main__":

@@ -26,12 +26,12 @@ import re
 import time
 from pathlib import Path
 
-CLASSES = [
+DEFAULT_CLASSES = [
     "container", "plastic", "metal", "polystyrene",
     "plastic fragment", "trash pile", "trash",
 ]
 
-YOLO_ID_TO_CLASS = {i: c for i, c in enumerate(CLASSES)}
+YOLO_ID_TO_CLASS = {i: c for i, c in enumerate(DEFAULT_CLASSES)}
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 
 GROUNDING_PROMPT = (
@@ -107,14 +107,16 @@ def parse_grounding_response(response: str, img_w: int, img_h: int) -> list[dict
     return detections
 
 
-def _match_class(raw: str) -> str | None:
-    """Fuzzy-match a raw class string to known CLASSES."""
+def _match_class(raw: str, classes: list[str] | None = None) -> str | None:
+    """Fuzzy-match a raw class string to known classes."""
+    if classes is None:
+        classes = DEFAULT_CLASSES
     raw = raw.strip().lower().replace("_", " ")
     # Exact match
-    if raw in CLASSES:
+    if raw in classes:
         return raw
     # Substring match (longest first to avoid 'trash' matching 'trash pile')
-    for cls in sorted(CLASSES, key=len, reverse=True):
+    for cls in sorted(classes, key=len, reverse=True):
         if cls in raw or raw in cls:
             return cls
     return None

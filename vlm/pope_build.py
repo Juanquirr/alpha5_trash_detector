@@ -33,7 +33,8 @@ import random
 from collections import defaultdict
 from pathlib import Path
 
-CLASSES = [
+# Default 7-class taxonomy (used when no data.yaml is available)
+DEFAULT_CLASSES = [
     "container",
     "plastic",
     "metal",
@@ -73,14 +74,44 @@ CLASS_PROMPTS: dict[str, str] = {
         " pile in this image? Answer yes or no.",
 }
 
-YOLO_ID_TO_CLASS = {i: c for i, c in enumerate(CLASSES)}
 IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".bmp")
-SPLITS     = ("train", "val", "test")
+SPLITS     = ("train", "val", "valid", "test")
+
+
+def _read_data_yaml(dataset_root: Path) -> list[str] | None:
+    """Read class names from data.yaml if present. Normalize underscores to spaces."""
+    yaml_path = dataset_root / "data.yaml"
+    if not yaml_path.exists():
+        return None
+    try:
+        import yaml
+        data = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
+    except ImportError:
+        # Fallback: parse names line manually (covers [cls1, cls2, ...] format)
+        for line in yaml_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line.startswith("names:"):
+                raw = line.split(":", 1)[1].strip()
+                raw = raw.strip("[]")
+                names = [n.strip().strip("'\"").replace("_", " ") for n in raw.split(",")]
+                return [n for n in names if n]
+        return None
+    if "names" in data:
+        names = data["names"]
+        if isinstance(names, list):
+            return [str(n).replace("_", " ") for n in names]
+        if isinstance(names, dict):
+            return [str(names[k]).replace("_", " ") for k in sorted(names)]
+    return None
 
 
 # ── Label loading ─────────────────────────────────────────────────────────────
 
-def load_yolo_labels(images_dir: Path, labels_dir: Path | None = None) -> list[dict]:
+def load_yolo_labels(
+    images_dir: Path,
+    labels_dir: Path | None = None,
+    id_to_class: dict[int, str] | None = None,
+) -> list[dict]:
     """
     Return list of {image: str, gt_classes: set[str]} from YOLO .txt files.
 
@@ -90,6 +121,8 @@ def load_yolo_labels(images_dir: Path, labels_dir: Path | None = None) -> list[d
     """
     if labels_dir is None:
         labels_dir = images_dir
+    if id_to_class is None:
+        id_to_class = {i: c for i, c in enumerate(DEFAULT_CLASSES)}
 
     records = []
     for txt in sorted(labels_dir.glob("*.txt")):
@@ -109,8 +142,8 @@ def load_yolo_labels(images_dir: Path, labels_dir: Path | None = None) -> list[d
                 if parts:
                     try:
                         cid = int(parts[0])
-                        if cid in YOLO_ID_TO_CLASS:
-                            gt_classes.add(YOLO_ID_TO_CLASS[cid])
+                        if cid in id_to_class:
+                            gt_classes.add(id_to_class[cid])
                     except ValueError:
                         pass
 
@@ -118,15 +151,18 @@ def load_yolo_labels(images_dir: Path, labels_dir: Path | None = None) -> list[d
     return records
 
 
-def load_yolo_dataset(dataset_root: Path) -> tuple[list[dict], list[Path]]:
+def load_yolo_dataset(
+    dataset_root: Path,
+    id_to_class: dict[int, str] | None = None,
+) -> tuple[list[dict], list[Path]]:
     """
     Load labels from a standard YOLO dataset directory (train/val/test splits).
 
     Expects structure:
         dataset_root/
             train/images/  train/labels/
-            val/images/    val/labels/
-            test/images/   test/labels/   (optional)
+            val/images/    val/labels/   (or valid/)
+            test/images/   test/labels/  (optional)
 
     Returns (records, images_dirs) where images_dirs lists all image
     directories found (for metadata).
@@ -139,7 +175,7 @@ def load_yolo_dataset(dataset_root: Path) -> tuple[list[dict], list[Path]]:
         split_labels = dataset_root / split / "labels"
         if not split_images.exists() or not split_labels.exists():
             continue
-        split_records = load_yolo_labels(split_images, split_labels)
+        split_records = load_yolo_labels(split_images, split_labels, id_to_class)
         if split_records:
             records.extend(split_records)
             images_dirs.append(split_images)
@@ -153,7 +189,8 @@ def load_yolo_dataset(dataset_root: Path) -> tuple[list[dict], list[Path]]:
 CLEAN_IMAGE_NEGATIVES = 3   # negatives asked per clean image (0 GT classes)
 
 
-def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict]:
+def build_questions(records: list[dict], tier: str, seed: int = 42,
+                    classes: list[str] | None = None) -> list[dict]:
     """
     Generate POPE binary questions for one tier.
 
@@ -167,6 +204,15 @@ def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict
       Clean images add excess negatives. After generating all questions,
       subsample "no" to match "yes" count for exact 50/50.
     """
+    if classes is None:
+        classes = DEFAULT_CLASSES
+
+    def _get_prompt(cls_name: str) -> str:
+        if cls_name in CLASS_PROMPTS:
+            return CLASS_PROMPTS[cls_name]
+        # Generic fallback for classes without a hand-written prompt
+        return f"Is there a {cls_name} in this image? Answer yes or no."
+
     # Class frequency across dataset (for popular/adversarial tiers)
     class_freq: dict[str, int] = defaultdict(int)
     for r in records:
@@ -187,8 +233,8 @@ def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict
 
     for r in records:
         gt_classes = r["gt_classes"]
-        positives  = [c for c in CLASSES if c in gt_classes]
-        negatives  = [c for c in CLASSES if c not in gt_classes]
+        positives  = [c for c in classes if c in gt_classes]
+        negatives  = [c for c in classes if c not in gt_classes]
 
         # Order negatives according to tier
         if tier == "random":
@@ -208,7 +254,7 @@ def build_questions(records: list[dict], tier: str, seed: int = 42) -> list[dict
             questions.append({
                 "image": r["image"],
                 "cls":   cls,
-                "text":  CLASS_PROMPTS[cls],
+                "text":  _get_prompt(cls),
                 "label": label,
             })
 
@@ -258,14 +304,23 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # ── Load records from dataset or flat images dir ─────────────────────────
+    classes = DEFAULT_CLASSES
+
     if args.dataset:
         dataset_root = Path(args.dataset)
         if not dataset_root.exists():
             print(f"ERROR: Dataset path not found: {dataset_root}")
             return
+        # Read classes from data.yaml if available
+        yaml_classes = _read_data_yaml(dataset_root)
+        if yaml_classes:
+            classes = yaml_classes
+            print(f"Classes from data.yaml ({len(classes)}): {classes}")
+        else:
+            print(f"No data.yaml found, using default {len(DEFAULT_CLASSES)} classes")
+        id_to_class = {i: c for i, c in enumerate(classes)}
         print(f"Loading YOLO dataset from {dataset_root} ...")
-        records, images_dirs = load_yolo_dataset(dataset_root)
-        # Store all image directories so pope_run/pope_finetune_eval can find them
+        records, images_dirs = load_yolo_dataset(dataset_root, id_to_class)
         images_dir_meta = [str(d.resolve()) for d in images_dirs]
     else:
         images_dir = Path(args.images or "images")
@@ -287,6 +342,7 @@ def main() -> None:
     # Write metadata so pope_run.py / pope_finetune_eval.py can locate images
     meta = {
         "images_dirs": images_dir_meta,
+        "classes":     classes,
         "built_at":    datetime.datetime.now().isoformat(timespec="seconds"),
         "n_images":    n_images,
         "seed":        args.seed,
@@ -297,7 +353,7 @@ def main() -> None:
     print(f"               saved  = {meta_path}\n")
 
     for tier in ("random", "popular", "adversarial"):
-        questions = build_questions(records, tier=tier, seed=args.seed)
+        questions = build_questions(records, tier=tier, seed=args.seed, classes=classes)
         out_path  = out_dir / f"pope_{tier}.jsonl"
         with out_path.open("w", encoding="utf-8") as f:
             for q in questions:

@@ -69,7 +69,7 @@ from pope_run import (
 
 TIERS = ("random", "popular", "adversarial")
 
-CLASSES = [
+DEFAULT_CLASSES = [
     "container", "plastic", "metal", "polystyrene",
     "plastic fragment", "trash pile", "trash",
 ]
@@ -511,7 +511,7 @@ def _f1(tp: int, fp: int, fn: int) -> float:
     return 2 * tp / denom * 100 if denom > 0 else float("nan")
 
 
-def compute_metrics_from_csv(csv_path: Path) -> dict:
+def compute_metrics_from_csv(csv_path: Path, classes: list[str] | None = None) -> dict:
     """
     Returns {
         "overall": {prec, rec, f1, acc, yes_ratio},
@@ -555,8 +555,10 @@ def compute_metrics_from_csv(csv_path: Path) -> dict:
         "yes_ratio": _safe_div(tp + fp, n),
     }
 
+    if classes is None:
+        classes = DEFAULT_CLASSES
     per_class = {}
-    for cls in CLASSES:
+    for cls in classes:
         sub = [r for r in rows if r["cls"].strip() == cls]
         if sub:
             tp2, fp2, tn2, fn2 = _confusion(sub)
@@ -578,6 +580,7 @@ def build_comparison_chart(
     tiers:     list[str],
     out_path:  Path,
     ft_done:   bool,
+    classes:   list[str] | None = None,
 ) -> None:
     """
     Generate per-class F1 before/after chart for one model.
@@ -597,9 +600,11 @@ def build_comparison_chart(
         fontsize=13, fontweight="bold", y=0.998,
     )
 
-    x       = np.arange(len(CLASSES))
+    if classes is None:
+        classes = DEFAULT_CLASSES
+    x       = np.arange(len(classes))
     width   = 0.35
-    cls_labels = [c.replace(" ", "\n") for c in CLASSES]
+    cls_labels = [c.replace(" ", "\n") for c in classes]
 
     overall_pre_f1:  list[float] = []
     overall_post_f1: list[float] = []
@@ -610,17 +615,17 @@ def build_comparison_chart(
         pre_csv  = pre_dir  / f"pope_{model_key}_{tier}.csv"
         post_csv = (post_dir / f"pope_{model_key}_{tier}.csv") if post_dir else None
 
-        pre_m  = compute_metrics_from_csv(pre_csv)
-        post_m = compute_metrics_from_csv(post_csv) if (post_csv and post_csv.exists()) else None
+        pre_m  = compute_metrics_from_csv(pre_csv, classes)
+        post_m = compute_metrics_from_csv(post_csv, classes) if (post_csv and post_csv.exists()) else None
 
         if pre_m is None:
             ax.set_title(f"[{tier}]  No data", fontsize=9)
             ax.axis("off")
             continue
 
-        pre_f1  = [pre_m["per_class"].get(c, {}).get("f1",  float("nan")) for c in CLASSES]
+        pre_f1  = [pre_m["per_class"].get(c, {}).get("f1",  float("nan")) for c in classes]
         post_f1 = (
-            [post_m["per_class"].get(c, {}).get("f1", float("nan")) for c in CLASSES]
+            [post_m["per_class"].get(c, {}).get("f1", float("nan")) for c in classes]
             if post_m else None
         )
 
@@ -745,6 +750,14 @@ def run_single_model(model_key: str, args) -> None:
         else:
             images_dirs = [Path("images")]
 
+    # Resolve classes from metadata or use default
+    meta_path = questions_dir / "metadata.json"
+    if meta_path.exists():
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        classes = meta.get("classes", DEFAULT_CLASSES)
+    else:
+        classes = DEFAULT_CLASSES
+
     tiers = list(TIERS) if args.tier == "all" else [args.tier]
 
     # ── 1. Load model ─────────────────────────────────────────────────────────
@@ -803,6 +816,7 @@ def run_single_model(model_key: str, args) -> None:
         tiers      = tiers,
         out_path   = chart_path,
         ft_done    = ft_done,
+        classes    = classes,
     )
 
 
