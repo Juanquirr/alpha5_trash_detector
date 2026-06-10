@@ -5,13 +5,13 @@ import torch
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-CLASSES = [
+DEFAULT_CLASSES = [
     "container",
     "plastic",
     "metal",
     "polystyrene",
-    "plastic fragment",
-    "trash pile",
+    "plastic_fragment",
+    "trash_pile",
     "trash",
 ]
 
@@ -74,8 +74,8 @@ _JSON_KEY_TO_CLASS = {
     "plastic":          "plastic",
     "metal":            "metal",
     "polystyrene":      "polystyrene",
-    "plastic_fragment": "plastic fragment",
-    "trash_pile":       "trash pile",
+    "plastic_fragment": "plastic_fragment",
+    "trash_pile":       "trash_pile",
     "trash":            "trash",
 }
 
@@ -84,8 +84,9 @@ def _extract_classes(text: str) -> list[str]:
     """Longest-match-first with consume: prevents 'trash' matching inside 'trash pile'."""
     lower = text.lower()
     found = []
-    for cls in sorted(CLASSES, key=len, reverse=True):
-        pattern = r"\b" + re.escape(cls) + r"\b"
+    for cls in sorted(DEFAULT_CLASSES, key=len, reverse=True):
+        # Match both underscore and space variants (VLM responses use spaces)
+        pattern = r"\b" + re.escape(cls).replace(r"\_", r"[_ ]") + r"\b"
         if re.search(pattern, lower):
             found.append(cls)
             lower = re.sub(pattern, " " * len(cls), lower)

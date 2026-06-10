@@ -6,11 +6,11 @@ import time
 import torch
 from pathlib import Path
 
-from .base import BaseVLM, CLASSES
+from .base import BaseVLM, DEFAULT_CLASSES
 
 
 # Bare labels used in output and by parse_clip_score — must match POPE question cls field.
-_LABELS = CLASSES + ["no garbage"]
+_LABELS = DEFAULT_CLASSES + ["no garbage"]
 
 # Richer descriptions fed to the CLIP text encoder — better semantic signal than bare names.
 # CLIP zero-shot quality depends on natural-language prompt quality.
