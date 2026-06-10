@@ -776,10 +776,29 @@ def run_single_model(model_key: str, args) -> None:
         _run_eval_phase(vlm, model_key, tiers, questions_dir,
                         images_dirs, pre_dir, args.timeout, phase="pre")
 
-    # ── 3. Fine-tune ──────────────────────────────────────────────────────────
+    # ── 3. Fine-tune (or load saved adapters) ────────────────────────────────
     ft_done = False
+    adapter_dir = Path(args.out) / f"{model_key}_lora"
     if args.skip_ft:
-        print(f"[{model_key}] Fine-tuning skipped (--skip-ft).")
+        # If saved adapters exist, load and merge them so post-eval runs on
+        # the fine-tuned model rather than the base model.
+        if adapter_dir.exists() and model_key in FINETUNE_CAPABLE:
+            try:
+                from peft import PeftModel
+                import torch, gc
+                print(f"[{model_key}] Loading saved LoRA adapters from {adapter_dir} …")
+                vlm.model = PeftModel.from_pretrained(vlm.model, str(adapter_dir))
+                vlm.model = vlm.model.merge_and_unload()
+                vlm.model.eval()
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                ft_done = True
+                print(f"[{model_key}] Adapters loaded and merged.")
+            except Exception as e:
+                print(f"[{model_key}] [WARN] Could not load adapters: {e}. Running post-eval on base model.")
+        else:
+            print(f"[{model_key}] Fine-tuning skipped (--skip-ft).")
     elif model_key not in FINETUNE_CAPABLE:
         print(f"[{model_key}] Not fine-tunable (zero-shot or trust_remote_code). Skipping.")
     else:
