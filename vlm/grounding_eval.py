@@ -28,7 +28,7 @@ from pathlib import Path
 
 DEFAULT_CLASSES = [
     "container", "plastic", "metal", "polystyrene",
-    "plastic fragment", "trash pile", "trash",
+    "plastic_fragment", "trash_pile", "trash",
 ]
 
 YOLO_ID_TO_CLASS = {i: c for i, c in enumerate(DEFAULT_CLASSES)}
@@ -111,13 +111,11 @@ def _match_class(raw: str, classes: list[str] | None = None) -> str | None:
     """Fuzzy-match a raw class string to known classes."""
     if classes is None:
         classes = DEFAULT_CLASSES
-    raw = raw.strip().lower().replace("_", " ")
-    # Exact match
-    if raw in classes:
-        return raw
-    # Substring match (longest first to avoid 'trash' matching 'trash pile')
+    norm = raw.strip().lower().replace(" ", "_")
+    if norm in classes:
+        return norm
     for cls in sorted(classes, key=len, reverse=True):
-        if cls in raw or raw in cls:
+        if cls in norm or norm in cls:
             return cls
     return None
 

@@ -267,13 +267,15 @@ def _cmd_fill(args):
 
     # ── Generation loop ───────────────────────────────────────────────────────
 
-    for i, img_path in enumerate(image_paths):
-        print(f"\n{'─' * 60}")
-        print(f"[{i+1}/{len(image_paths)}] {img_path.name}")
-        process_image(img_path, model, prompts_by_class, class_names,
-                      out_dir, log_writer, cfg)
+    try:
+        for i, img_path in enumerate(image_paths):
+            print(f"\n{'─' * 60}")
+            print(f"[{i+1}/{len(image_paths)}] {img_path.name}")
+            process_image(img_path, model, prompts_by_class, class_names,
+                          out_dir, log_writer, cfg)
+    finally:
+        log_fh.close()
 
-    log_fh.close()
     print(f"\n{'─' * 60}")
     print(f"Done.  {len(image_paths)} images processed.")
     print(f"Log  → {out_dir}/generation_log.csv")
@@ -358,13 +360,15 @@ def _cmd_batch(args):
             num_inference_steps=steps,
         )
 
-        for i, img_path in enumerate(image_paths):
-            print(f"\n{'─' * 60}")
-            print(f"  [{i+1}/{len(image_paths)}] {img_path.name}")
-            process_image(img_path, model, prompts_by_class, class_names,
-                          out_dir, log_writer, cfg)
+        try:
+            for i, img_path in enumerate(image_paths):
+                print(f"\n{'─' * 60}")
+                print(f"  [{i+1}/{len(image_paths)}] {img_path.name}")
+                process_image(img_path, model, prompts_by_class, class_names,
+                              out_dir, log_writer, cfg)
+        finally:
+            log_fh.close()
 
-        log_fh.close()
         print(f"\n  Experiment {name} done.  Log → {out_dir}/generation_log.csv")
 
     print(f"\n{'═' * 60}")

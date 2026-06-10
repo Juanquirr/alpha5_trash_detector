@@ -26,14 +26,14 @@ YOLO_ID_TO_CLASS = {
     1: "plastic",
     2: "metal",
     3: "polystyrene",
-    4: "plastic fragment",
-    5: "trash pile",
+    4: "plastic_fragment",
+    5: "trash_pile",
     6: "trash",
 }
 
 VLM_COMPARABLE_CLASSES = [
     "container", "plastic", "metal", "polystyrene",
-    "plastic fragment", "trash pile", "trash",
+    "plastic_fragment", "trash_pile", "trash",
 ]
 
 PALETTE = [
