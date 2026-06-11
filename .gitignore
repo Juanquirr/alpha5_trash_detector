@@ -62,6 +62,8 @@ vlm/results/
 !vlm/results/*.csv
 vlm/images/
 !vlm/pope_results/**
+!vlm/pope_results_v6/**
+!vlm/pope_results_v7/**
 !vlm/pope_questions/**
 vlm/pope_questions/metadata.json
 alpha5/datasets/
