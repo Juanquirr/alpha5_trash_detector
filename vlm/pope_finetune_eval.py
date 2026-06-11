@@ -12,14 +12,12 @@ Pipeline per model
 Note: train and eval sets share the same images (domain adaptation study, not
 generalisation benchmark). Mention data leakage in any write-up.
 
-Fine-tunable  : smolvlm  smolvlm_500m  qwen_vl  qwen_2b  llava
-Not supported : clip (zero-shot)  moondream (trust_remote_code)  internvl2
+Models: smolvlm  smolvlm_500m  qwen_vl  qwen_2b  llava
 
 Usage
 ─────
     python pope_finetune_eval.py --model smolvlm_500m --tier all
     python pope_finetune_eval.py --model all --tier all
-    python pope_finetune_eval.py --model clip --tier all   # eval-only
     python pope_finetune_eval.py --model smolvlm --epochs 2 --lora-r 16
 
 Flags
@@ -57,7 +55,6 @@ from pope_run import (
     _already_done,
     _append_row,
     parse_yesno,
-    parse_clip_score,
     derive_pred,
     _describe_with_timeout,
     _fmt_time,
@@ -130,7 +127,6 @@ def _run_eval_phase(
     import torch
     out_dir.mkdir(parents=True, exist_ok=True)
     is_cuda = vlm.device == "cuda" and torch.cuda.is_available()
-    is_clip = model_key == "clip"
 
     for tier in tiers:
         questions = _load_tier_questions(questions_dir, tier)
@@ -185,7 +181,7 @@ def _run_eval_phase(
             if is_cuda:
                 vram_mb = round(torch.cuda.max_memory_allocated() / 1024**2, 1)
 
-            pred = parse_clip_score(response, q["cls"]) if is_clip else parse_yesno(response)
+            pred = parse_yesno(response)
 
             _append_row({
                 "question_id": q["question_id"], "image": q["image"],

@@ -16,12 +16,6 @@ Usage:
 --timeout 20         skip question if inference exceeds N seconds (0 = disabled)
                      timed-out rows written with pred="timeout" and excluded from metrics
 
-CLIP special case:
-    CLIP.describe() ignores the prompt and returns scored lines:
-        "container: 0.45 | plastic: 0.12 | ..."
-    pope_run.py parses the queried class score (threshold 0.25) instead of
-    calling parse_yesno() on free-text output.
-
 Resume: already-processed question_ids in the output CSV are skipped.
 
 Output CSV columns:
@@ -60,26 +54,14 @@ def parse_yesno(response: str) -> str:
     return "yes"
 
 
-def parse_clip_score(response: str, cls: str) -> str:
-    """Parse CLIP describe() output (scored candidates) for a specific class."""
-    pattern = rf"{re.escape(cls)}:\s*([0-9.]+)"
-    match   = re.search(pattern, response, re.IGNORECASE)
-    if not match:
-        return "no"
-    return "yes" if float(match.group(1)) >= 0.25 else "no"
-
-
 def derive_pred(response: str, cls: str) -> str:
     """
     Derive yes/no prediction from raw response text.
-    CLIP responses contain scored candidates ("class: 0.XX | ..."); all others
-    are parsed with parse_yesno(). Timeout rows (response=="TIMEOUT") return
-    "timeout" so callers can filter them out of metrics.
+    Timeout rows (response=="TIMEOUT") return "timeout" so callers can
+    filter them out of metrics.
     """
     if response.strip() == "TIMEOUT":
         return "timeout"
-    if re.search(r"[\w\s]+:\s*0\.\d+", response):   # CLIP scored format
-        return parse_clip_score(response, cls)
     return parse_yesno(response)
 
 
@@ -192,7 +174,6 @@ def run_model_tier(
     print(f"[{model_key}/{tier}] Processing {len(pending)} questions...")
 
     is_cuda   = vlm.device == "cuda" and torch.cuda.is_available()
-    is_clip   = model_key == "clip"
     t_start   = time.perf_counter()
     n_timeout = 0
 
@@ -247,7 +228,7 @@ def run_model_tier(
         if is_cuda:
             vram_mb = round(torch.cuda.max_memory_allocated() / 1024**2, 1)
 
-        pred = parse_clip_score(response, q["cls"]) if is_clip else parse_yesno(response)
+        pred = parse_yesno(response)
 
         _append_row({
             "question_id": q["question_id"],
