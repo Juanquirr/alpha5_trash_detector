@@ -321,6 +321,7 @@ def finetune_lora(
     lora_alpha:        int        = 16,
     accum_steps:       int        = 4,
     max_train_samples: int | None = None,
+    out_dir:           Path | None = None,
 ) -> bool:
     """
     Fine-tune vlm.model in-place with LoRA SFT on POPE questions.
@@ -444,6 +445,8 @@ def finetune_lora(
                 torch.cuda.empty_cache()
                 optimizer.zero_grad()
             except Exception as e:
+                if step_idx <= 5:
+                    print(f"  [SKIP] sample {step_idx}: {type(e).__name__}: {e}")
                 continue
 
             # Progress log every LOG_EVERY samples
@@ -470,7 +473,7 @@ def finetune_lora(
 
     # Save LoRA adapters before merging (small, reusable).
     # Saved to pope_results/{model_key}_lora/ next to other artefacts.
-    adapter_dir = Path(__file__).parent / "pope_results" / f"{model_key}_lora"
+    adapter_dir = (out_dir if out_dir else Path(__file__).parent / "pope_results") / f"{model_key}_lora"
     adapter_dir.mkdir(parents=True, exist_ok=True)
     try:
         peft_model.save_pretrained(str(adapter_dir))
@@ -810,6 +813,7 @@ def run_single_model(model_key: str, args) -> None:
             lora_alpha         = args.lora_alpha,
             accum_steps        = args.accum,
             max_train_samples  = args.max_train_samples,
+            out_dir            = out_root,
         )
 
     # ── 4. Post-eval (only if fine-tuning ran) ────────────────────────────────
