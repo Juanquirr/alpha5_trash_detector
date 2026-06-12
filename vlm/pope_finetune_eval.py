@@ -477,6 +477,7 @@ def finetune_lora(
     adapter_dir.mkdir(parents=True, exist_ok=True)
     try:
         peft_model.save_pretrained(str(adapter_dir))
+        (adapter_dir / "README.md").unlink(missing_ok=True)
         print(f"[{model_key}] LoRA adapters saved -> {adapter_dir}")
     except Exception as e:
         print(f"[{model_key}] [WARN] Failed to save adapters: {e}")
