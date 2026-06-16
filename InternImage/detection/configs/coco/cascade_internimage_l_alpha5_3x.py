@@ -134,7 +134,7 @@ train_pipeline = [
 ]
 # we use 4 nodes to train this model, with a total batch size of 64
 data = dict(
-    samples_per_gpu=2,
+    samples_per_gpu=4,
     train=dict(pipeline=train_pipeline))
 # optimizer
 optimizer = dict(
