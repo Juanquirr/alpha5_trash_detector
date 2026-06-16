@@ -19,16 +19,15 @@ ROOT = Path(__file__).parent.parent.resolve()
 MODELS = {
     "YOLO26x_v10": ROOT / "runs" / "YOLO26x_v10_20260603"   / "weights" / "best.pt",
     "YOLO26x_v7":  ROOT / "runs" / "YOLO26x_v7_20260603"    / "weights" / "best.pt",
-    "YOLO26x_v5_sinHN": ROOT / "runs" / "YOLO26x_v5_sinHN_20260522" / "weights" / "best.pt",
     # Add new models here:
     # "MyNewModel": ROOT / "runs" / "YOLO26x_vXX_YYYYMMDD" / "weights" / "best.pt",
 }
 
 # ─── Inference settings ───────────────────────────────────────────────────────
-CONF_THRESHOLD = 0.3   # minimum detection confidence
+CONF_THRESHOLD = 0.2   # minimum detection confidence
 IMGSZ         = 640     # inference image size (pixels)
 DEVICE        = "0"     # "0" for first GPU, "cpu" for CPU
-BATCH_SIZE    = 16      # images per predict() call
+BATCH_SIZE    = 8      # images per predict() call
 
 # ─── Output ───────────────────────────────────────────────────────────────────
 RESULTS_DIR      = Path(__file__).parent / "results"
