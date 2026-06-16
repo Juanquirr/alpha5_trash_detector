@@ -140,7 +140,7 @@ train_pipeline = [
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
 ]
 data = dict(
-    samples_per_gpu=4,
+    samples_per_gpu=8,
     train=dict(pipeline=train_pipeline))
 optimizer = dict(
     _delete_=True, type='AdamW', lr=0.0001, weight_decay=0.05,
