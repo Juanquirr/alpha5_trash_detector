@@ -12,7 +12,6 @@ Metrics computed:
   F1           — harmonic mean of P and R
 
 Usage:
-  python run_eval.py
   python run_eval.py --dataset /path/to/flowimg_test
 
 Dataset directory must contain images/ and annotations/ subdirectories.
@@ -32,8 +31,6 @@ from config import (
     BATCH_SIZE,
     CONF_THRESHOLD,
     DEVICE,
-    FLOWIMG_TEST_ANNOTS,
-    FLOWIMG_TEST_IMAGES,
     IMGSZ,
     MODELS,
     N_SAMPLE_IMAGES,
@@ -292,9 +289,8 @@ def parse_args():
     parser.add_argument(
         "--dataset",
         type=Path,
-        default=None,
-        help="Path to FlowIMG test directory (must contain images/ and annotations/ subdirs). "
-             "Overrides config.py paths.",
+        required=True,
+        help="Path to FlowIMG test directory (must contain images/ and annotations/ subdirs).",
     )
     return parser.parse_args()
 
@@ -302,16 +298,12 @@ def parse_args():
 def main():
     args = parse_args()
 
-    if args.dataset is not None:
-        images_dir = args.dataset / "images"
-        annots_dir = args.dataset / "annotations"
-        if not images_dir.is_dir() or not annots_dir.is_dir():
-            raise FileNotFoundError(
-                f"Dataset dir must contain images/ and annotations/ subdirs. Got: {args.dataset}"
-            )
-    else:
-        images_dir = FLOWIMG_TEST_IMAGES
-        annots_dir = FLOWIMG_TEST_ANNOTS
+    images_dir = args.dataset / "images"
+    annots_dir = args.dataset / "annotations"
+    if not images_dir.is_dir() or not annots_dir.is_dir():
+        raise FileNotFoundError(
+            f"Dataset dir must contain images/ and annotations/ subdirs. Got: {args.dataset}"
+        )
 
     print("=" * 60)
     print("FlowIMG Detection-Only Evaluation (class-agnostic)")

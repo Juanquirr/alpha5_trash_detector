@@ -11,8 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent.resolve()
 
 # ─── Dataset ──────────────────────────────────────────────────────────────────
-FLOWIMG_TEST_IMAGES = Path(r"C:\Users\User\Desktop\PELIGRO\FlowIMG_para_test\FloW_IMG\test\images")
-FLOWIMG_TEST_ANNOTS = Path(r"C:\Users\User\Desktop\PELIGRO\FlowIMG_para_test\FloW_IMG\test\annotations")
+# Set via --dataset CLI flag in run_eval.py (no default path)
 
 # ─── Models ───────────────────────────────────────────────────────────────────
 # Key   = display name in results table
