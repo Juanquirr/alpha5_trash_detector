@@ -1,0 +1,3 @@
+model,images,gt_instances,predictions,mAP50,mAP50_95,precision,recall,f1
+YOLO26x_v10,800,2024,346,0.1361,0.0574,0.8208,0.1403,0.2397
+YOLO26x_v7,800,2024,288,0.1092,0.0503,0.8333,0.1186,0.2076
