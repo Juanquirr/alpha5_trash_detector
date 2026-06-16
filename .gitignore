@@ -51,13 +51,13 @@ sam3_model/
 *.json
 *.jsonl
 
-
 # Module-specific
 generator/outputs_*/
 generator/inputs/
 generator/models/
 generator/.claude/
 generator/backgrounds*/
+
 vlm/results/
 !vlm/results/*.csv
 vlm/images/
@@ -67,8 +67,15 @@ vlm/images/
 !vlm/pope_results_v10/**
 !vlm/pope_questions/**
 vlm/pope_questions/metadata.json
+
+flowimg_eval/results/*
+!flowimg_eval/results/*.csv
+flowimg_eval/test/
+
 alpha5/datasets/
+
 runs/
+
 InternImage/*
 !InternImage/detection/
 
