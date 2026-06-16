@@ -165,6 +165,14 @@ Output: `pope_results/{model}_pre/` and `{model}_post/` CSVs, plus `pope_{model}
 
 Training and eval use same images. This measures domain adaptation, not generalization.
 
+#### How LoRA fine-tuning works
+
+Full fine-tuning updates every weight in a model, which is prohibitively expensive for billion-parameter VLMs. Low-Rank Adaptation (LoRA) avoids this by injecting two small trainable matrices A and B alongside each frozen attention projection layer. The effective weight update is the low-rank product A × B, where the rank r (default 8) controls the capacity of the adaptation. Only these matrices are updated during training — typically less than 1% of total parameters.
+
+For each training sample, the model receives an image and a binary question ("Is there a container in this image?"). The ground-truth answer ("yes" or "no") is appended and the loss is computed exclusively on that answer token; the image and question prefix are masked with −100 and excluded from the gradient. This forces the model to learn the visual associations for each class rather than memorising prompt patterns.
+
+After training, the adapter matrices are merged back into the base weights (`merge_and_unload()`), producing a single model file with no inference overhead. The original adapter files (~50–200 MB) are preserved in `{out}/{model}_lora/` and can be reloaded independently of the base model.
+
 ### `grounding_eval.py`
 
 Asks Qwen models to locate objects with bounding boxes, then compares against YOLO ground truth via IoU matching.
