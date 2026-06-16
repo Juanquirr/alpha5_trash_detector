@@ -71,3 +71,5 @@ alpha5/datasets/
 runs/
 InternImage/
 InternImage_backup/
+
+flowimg_eval/test/*
