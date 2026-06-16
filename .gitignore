@@ -69,7 +69,7 @@ vlm/images/
 vlm/pope_questions/metadata.json
 alpha5/datasets/
 runs/
-InternImage/
-InternImage_backup/
+InternImage/*
+!InternImage/detection/
 
 flowimg_eval/test/*
