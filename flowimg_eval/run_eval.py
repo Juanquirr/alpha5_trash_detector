@@ -13,10 +13,13 @@ Metrics computed:
 
 Usage:
   python run_eval.py
+  python run_eval.py --dataset /path/to/flowimg_test
 
+Dataset directory must contain images/ and annotations/ subdirectories.
 Edit config.py to add/remove models or change settings.
 """
 
+import argparse
 import csv
 import xml.etree.ElementTree as ET
 from datetime import datetime
@@ -56,9 +59,9 @@ def parse_voc_xml(xml_path: Path) -> np.ndarray:
     return np.array(boxes, dtype=np.float32) if boxes else np.zeros((0, 4), dtype=np.float32)
 
 
-def load_all_gt() -> dict:
+def load_all_gt(annots_dir: Path) -> dict:
     """Load all test GT annotations. Returns dict: stem -> np.ndarray [N,4]."""
-    xml_paths = sorted(FLOWIMG_TEST_ANNOTS.glob("*.xml"))
+    xml_paths = sorted(annots_dir.glob("*.xml"))
     gts = {p.stem: parse_voc_xml(p) for p in xml_paths}
     total_instances = sum(len(v) for v in gts.values())
     print(f"GT loaded: {len(gts)} images | {total_instances} instances")
@@ -195,14 +198,14 @@ def run_inference(model: YOLO, valid_stems: list, img_dict: dict) -> dict:
 
 # ─── Main evaluation loop ─────────────────────────────────────────────────────
 
-def evaluate_model(model_name: str, model_path: Path, image_gts: dict) -> dict:
+def evaluate_model(model_name: str, model_path: Path, image_gts: dict, images_dir: Path) -> dict:
     print(f"\n{'─'*60}")
     print(f"  Model  : {model_name}")
     print(f"  Weights: {model_path}")
 
     model = YOLO(str(model_path))
 
-    img_paths  = sorted(FLOWIMG_TEST_IMAGES.glob("*.jpg"))
+    img_paths  = sorted(images_dir.glob("*.jpg"))
     img_dict   = {p.stem: p for p in img_paths}
     valid_stems = sorted(set(img_dict) & set(image_gts))
 
@@ -284,22 +287,47 @@ def save_csv(all_results: list):
 
 # ─── Entry point ──────────────────────────────────────────────────────────────
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="FlowIMG detection-only evaluation.")
+    parser.add_argument(
+        "--dataset",
+        type=Path,
+        default=None,
+        help="Path to FlowIMG test directory (must contain images/ and annotations/ subdirs). "
+             "Overrides config.py paths.",
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
+
+    if args.dataset is not None:
+        images_dir = args.dataset / "images"
+        annots_dir = args.dataset / "annotations"
+        if not images_dir.is_dir() or not annots_dir.is_dir():
+            raise FileNotFoundError(
+                f"Dataset dir must contain images/ and annotations/ subdirs. Got: {args.dataset}"
+            )
+    else:
+        images_dir = FLOWIMG_TEST_IMAGES
+        annots_dir = FLOWIMG_TEST_ANNOTS
+
     print("=" * 60)
     print("FlowIMG Detection-Only Evaluation (class-agnostic)")
     print("=" * 60)
-    print(f"Dataset : {FLOWIMG_TEST_IMAGES}")
+    print(f"Dataset : {images_dir}")
     print(f"Models  : {list(MODELS.keys())}")
     print(f"Conf    : {CONF_THRESHOLD}  |  IoU: 0.50–0.95  |  ImgSz: {IMGSZ}")
 
-    image_gts  = load_all_gt()
+    image_gts  = load_all_gt(annots_dir)
     all_results = []
 
     for model_name, model_path in MODELS.items():
         if not Path(model_path).exists():
             print(f"\n[SKIP] {model_name}: weights not found → {model_path}")
             continue
-        result = evaluate_model(model_name, model_path, image_gts)
+        result = evaluate_model(model_name, model_path, image_gts, images_dir)
         all_results.append(result)
         print(
             f"  → mAP50={result['mAP50']}  "
