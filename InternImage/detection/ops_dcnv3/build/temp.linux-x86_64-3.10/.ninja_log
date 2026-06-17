@@ -1,0 +1,4 @@
+# ninja log v5
+14	8741	1781607477074653100	/workspace/InternImage/detection/ops_dcnv3/build/temp.linux-x86_64-3.10/workspace/InternImage/detection/ops_dcnv3/src/cpu/dcnv3_cpu.o	49f10a04f2780865
+21	22543	1781607490876975200	/workspace/InternImage/detection/ops_dcnv3/build/temp.linux-x86_64-3.10/workspace/InternImage/detection/ops_dcnv3/src/vision.o	41165530846510fa
+18	58618	1781607526957562600	/workspace/InternImage/detection/ops_dcnv3/build/temp.linux-x86_64-3.10/workspace/InternImage/detection/ops_dcnv3/src/cuda/dcnv3_cuda.o	95fa715fb6801f5c
