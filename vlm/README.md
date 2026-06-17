@@ -47,7 +47,7 @@ Instead of "describe this image", POPE asks one question per class per image:
 
 > "Is there a rigid non-metal container such as a bottle or jar in this image? Answer yes or no."
 
-This runs for all 7 classes on every image. We know ground truth from YOLO annotations, so each answer maps to:
+This runs for all 6 classes on every image. We know ground truth from YOLO annotations, so each answer maps to:
 
 | | Model says YES | Model says NO |
 |---|---|---|

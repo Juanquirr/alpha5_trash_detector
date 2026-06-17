@@ -59,34 +59,24 @@ alpha5_trash_detector/
 └── README.md
 ```
 
-**Commit history** for each component is preserved in dedicated branches:
-
-| Branch | Component | Commits |
-|--------|-----------|---------|
-| `main` | Unified monorepo + original Alpha5 history | full |
-| `history/vlm-detector` | VLM evaluation framework | 10+ |
-| `history/trash-generator` | FLUX-based data generator | 30+ |
-
 ---
 
 ## Pipeline Overview
 
-All modules share the same **7 waste categories** (shape-first taxonomy):
+All modules share the same **6 waste categories** (shape-first taxonomy):
 
 | ID | Class | Description | Includes | Excludes |
 |----|-------|-------------|----------|---------|
 | 0 | `container` | Rigid non-metal container with recognisable shape | PET/glass bottles, jars, pots, tubes (toothpaste, tomato), rigid/transparent plastic cups, plastic food cans, drums, jerrycans | Foam EPS cups → `polystyrene`; crushed shapeless containers → `trash`; metal cans/tins → `metal` |
-| 1 | `plastic` | Flexible, flat, amorphous plastic | Plastic bags, transparent film, wrappers, shrink wrap, bubble wrap, carrier bags | Rigid plastic → `container`; small fragments → `plastic_fragment` |
+| 1 | `plastic` | Flexible, flat, amorphous plastic | Plastic bags, transparent film, wrappers, shrink wrap, bubble wrap, carrier bags | Rigid plastic → `container`; small fragments → `trash` |
 | 2 | `metal` | Object with specular metallic reflection | Soda/beer cans, metal food tins, aluminium foil, metal scrap, metal caps, pull-rings | Plastic cans → `container`; unidentifiable metal objects → `trash` |
 | 3 | `polystyrene` | EPS foam material — white opaque matte, spongy texture | McDonald's/coffee foam cups, foam plates, supermarket foam trays, expanded polystyrene blocks, white cork | Rigid white plastic cups → `container`; crushed shapeless foam → `trash` |
-| 4 | `plastic_fragment` | Small compact rigid plastic, intact 3D shape | Bottle caps, lids, plastic cutlery, straws, identifiable broken fragments, lighters | Flexible plastic → `plastic`; fragment too small to identify → `trash` |
-| 5 | `trash_pile` | Dense cluster of multiple mixed objects | Groups where ≥3 objects are visible together with no possibility of separating individual bboxes | Any single object of any class → its own class |
-| 6 | `trash` | Single item unclassifiable into any above class | Cardboard/paper (paper cups, bread bags, boxes), pallets, pellets, wood, fabric, marine fauna, deformed shapeless objects, glass, cigarettes | Any identifiable object with clear shape/material |
+| 4 | `trash_pile` | Dense cluster of multiple mixed objects | Groups where ≥3 objects are visible together with no possibility of separating individual bboxes | Any single object of any class → its own class |
+| 5 | `trash` | Single item unclassifiable into any above class | Cardboard/paper (paper cups, bread bags, boxes), pallets, pellets, wood, fabric, marine fauna, deformed shapeless objects, glass, cigarettes | Any identifiable object with clear shape/material |
 
 ### Class tiebreaker rules
 
 - **`container` vs `polystyrene`** → check texture. Matte spongy foam = `polystyrene`. Smooth/shiny/transparent = `container`.
-- **`plastic` vs `plastic_fragment`** → check flexibility. Bends/ripples = `plastic`. Rigid and compact = `plastic_fragment`.
 - **Crushed/deformed object** → if material is still identifiable, keep its class. If shape and material are both unrecognisable → `trash`.
 - **Any remaining doubt** → `trash` by default.
 
@@ -106,7 +96,7 @@ All modules share the same **7 waste categories** (shape-first taxonomy):
                                  ▼
                           ┌──────────────┐
   Test images ──────────► │    vlm/      │ ──► Accuracy/speed/VRAM
-                          │  10 VLMs     │     comparison report
+                          │  5 VLMs      │     comparison report
                           └──────────────┘
 ```
 
@@ -206,25 +196,25 @@ docker run --gpus all -it -v $(pwd)/generator:/app trash_generator
 
 ### VLM Evaluation (`vlm/`)
 
-Benchmark framework evaluating 10 Vision-Language Models on trash detection
-accuracy, inference time, and VRAM usage.
+Benchmark framework evaluating Vision-Language Models on trash detection using
+POPE (binary hallucination probing) and LoRA fine-tuning.
 
-**Models evaluated:** SmolVLM, Qwen2.5-VL, Moondream, LLaVA, BLIP2,
-InstructBLIP, CLIP, PaliGemma, mPLUG-Owl3, VideoLLaMA3.
+**Models:** SmolVLM-Instruct (2B), SmolVLM-500M-Instruct, Qwen2.5-VL-3B-Instruct,
+Qwen3-VL-2B-Instruct, LLaVA-1.5-7B.
 
 ```bash
-# Run all models
-python vlm/run.py --model all --images images/
+# Build POPE questions from dataset
+python vlm/pope_build.py --dataset alpha5/datasets/alpha7
 
-# Single model
-python vlm/run.py --model smolvlm --images images/
+# Run evaluation
+python vlm/pope_run.py --model all --tier all
 
-# Evaluation report
-python vlm/evaluate.py --images images/ --results vlm/results/ --out eval.png
+# LoRA fine-tuning + comparison
+python vlm/pope_finetune_eval.py --model qwen_2b --tier all
 ```
 
 Requires two virtual environments (transformers 5.x and 4.46.x). Setup scripts
-and full documentation in [vlm/CONTEXT.md](vlm/CONTEXT.md).
+and full documentation in [vlm/README.md](vlm/README.md).
 
 ---
 

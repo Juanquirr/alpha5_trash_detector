@@ -228,7 +228,7 @@ contrib_i = AP_class_i / sum(AP_all_classes) * 100
 ```
 
 - All contrib values sum to **100%**.
-- Equal share = `100 / N_classes` (≈14.3% for 7 classes).
+- Equal share = `100 / N_classes` (≈16.7% for 6 classes).
 - Class above line → boosting mAP. Class below → dragging mAP down.
 
 **Optional outputs:**
