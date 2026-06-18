@@ -1,0 +1,5 @@
+train: train/images
+val: val/images
+
+nc: 6
+names: [container, plastic, metal, polystyrene, trash_pile, trash]
