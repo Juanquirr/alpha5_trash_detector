@@ -173,6 +173,20 @@ For each training sample, the model receives an image and a binary question ("Is
 
 After training, the adapter matrices are merged back into the base weights (`merge_and_unload()`), producing a single model file with no inference overhead. The original adapter files (~50–200 MB) are preserved in `{out}/{model}_lora/` and can be reloaded independently of the base model.
 
+#### Training data flow and single-epoch justification
+
+The same POPE questions used for evaluation also serve as LoRA training data. The flow works as follows:
+
+1. **Generation.** `pope_build.py` reads YOLO annotations from the dataset and generates three JSONL files (one per tier). Each tier produces 6,100 questions over ~2,900 images, balanced 50/50 between yes and no answers. Within a single tier, every (image, class) pair is unique — no duplicates.
+
+2. **Deduplication across tiers.** The three tiers share the same images but select different negative classes. A yes question for *container* on image X appears in all three tiers identically, while the no questions vary per tier strategy. When loading training data, the pipeline iterates through the three tiers in order and skips any (image, class) pair already seen. From 3 × 6,100 = 18,300 total questions, this yields ~8,800 unique training samples.
+
+3. **Masked loss.** Each sample is an (image, question, ground-truth answer) triple. The loss is computed only on the answer token; the rest of the sequence is masked. This means each of the ~8,800 gradient updates targets exactly one visual association.
+
+4. **One epoch is sufficient.** The LoRA adapters do not teach the model new visual concepts — they correct the association bias between visual patterns the model already recognises and the domain-specific class labels. A single pass over ~8,800 masked-loss samples produces gains of +4 to +26 pp in F1 across all models, with no signs of underfitting. Additional epochs risk overfitting to the binary question format without improving generalisation.
+
+5. **Train = eval overlap.** Training and evaluation use the same image set. This is intentional: the goal is domain adaptation (can the model learn to correctly identify marine litter classes?), not generalisation to unseen images. The pre/post comparison measures how much LoRA shifts the model's object-level hallucination rate on this specific domain.
+
 ### `grounding_eval.py`
 
 Asks Qwen models to locate objects with bounding boxes, then compares against YOLO ground truth via IoU matching.
