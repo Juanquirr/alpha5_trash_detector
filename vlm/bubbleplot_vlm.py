@@ -27,7 +27,7 @@ MODEL_META = {
     "qwen_vl":       {"label": "Qwen2.5-VL-3B",      "params": 3.8},
     "smolvlm":       {"label": "SmolVLM-1B",          "params": 1.0},
     "smolvlm_500m":  {"label": "SmolVLM-500M",        "params": 0.5},
-    "llava":         {"label": "LLaVA-OneVision-0.5B", "params": 0.5},
+    "llava":         {"label": "LLaVA-1.5-7B",         "params": 7.0},
 }
 
 TIMEOUT_S = 15.0
@@ -121,8 +121,8 @@ def plot(df):
     norm = mcolors.Normalize(vmin=0, vmax=calib_dev.max() * 1.1)
     cmap = plt.cm.RdYlGn_r
 
-    size_scale = 350
-    sizes = df["params_b"] * size_scale
+    size_scale = 180
+    sizes = np.sqrt(df["params_b"]) * size_scale
 
     sc = ax.scatter(
         df["median_inf_s"],
@@ -158,7 +158,7 @@ def plot(df):
         ax.scatter(
             row["median_inf_s"],
             row["f1"],
-            s=row["params_b"] * size_scale + 120,
+            s=np.sqrt(row["params_b"]) * size_scale + 120,
             facecolors="none",
             edgecolors="red",
             linewidths=2.0,
@@ -188,16 +188,16 @@ def plot(df):
 
     # Labels — manual offsets to avoid overlaps
     LABEL_OFFSETS = {
-        ("qwen_2b", "post"):      (10, 10),
-        ("qwen_2b", "pre"):       (10, -14),
+        ("qwen_2b", "post"):      (10, 12),
+        ("qwen_2b", "pre"):       (10, -16),
         ("qwen_vl", "post"):      (-12, -18),
         ("qwen_vl", "pre"):       (-12, 8),
         ("smolvlm", "post"):      (10, 6),
         ("smolvlm", "pre"):       (10, -12),
         ("smolvlm_500m", "post"): (10, 6),
         ("smolvlm_500m", "pre"):  (10, -12),
-        ("llava", "post"):        (10, 6),
-        ("llava", "pre"):         (10, -12),
+        ("llava", "post"):        (12, 8),
+        ("llava", "pre"):         (12, -16),
     }
 
     for _, row in df.iterrows():
@@ -236,7 +236,7 @@ def plot(df):
                 color="w",
                 markerfacecolor="gray",
                 markeredgecolor="black",
-                markersize=np.sqrt(p * size_scale) / 2.5,
+                markersize=np.sqrt(np.sqrt(p) * size_scale) / 2.5,
                 label=f"{p:.1f}B params",
             )
         )
