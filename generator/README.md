@@ -53,7 +53,6 @@ inputs/
     ├── plastic/
     ├── metal/
     ├── polystyrene/
-    ├── plastic_fragment/
     ├── trash_pile/
     └── trash/
 ```
@@ -125,9 +124,8 @@ python run.py test --model all --max-images 5 --num-instances 1
 | 1 | `plastic` | Flat, flexible, translucent plastic — bags, film, soft wrappers |
 | 2 | `metal` | Specular metallic reflection — cans, aluminium foil, metal scrap |
 | 3 | `polystyrene` | White opaque matte foam — EPS blocks, polystyrene cups/plates |
-| 4 | `plastic_fragment` | Small, compact, rigid 3D plastic — caps, fragments, cutlery, straws |
-| 5 | `trash_pile` | Dense cluster of multiple objects — indistinguishable mixed waste |
-| 6 | `trash` | Single unclassifiable item — pallets, pellets, fauna, glass, other |
+| 4 | `trash_pile` | Dense cluster of multiple objects — indistinguishable mixed waste |
+| 5 | `trash` | Single unclassifiable item — pallets, pellets, fauna, glass, other |
 
 ---
 
