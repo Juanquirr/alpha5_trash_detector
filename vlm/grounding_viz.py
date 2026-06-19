@@ -1,86 +1,37 @@
 """
-grounding_viz.py  —  Visualise grounding_eval.py results.
+grounding_viz.py  --  Visualise grounding_eval.py results.
 
 Reads grounding_{model}.csv, finds the source images, draws predicted boxes
-(green) and YOLO ground-truth boxes (red) on each image, and saves annotated
-copies to an output directory.
+(green) and YOLO ground-truth boxes (red), and saves annotated images.
 
-Uses the same coordinate-scale logic as grounding_eval.py:
-  - max coord > 10  -> Qwen 0-1000 scale  -> divide by 1000
-  - max coord > 1.0 -> pixel coordinates
-  - else            -> already normalised [0, 1]
+Reads the structured pred_boxes JSON column written by grounding_eval.py
+instead of re-parsing raw model output.
 
 Usage:
     python vlm/grounding_viz.py --results grounding_results/grounding_qwen_vl.csv \
-        --dataset alpha5/datasets/alpha7
+        --dataset ../alpha5/datasets/alpha7
 
     python vlm/grounding_viz.py --results grounding_results/grounding_qwen_2b.csv \
         --images path/to/images --labels path/to/labels
 
     python vlm/grounding_viz.py --results grounding_results/grounding_qwen_vl.csv \
-        --dataset alpha5/datasets/alpha7 --limit 20 --out grounding_viz/
+        --dataset ../alpha5/datasets/alpha7 --limit 20 --out grounding_viz/
 """
 
 import argparse
 import csv
-import re
+import json
 from pathlib import Path
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
-
-# Flexible coord pattern: optional letter prefix per coordinate (x0, y153, b42, etc.)
-_COORDS_RE = re.compile(
-    r"\(\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)"
-    r"\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*\)"
-)
 
 YOLO_CLASSES = [
     "container", "plastic", "metal", "polystyrene",
     "trash_pile", "trash",
 ]
 
-# BGR colours for OpenCV
-COLOR_PRED = (0, 220, 0)    # green  — predicted
-COLOR_GT   = (0, 0, 220)    # red    — ground truth
-
-
-def _parse_pred_boxes(pred_raw: str, img_w: int, img_h: int) -> list[dict]:
-    """Parse predicted boxes from pred_raw field (mirrors grounding_eval.py logic)."""
-    detections = []
-    seen: set[tuple] = set()
-
-    for line in pred_raw.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-
-        m = _COORDS_RE.search(line)
-        if not m:
-            continue
-
-        coords = [float(m.group(i)) for i in range(1, 5)]
-
-        prefix = line[:m.start()]
-        prefix = re.sub(r"<[^>]+>", "", prefix)
-        prefix = re.sub(r"\([^)]*\)", "", prefix)
-        prefix = re.sub(r"[\s:,]+$", "", prefix).strip()
-
-        if not prefix:
-            continue
-
-        cls = prefix.lower().replace(" ", "_").replace("-", "_")
-
-        max_coord = max(coords)
-        if max_coord > 1.0:
-            coords = [coords[0]/img_w, coords[1]/img_h, coords[2]/img_w, coords[3]/img_h]
-        coords = [max(0.0, min(1.0, c)) for c in coords]
-
-        key = (cls, round(coords[0], 3), round(coords[1], 3))
-        if key not in seen:
-            seen.add(key)
-            detections.append({"cls": cls, "box": coords})
-
-    return detections
+COLOR_PRED = (0, 220, 0)    # green (BGR)
+COLOR_GT   = (0, 0, 220)    # red   (BGR)
 
 
 def _load_gt_boxes(label_path: Path) -> list[dict]:
@@ -107,10 +58,7 @@ def _load_gt_boxes(label_path: Path) -> list[dict]:
 
 def _build_image_index(dataset: Path | None, images_dir: Path | None,
                        labels_dir: Path | None) -> dict[str, dict]:
-    """
-    Return {filename: {image: Path, label: Path | None}}.
-    Searches train/val/valid/test splits when --dataset is given.
-    """
+    """Return {filename: {image: Path, label: Path | None}}."""
     index = {}
 
     if dataset:
@@ -136,15 +84,13 @@ def _build_image_index(dataset: Path | None, images_dir: Path | None,
 
 def _draw_box(img, box_norm: list[float], label: str, color: tuple, img_w: int, img_h: int):
     import cv2
-    x1 = int(box_norm[0] * img_w)
-    y1 = int(box_norm[1] * img_h)
-    x2 = int(box_norm[2] * img_w)
-    y2 = int(box_norm[3] * img_h)
-    x1, y1, x2, y2 = max(0, x1), max(0, y1), min(img_w - 1, x2), min(img_h - 1, y2)
+    x1 = max(0, int(box_norm[0] * img_w))
+    y1 = max(0, int(box_norm[1] * img_h))
+    x2 = min(img_w - 1, int(box_norm[2] * img_w))
+    y2 = min(img_h - 1, int(box_norm[3] * img_h))
 
     cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
 
-    # Label background
     font       = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 0.45
     thickness  = 1
@@ -181,33 +127,35 @@ def visualise(csv_path: Path, image_index: dict, out_dir: Path, limit: int) -> N
 
             img_h, img_w = img.shape[:2]
 
-            # Draw GT boxes (red)
+            # GT boxes (red)
             gt_boxes = _load_gt_boxes(entry["label"])
             for b in gt_boxes:
                 _draw_box(img, b["box"], f"GT:{b['cls']}", COLOR_GT, img_w, img_h)
 
-            # Draw predicted boxes (green)
-            pred_raw = row.get("pred_raw", "")
-            if pred_raw.strip().upper() != "CLEAN":
-                pred_boxes = _parse_pred_boxes(pred_raw, img_w, img_h)
-                for b in pred_boxes:
-                    _draw_box(img, b["box"], f"P:{b['cls']}", COLOR_PRED, img_w, img_h)
+            # Predicted boxes (green) from structured JSON column
+            pred_boxes_raw = row.get("pred_boxes", "[]")
+            try:
+                pred_boxes = json.loads(pred_boxes_raw)
+            except (json.JSONDecodeError, TypeError):
+                pred_boxes = []
 
-            # Metrics overlay (top-left)
+            for b in pred_boxes:
+                _draw_box(img, b["box"], f"P:{b['cls']}", COLOR_PRED, img_w, img_h)
+
+            # Metrics overlay
+            n_gt    = row.get("n_gt", "?")
+            n_pred  = row.get("n_pred", "?")
+            matched = row.get("n_matched", "?")
             prec    = row.get("precision", "?")
             rec     = row.get("recall", "?")
             miou    = row.get("mean_iou", "?")
-            matched = row.get("n_matched", "?")
-            n_gt    = row.get("n_gt", "?")
-            n_pred  = row.get("n_pred", "?")
             info    = f"GT={n_gt} Pred={n_pred} Match={matched} | P={prec}% R={rec}% IoU={miou}"
             cv2.putText(img, info, (6, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.45,
                         (0, 0, 0), 3, cv2.LINE_AA)
             cv2.putText(img, info, (6, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.45,
                         (255, 255, 255), 1, cv2.LINE_AA)
 
-            stem    = Path(img_name).stem
-            out_path = out_dir / f"{stem}_viz.jpg"
+            out_path = out_dir / f"{Path(img_name).stem}_viz.jpg"
             cv2.imwrite(str(out_path), img)
             processed += 1
 

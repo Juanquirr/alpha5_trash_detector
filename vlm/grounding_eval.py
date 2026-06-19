@@ -1,12 +1,12 @@
 """
-grounding_eval.py  —  VLM visual grounding proof-of-concept.
+grounding_eval.py  --  VLM visual grounding evaluation.
 
 Ask a Qwen VLM to locate trash objects with bounding boxes, then compare
 against YOLO ground-truth annotations via IoU.
 
-Two-pass architecture:
-  1. Ask the model to detect and locate all waste objects in the image.
-  2. Parse <ref>class</ref><box>(x1, y1, x2, y2)</box> from the response.
+Pipeline:
+  1. Send image + structured prompt asking for class + bbox per object.
+  2. Parse coordinates from the (often inconsistent) free-text response.
   3. Match predicted boxes to YOLO GT boxes using greedy IoU matching.
   4. Report precision, recall, and mean IoU at configurable threshold.
 
@@ -14,9 +14,10 @@ Supported models: qwen_vl (Qwen2.5-VL-3B), qwen_2b (Qwen3-VL-2B).
 Other models do not support structured bounding box output.
 
 Usage:
-    python grounding_eval.py --model qwen_vl --dataset ../alpha5/datasets/alpha6
-    python grounding_eval.py --model qwen_2b --dataset ../alpha5/datasets/alpha6 --limit 50
+    python grounding_eval.py --model qwen_vl --dataset ../alpha5/datasets/alpha7
+    python grounding_eval.py --model qwen_2b --dataset ../alpha5/datasets/alpha7 --limit 50
     python grounding_eval.py --model qwen_vl --images imgs/ --labels lbls/ --limit 100
+    python grounding_eval.py --model qwen_2b --dataset ../alpha5/datasets/alpha7 --lora-adapter pope_results_v7/qwen_2b_lora
 """
 
 import argparse
@@ -53,15 +54,15 @@ GROUNDING_PROMPT = (
 CSV_FIELDS = [
     "image", "n_gt", "n_pred", "n_matched",
     "precision", "recall", "mean_iou",
-    "gt_classes", "pred_classes", "pred_raw",
+    "gt_classes", "pred_classes", "pred_boxes",
     "inference_s",
 ]
 
 
-# ── Bounding box parsing ────────────────────────────────────────────────────
+# -- Bounding box parsing ---------------------------------------------------
 
-# Matches 4 coordinates in parentheses; each coord may have a leading letter prefix
-# (e.g. x0, y153, b42) which the model sometimes emits.
+# 4 coordinates inside parentheses; each coord may have a leading letter
+# prefix (x0, y153, b42) which the model sometimes emits.
 _COORDS_RE = re.compile(
     r"\(\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)"
     r"\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*\)"
@@ -69,66 +70,60 @@ _COORDS_RE = re.compile(
 
 
 def _normalize_coords(coords: list[float], img_w: int, img_h: int) -> list[float]:
-    """Normalize (x1,y1,x2,y2) to [0,1] regardless of input scale."""
-    max_coord = max(coords)
-    if max_coord <= 1.0:
+    """Normalize (x1,y1,x2,y2) to [0,1]. Pixel coords divided by image size."""
+    if max(coords) <= 1.0:
         return coords
-    # Pixel coordinates — divide by image dimensions
     return [
         coords[0] / img_w, coords[1] / img_h,
         coords[2] / img_w, coords[3] / img_h,
     ]
 
 
+def _extract_class_from_text(text: str) -> str | None:
+    """Clean a text fragment and try to extract a class name from it."""
+    text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"\([^)]*\)", "", text)
+    text = re.sub(r"[\s:,>]+$", "", text).strip()
+    if not text:
+        return None
+    raw = text.lower().replace(" ", "_").replace("-", "_")
+    return _match_class(raw)
+
+
 def parse_grounding_response(response: str, img_w: int, img_h: int) -> list[dict]:
     """
-    Parse Qwen grounding output into list of {cls, box_norm}.
-    box_norm = (x1, y1, x2, y2) normalized to [0, 1].
+    Parse Qwen grounding output into list of {cls, box}.
+    box = (x1, y1, x2, y2) normalized to [0, 1].
 
-    Handles the wide variety of formats Qwen models produce:
-      <ref>class</ref><box>(x1,y1,x2,y2)</box>   (ideal)
-      class<box>(x1,y1,x2,y2)>                    (malformed tag)
-      class: (x1, y1, x2, y2)                     (colon separator)
-      class (x1, y1, x2, y2)                      (space separator)
-      class(type): (x1, y1, x2, y2)               (with type qualifier)
-      class(x0, y1, x2, y2)                       (letter-prefixed coords)
+    Uses finditer over the full response to handle:
+      - Multiple detections on a single line
+      - Class name on a separate line from coordinates
+      - Malformed / missing XML tags
+      - Letter-prefixed coordinates (x0, y153, b42)
     """
     detections = []
     seen: set[tuple] = set()
+    prev_end = 0
+    last_cls = None
 
-    for line in response.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-
-        m = _COORDS_RE.search(line)
-        if not m:
-            continue
-
+    for m in _COORDS_RE.finditer(response):
         coords = [float(m.group(i)) for i in range(1, 5)]
 
-        # Extract class name from everything before the coordinate tuple
-        prefix = line[:m.start()]
+        between = response[prev_end:m.start()]
+        prev_end = m.end()
 
-        # Strip HTML/custom tags (<ref>, </ref>, <box>, etc.)
-        prefix = re.sub(r"<[^>]+>", "", prefix)
-        # Strip parenthesized qualifiers like "(plastic)" or "(type)"
-        prefix = re.sub(r"\([^)]*\)", "", prefix)
-        # Strip trailing punctuation and whitespace
-        prefix = re.sub(r"[\s:,]+$", "", prefix).strip()
-
-        if not prefix:
-            continue
-
-        cls_raw = prefix.lower().replace(" ", "_").replace("-", "_")
-        cls = _match_class(cls_raw)
-        if not cls:
+        cls = _extract_class_from_text(between)
+        if cls:
+            last_cls = cls
+        elif last_cls:
+            cls = last_cls
+        else:
             continue
 
         norm = _normalize_coords(coords, img_w, img_h)
-        norm = [max(0.0, min(1.0, c)) for c in norm]
+        norm = [round(max(0.0, min(1.0, c)), 4) for c in norm]
 
-        key = (cls, round(norm[0], 3), round(norm[1], 3))
+        key = (cls, norm[0], norm[1], norm[2], norm[3])
         if key not in seen:
             seen.add(key)
             detections.append({"cls": cls, "box": tuple(norm)})
@@ -149,7 +144,7 @@ def _match_class(raw: str, classes: list[str] | None = None) -> str | None:
     return None
 
 
-# ── IoU computation ──────────────────────────────────────────────────────────
+# -- IoU computation --------------------------------------------------------
 
 def iou(box_a: tuple, box_b: tuple) -> float:
     """Compute IoU between two (x1, y1, x2, y2) normalized boxes."""
@@ -205,10 +200,10 @@ def match_predictions(gt_boxes: list[dict], pred_boxes: list[dict],
     return matches
 
 
-# ── YOLO label loading ───────────────────────────────────────────────────────
+# -- YOLO label loading -----------------------------------------------------
 
 def load_yolo_gt(label_path: Path) -> list[dict]:
-    """Load YOLO .txt label → list of {cls, box} with normalized (x1,y1,x2,y2)."""
+    """Load YOLO .txt label -> list of {cls, box} with normalized (x1,y1,x2,y2)."""
     if not label_path.exists():
         return []
     boxes = []
@@ -223,7 +218,6 @@ def load_yolo_gt(label_path: Path) -> list[dict]:
             continue
         if cid not in YOLO_ID_TO_CLASS:
             continue
-        # YOLO center format → corner format
         x1 = cx - w / 2
         y1 = cy - h / 2
         x2 = cx + w / 2
@@ -232,7 +226,7 @@ def load_yolo_gt(label_path: Path) -> list[dict]:
     return boxes
 
 
-# ── Image collection ─────────────────────────────────────────────────────────
+# -- Image collection -------------------------------------------------------
 
 def collect_images(dataset: Path | None, images_dir: Path | None,
                    labels_dir: Path | None, limit: int) -> list[dict]:
@@ -243,7 +237,7 @@ def collect_images(dataset: Path | None, images_dir: Path | None,
     pairs = []
 
     if dataset:
-        for split in ("val", "train", "test"):
+        for split in ("val", "valid", "train", "test"):
             img_dir = dataset / split / "images"
             lbl_dir = dataset / split / "labels"
             if not img_dir.exists():
@@ -260,7 +254,6 @@ def collect_images(dataset: Path | None, images_dir: Path | None,
                 lbl = lbl_dir / (img.stem + ".txt")
                 pairs.append({"image": img, "label": lbl})
 
-    # Prioritize images WITH labels (more interesting for IoU eval)
     with_labels    = [p for p in pairs if p["label"].exists() and p["label"].stat().st_size > 0]
     without_labels = [p for p in pairs if p not in with_labels]
 
@@ -272,7 +265,7 @@ def collect_images(dataset: Path | None, images_dir: Path | None,
     return selected
 
 
-# ── Model inference ──────────────────────────────────────────────────────────
+# -- Model inference --------------------------------------------------------
 
 def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
                   iou_threshold: float, lora_adapter: Path | None = None) -> None:
@@ -298,7 +291,6 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     write_header = not out_csv.exists()
 
-    # Track aggregates
     total_gt      = 0
     total_pred    = 0
     total_matched = 0
@@ -311,7 +303,6 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
         image = Image.open(pair["image"]).convert("RGB")
         img_w, img_h = image.size
 
-        # Build prompt and run inference with enough tokens for multiple boxes
         messages = [
             {
                 "role": "user",
@@ -341,7 +332,6 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
         generated = output_ids[:, inputs["input_ids"].shape[1]:]
         response  = vlm.processor.decode(generated[0], skip_special_tokens=True).strip()
 
-        # Parse predictions and GT
         preds   = parse_grounding_response(response, img_w, img_h)
         gt      = load_yolo_gt(pair["label"])
         matches = match_predictions(gt, preds, iou_threshold)
@@ -358,7 +348,11 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
         rec  = n_matched / len(gt) * 100 if gt else float("nan")
         miou = sum(match_ious) / len(match_ious) if match_ious else 0.0
 
-        # Write row
+        pred_boxes_json = json.dumps(
+            [{"cls": p["cls"], "box": list(p["box"])} for p in preds],
+            ensure_ascii=False,
+        )
+
         row = {
             "image":       pair["image"].name,
             "n_gt":        len(gt),
@@ -369,7 +363,7 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
             "mean_iou":    round(miou, 3),
             "gt_classes":  ", ".join(sorted({b["cls"] for b in gt})),
             "pred_classes": ", ".join(sorted({b["cls"] for b in preds})),
-            "pred_raw":    response[:500],
+            "pred_boxes":  pred_boxes_json,
             "inference_s": elapsed,
         }
 
@@ -380,7 +374,6 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
                 write_header = False
             writer.writerow(row)
 
-        # Progress
         ok = "+" if n_matched > 0 else "-"
         eta_s = (time.perf_counter() - t_start) / i * (len(pairs) - i)
         eta_m = int(eta_s // 60)
@@ -390,20 +383,19 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
             f"IoU={miou:.2f}  | {elapsed}s  | ETA {eta_m}m"
         )
 
-        # Periodic cache flush
         if is_cuda and i % 50 == 0:
             torch.cuda.empty_cache()
 
     vlm.unload()
 
-    # ── Summary ──────────────────────────────────────────────────────────────
+    # -- Summary -------------------------------------------------------------
     total_time = time.perf_counter() - t_start
     overall_prec = total_matched / total_pred * 100 if total_pred > 0 else 0
     overall_rec  = total_matched / total_gt * 100 if total_gt > 0 else 0
     overall_iou  = sum(all_ious) / len(all_ious) if all_ious else 0
 
     print(f"\n{'='*60}")
-    print(f"  GROUNDING RESULTS — {model_key}")
+    print(f"  GROUNDING RESULTS -- {model_key}")
     print(f"{'='*60}")
     print(f"  Images processed : {len(pairs)}")
     print(f"  GT boxes total   : {total_gt}")
@@ -417,16 +409,16 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
     print(f"{'='*60}\n")
 
 
-# ── Entry point ──────────────────────────────────────────────────────────────
+# -- Entry point ------------------------------------------------------------
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="VLM visual grounding proof-of-concept: locate trash and compare vs YOLO GT"
+        description="VLM visual grounding evaluation: locate trash and compare vs YOLO GT"
     )
     parser.add_argument("--model", required=True, choices=["qwen_vl", "qwen_2b"],
                         help="Model key (only Qwen models support grounding)")
     parser.add_argument("--dataset", default=None,
-                        help="YOLO dataset root (train/val/test splits)")
+                        help="YOLO dataset root (train/val/valid/test splits)")
     parser.add_argument("--images", default=None,
                         help="Flat images directory (alternative to --dataset)")
     parser.add_argument("--labels", default=None,
