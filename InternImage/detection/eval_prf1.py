@@ -10,12 +10,15 @@ Usage:
     python eval_prf1.py <config> results.pkl --conf 0.3
 
     # Also accepts --iou (default 0.5) for IoU matching threshold
+    # Results saved to eval_results/<pkl_stem>_conf<conf>.csv and .txt
 """
 
 import argparse
+import csv
 import pickle
 import sys
 import os
+from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import mmcv_custom  # noqa: F401,F403
@@ -40,6 +43,8 @@ def parse_args():
                    help="override annotation file (e.g. instances_val.json path)")
     p.add_argument("--img-prefix", default=None,
                    help="override image prefix")
+    p.add_argument("--out-dir", default="eval_results",
+                   help="directory to save CSV and TXT results (default: eval_results)")
     return p.parse_args()
 
 
@@ -125,10 +130,7 @@ def main():
 
             fn[cls_idx] += len(gt_boxes) - len(matched_gt)
 
-    print(f"\nconf={args.conf}  iou={args.iou}")
-    print(f"{'Class':<20} {'TP':>6} {'FP':>6} {'FN':>6} {'P':>8} {'R':>8} {'F1':>8}")
-    print("-" * 62)
-
+    rows = []
     total_tp = total_fp = total_fn = 0
     for c in range(num_classes):
         t, f_p, f_n = tp[c], fp[c], fn[c]
@@ -138,13 +140,50 @@ def main():
         p = t / (t + f_p) if (t + f_p) > 0 else 0
         r = t / (t + f_n) if (t + f_n) > 0 else 0
         f1 = 2 * p * r / (p + r) if (p + r) > 0 else 0
-        print(f"{class_names[c]:<20} {t:>6} {f_p:>6} {f_n:>6} {p:>8.4f} {r:>8.4f} {f1:>8.4f}")
+        rows.append((class_names[c], t, f_p, f_n, p, r, f1))
 
-    p = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0
-    r = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0
-    f1 = 2 * p * r / (p + r) if (p + r) > 0 else 0
-    print("-" * 62)
-    print(f"{'TOTAL':<20} {total_tp:>6} {total_fp:>6} {total_fn:>6} {p:>8.4f} {r:>8.4f} {f1:>8.4f}")
+    p_total = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0
+    r_total = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0
+    f1_total = 2 * p_total * r_total / (p_total + r_total) if (p_total + r_total) > 0 else 0
+    rows.append(("TOTAL", total_tp, total_fp, total_fn, p_total, r_total, f1_total))
+
+    header = f"conf={args.conf}  iou={args.iou}  pkl={args.pkl}  time={datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    col_fmt = f"{'Class':<20} {'TP':>6} {'FP':>6} {'FN':>6} {'P':>8} {'R':>8} {'F1':>8}"
+    sep = "-" * 62
+
+    # Print to stdout
+    print(f"\n{header}")
+    print(col_fmt)
+    print(sep)
+    for name, t, f_p, f_n, p, r, f1 in rows[:-1]:
+        print(f"{name:<20} {t:>6} {f_p:>6} {f_n:>6} {p:>8.4f} {r:>8.4f} {f1:>8.4f}")
+    print(sep)
+    name, t, f_p, f_n, p, r, f1 = rows[-1]
+    print(f"{name:<20} {t:>6} {f_p:>6} {f_n:>6} {p:>8.4f} {r:>8.4f} {f1:>8.4f}")
+
+    # Save to files
+    os.makedirs(args.out_dir, exist_ok=True)
+    stem = os.path.splitext(os.path.basename(args.pkl))[0]
+    base = os.path.join(args.out_dir, f"{stem}_conf{args.conf}_iou{args.iou}")
+
+    with open(base + ".txt", "w") as f:
+        f.write(header + "\n")
+        f.write(col_fmt + "\n")
+        f.write(sep + "\n")
+        for name, t, f_p, f_n, p, r, f1 in rows[:-1]:
+            f.write(f"{name:<20} {t:>6} {f_p:>6} {f_n:>6} {p:>8.4f} {r:>8.4f} {f1:>8.4f}\n")
+        f.write(sep + "\n")
+        name, t, f_p, f_n, p, r, f1 = rows[-1]
+        f.write(f"{name:<20} {t:>6} {f_p:>6} {f_n:>6} {p:>8.4f} {r:>8.4f} {f1:>8.4f}\n")
+
+    with open(base + ".csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["class", "TP", "FP", "FN", "P", "R", "F1"])
+        for name, t, f_p, f_n, p, r, f1 in rows:
+            w.writerow([name, t, f_p, f_n, round(p, 4), round(r, 4), round(f1, 4)])
+
+    print(f"\nSaved → {base}.txt")
+    print(f"Saved → {base}.csv")
 
 
 if __name__ == "__main__":
