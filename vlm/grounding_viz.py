@@ -62,7 +62,7 @@ def _build_image_index(dataset: Path | None, images_dir: Path | None,
     index = {}
 
     if dataset:
-        for split in ("val", "valid", "train", "test"):
+        for split in ("val", "train", "test"):
             img_dir = dataset / split / "images"
             lbl_dir = dataset / split / "labels"
             if not img_dir.exists():

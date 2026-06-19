@@ -75,7 +75,7 @@ CLASS_PROMPTS: dict[str, str] = {
 }
 
 IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".bmp")
-SPLITS     = ("train", "val", "valid", "test")
+SPLITS     = ("train", "val", "test")
 
 
 def _read_data_yaml(dataset_root: Path) -> list[str] | None:

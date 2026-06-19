@@ -237,7 +237,7 @@ def collect_images(dataset: Path | None, images_dir: Path | None,
     pairs = []
 
     if dataset:
-        for split in ("val", "valid", "train", "test"):
+        for split in ("val", "train", "test"):
             img_dir = dataset / split / "images"
             lbl_dir = dataset / split / "labels"
             if not img_dir.exists():
