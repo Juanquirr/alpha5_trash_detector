@@ -1,0 +1,17 @@
+{
+  "images_dirs": [
+    "C:\\Users\\plocania\\Desktop\\alpha5_trash_detector\\alpha5\\datasets\\alpha10\\train\\images",
+    "C:\\Users\\plocania\\Desktop\\alpha5_trash_detector\\alpha5\\datasets\\alpha10\\val\\images"
+  ],
+  "classes": [
+    "container",
+    "plastic",
+    "metal",
+    "polystyrene",
+    "trash pile",
+    "trash"
+  ],
+  "built_at": "2026-06-12T08:38:34",
+  "n_images": 2945,
+  "seed": 42
+}
