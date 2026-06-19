@@ -28,11 +28,11 @@ from pathlib import Path
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 
-# Same patterns as parse_grounding_response in grounding_eval.py
-_PATTERNS = [
-    r"<ref>(.*?)</ref>\s*<box>\(?\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*\)?\s*</box>",
-    r"<\|object_ref_start\|>(.*?)<\|object_ref_end\|>\s*<\|box_start\|>\(?\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*\)?\s*<\|box_end\|>",
-]
+# Flexible coord pattern: optional letter prefix per coordinate (x0, y153, b42, etc.)
+_COORDS_RE = re.compile(
+    r"\(\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)"
+    r"\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*\)"
+)
 
 YOLO_CLASSES = [
     "container", "plastic", "metal", "polystyrene",
@@ -45,26 +45,39 @@ COLOR_GT   = (0, 0, 220)    # red    — ground truth
 
 
 def _parse_pred_boxes(pred_raw: str, img_w: int, img_h: int) -> list[dict]:
-    """Parse predicted boxes from pred_raw field (same logic as grounding_eval.py)."""
+    """Parse predicted boxes from pred_raw field (mirrors grounding_eval.py logic)."""
     detections = []
-    for pattern in _PATTERNS:
-        for m in re.finditer(pattern, pred_raw, re.IGNORECASE):
-            cls    = m.group(1).strip()
-            coords = [float(m.group(i)) for i in range(2, 6)]
+    seen: set[tuple] = set()
 
-            max_coord = max(coords)
-            if max_coord > 10:
-                # Qwen 0-1000 scale -> normalised
-                coords = [c / 1000.0 for c in coords]
-            elif max_coord > 1.0:
-                # Pixel coordinates -> normalised
-                coords = [
-                    coords[0] / img_w, coords[1] / img_h,
-                    coords[2] / img_w, coords[3] / img_h,
-                ]
-            # else: already normalised
+    for line in pred_raw.splitlines():
+        line = line.strip()
+        if not line:
+            continue
 
-            coords = [max(0.0, min(1.0, c)) for c in coords]
+        m = _COORDS_RE.search(line)
+        if not m:
+            continue
+
+        coords = [float(m.group(i)) for i in range(1, 5)]
+
+        prefix = line[:m.start()]
+        prefix = re.sub(r"<[^>]+>", "", prefix)
+        prefix = re.sub(r"\([^)]*\)", "", prefix)
+        prefix = re.sub(r"[\s:,]+$", "", prefix).strip()
+
+        if not prefix:
+            continue
+
+        cls = prefix.lower().replace(" ", "_").replace("-", "_")
+
+        max_coord = max(coords)
+        if max_coord > 1.0:
+            coords = [coords[0]/img_w, coords[1]/img_h, coords[2]/img_w, coords[3]/img_h]
+        coords = [max(0.0, min(1.0, c)) for c in coords]
+
+        key = (cls, round(coords[0], 3), round(coords[1], 3))
+        if key not in seen:
+            seen.add(key)
             detections.append({"cls": cls, "box": coords})
 
     return detections

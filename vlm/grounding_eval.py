@@ -60,48 +60,78 @@ CSV_FIELDS = [
 
 # ── Bounding box parsing ────────────────────────────────────────────────────
 
+# Matches 4 coordinates in parentheses; each coord may have a leading letter prefix
+# (e.g. x0, y153, b42) which the model sometimes emits.
+_COORDS_RE = re.compile(
+    r"\(\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)"
+    r"\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*,\s*[a-zA-Z]?\s*(\d+\.?\d*)\s*\)"
+)
+
+
+def _normalize_coords(coords: list[float], img_w: int, img_h: int) -> list[float]:
+    """Normalize (x1,y1,x2,y2) to [0,1] regardless of input scale."""
+    max_coord = max(coords)
+    if max_coord <= 1.0:
+        return coords
+    # Pixel coordinates — divide by image dimensions
+    return [
+        coords[0] / img_w, coords[1] / img_h,
+        coords[2] / img_w, coords[3] / img_h,
+    ]
+
+
 def parse_grounding_response(response: str, img_w: int, img_h: int) -> list[dict]:
     """
     Parse Qwen grounding output into list of {cls, box_norm}.
     box_norm = (x1, y1, x2, y2) normalized to [0, 1].
 
-    Qwen2.5-VL outputs coordinates in 0-1000 scale.
-    Qwen3-VL may output pixel coords or 0-1000. We auto-detect.
+    Handles the wide variety of formats Qwen models produce:
+      <ref>class</ref><box>(x1,y1,x2,y2)</box>   (ideal)
+      class<box>(x1,y1,x2,y2)>                    (malformed tag)
+      class: (x1, y1, x2, y2)                     (colon separator)
+      class (x1, y1, x2, y2)                      (space separator)
+      class(type): (x1, y1, x2, y2)               (with type qualifier)
+      class(x0, y1, x2, y2)                       (letter-prefixed coords)
     """
     detections = []
+    seen: set[tuple] = set()
 
-    # Pattern: <ref>class</ref><box>(x1, y1, x2, y2)</box>
-    # Also handles <|object_ref_start|>class<|object_ref_end|><|box_start|>(x1, y1, x2, y2)<|box_end|>
-    patterns = [
-        r"<ref>(.*?)</ref>\s*<box>\(?\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*\)?\s*</box>",
-        r"<\|object_ref_start\|>(.*?)<\|object_ref_end\|>\s*<\|box_start\|>\(?\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*,\s*(\d+\.?\d*)\s*\)?\s*<\|box_end\|>",
-    ]
+    for line in response.splitlines():
+        line = line.strip()
+        if not line:
+            continue
 
-    for pattern in patterns:
-        for match in re.finditer(pattern, response, re.IGNORECASE):
-            cls_raw = match.group(1).strip().lower()
-            coords  = [float(match.group(i)) for i in range(2, 6)]
+        m = _COORDS_RE.search(line)
+        if not m:
+            continue
 
-            # Auto-detect scale: if max coord > 10, assume 0-1000 Qwen scale
-            max_coord = max(coords)
-            if max_coord > 10:
-                # Qwen 0-1000 scale
-                coords = [c / 1000.0 for c in coords]
-            elif max_coord > 1.0:
-                # Pixel coordinates
-                coords = [
-                    coords[0] / img_w, coords[1] / img_h,
-                    coords[2] / img_w, coords[3] / img_h,
-                ]
-            # else: already normalized [0, 1]
+        coords = [float(m.group(i)) for i in range(1, 5)]
 
-            # Clamp to [0, 1]
-            coords = [max(0.0, min(1.0, c)) for c in coords]
+        # Extract class name from everything before the coordinate tuple
+        prefix = line[:m.start()]
 
-            # Map to known class (fuzzy match)
-            cls = _match_class(cls_raw)
-            if cls:
-                detections.append({"cls": cls, "box": tuple(coords)})
+        # Strip HTML/custom tags (<ref>, </ref>, <box>, etc.)
+        prefix = re.sub(r"<[^>]+>", "", prefix)
+        # Strip parenthesized qualifiers like "(plastic)" or "(type)"
+        prefix = re.sub(r"\([^)]*\)", "", prefix)
+        # Strip trailing punctuation and whitespace
+        prefix = re.sub(r"[\s:,]+$", "", prefix).strip()
+
+        if not prefix:
+            continue
+
+        cls_raw = prefix.lower().replace(" ", "_").replace("-", "_")
+        cls = _match_class(cls_raw)
+        if not cls:
+            continue
+
+        norm = _normalize_coords(coords, img_w, img_h)
+        norm = [max(0.0, min(1.0, c)) for c in norm]
+
+        key = (cls, round(norm[0], 3), round(norm[1], 3))
+        if key not in seen:
+            seen.add(key)
+            detections.append({"cls": cls, "box": tuple(norm)})
 
     return detections
 
