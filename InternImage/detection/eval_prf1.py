@@ -14,6 +14,12 @@ Usage:
 
 import argparse
 import pickle
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import mmcv_custom  # noqa: F401,F403
+import mmdet_custom  # noqa: F401,F403
 from collections import defaultdict
 
 import numpy as np
@@ -30,6 +36,10 @@ def parse_args():
                    help="confidence threshold (default 0.3)")
     p.add_argument("--iou", type=float, default=0.5,
                    help="IoU threshold for TP matching (default 0.5)")
+    p.add_argument("--ann-file", default=None,
+                   help="override annotation file (e.g. instances_val.json path)")
+    p.add_argument("--img-prefix", default=None,
+                   help="override image prefix")
     return p.parse_args()
 
 
@@ -54,6 +64,10 @@ def main():
     args = parse_args()
     cfg = Config.fromfile(args.config)
     cfg.data.test.test_mode = True
+    if args.ann_file:
+        cfg.data.test.ann_file = args.ann_file
+    if args.img_prefix:
+        cfg.data.test.img_prefix = args.img_prefix
     dataset = build_dataset(cfg.data.test)
 
     coco = dataset.coco
