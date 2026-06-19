@@ -36,7 +36,7 @@ _PATTERNS = [
 
 YOLO_CLASSES = [
     "container", "plastic", "metal", "polystyrene",
-    "plastic_fragment", "trash_pile", "trash",
+    "trash_pile", "trash",
 ]
 
 # BGR colours for OpenCV

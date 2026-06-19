@@ -28,7 +28,7 @@ from pathlib import Path
 
 DEFAULT_CLASSES = [
     "container", "plastic", "metal", "polystyrene",
-    "plastic_fragment", "trash_pile", "trash",
+    "trash_pile", "trash",
 ]
 
 YOLO_ID_TO_CLASS = {i: c for i, c in enumerate(DEFAULT_CLASSES)}
@@ -42,7 +42,6 @@ GROUNDING_PROMPT = (
     "- plastic: flat flexible plastic — bags, film, soft wrappers\n"
     "- metal: metallic reflection — cans, aluminium foil, metal scrap\n"
     "- polystyrene: white matte foam — EPS blocks, foam cups\n"
-    "- plastic fragment: small rigid plastic — caps, broken pieces, cutlery, straws\n"
     "- trash pile: dense cluster of mixed waste\n"
     "- trash: unclassifiable single waste item\n\n"
     "Format each detection as:\n"
