@@ -66,17 +66,18 @@ vlm/images/
 !vlm/pope_results_v7/**
 !vlm/pope_results_v10/**
 !vlm/pope_questions/**
-vlm/pope_questions/metadata.json
+!vlm/pope_questions/metadata.json
+!vlm/grounding_results/**
 
 flowimg_eval/results/*
 !flowimg_eval/results/*.csv
-flowimg_eval/test/
+flowimg_eval/test/*
 
 alpha5/datasets/
 
-runs/
+runs/*
 
 InternImage/*
 !InternImage/detection/
+!InternImage/detection/work_dirs/*/*.json
 
-flowimg_eval/test/*
