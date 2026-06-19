@@ -245,7 +245,7 @@ def collect_images(dataset: Path | None, images_dir: Path | None,
 # ── Model inference ──────────────────────────────────────────────────────────
 
 def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
-                  iou_threshold: float) -> None:
+                  iou_threshold: float, lora_adapter: Path | None = None) -> None:
     """Run grounding inference and save results."""
     import torch
     from PIL import Image
@@ -255,6 +255,13 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
     vlm     = vlm_cls()
     print(f"\n[{model_key}] Loading model...")
     vlm.load()
+
+    if lora_adapter is not None:
+        from peft import PeftModel
+        print(f"[{model_key}] Loading LoRA adapter from {lora_adapter}...")
+        vlm.model = PeftModel.from_pretrained(vlm.model, str(lora_adapter))
+        vlm.model = vlm.model.merge_and_unload()
+        print(f"[{model_key}] LoRA adapter merged.")
 
     is_cuda = vlm.device == "cuda" and torch.cuda.is_available()
 
@@ -400,14 +407,21 @@ def main() -> None:
                         help="IoU threshold for matching (default: 0.3)")
     parser.add_argument("--out", default="grounding_results",
                         help="Output directory (default: grounding_results)")
+    parser.add_argument("--lora-adapter", default=None, dest="lora_adapter",
+                        help="Path to saved LoRA adapter directory (e.g. pope_results_v7/qwen_2b_lora)")
     args = parser.parse_args()
 
     out_dir = Path(args.out)
     out_csv = out_dir / f"grounding_{args.model}.csv"
 
-    dataset_path = Path(args.dataset) if args.dataset else None
-    images_path  = Path(args.images) if args.images else None
-    labels_path  = Path(args.labels) if args.labels else None
+    dataset_path  = Path(args.dataset)      if args.dataset      else None
+    images_path   = Path(args.images)       if args.images       else None
+    labels_path   = Path(args.labels)       if args.labels       else None
+    lora_path     = Path(args.lora_adapter) if args.lora_adapter else None
+
+    if lora_path and not lora_path.exists():
+        print(f"ERROR: LoRA adapter not found: {lora_path}")
+        raise SystemExit(1)
 
     pairs = collect_images(dataset_path, images_path, labels_path, args.limit)
     if not pairs:
@@ -417,7 +431,7 @@ def main() -> None:
     n_labeled = sum(1 for p in pairs if p["label"].exists() and p["label"].stat().st_size > 0)
     print(f"Selected {len(pairs)} images ({n_labeled} with GT labels)")
 
-    run_grounding(args.model, pairs, out_csv, args.iou_threshold)
+    run_grounding(args.model, pairs, out_csv, args.iou_threshold, lora_adapter=lora_path)
 
 
 if __name__ == "__main__":
