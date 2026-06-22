@@ -32,6 +32,7 @@ from core.image_utils import (
     compute_crop_region, compute_yolo_bbox,
     create_mask, prepare_image, save_debug_image,
 )
+from core.prompts import resolve_lighting
 from core.water import get_detector, find_water_positions
 
 
@@ -71,6 +72,8 @@ class ProcessConfig:
     class_filter: list | None = None    # None = all classes; [0, 3] = only those IDs
     guidance_scale: float = 30.0        # FLUX Fill classifier-free guidance (7–30 typical)
     num_inference_steps: int = 50       # Denoising steps (20 = fast, 50 = quality)
+    mask_blur: int = 0                  # Gaussian blur radius on inpaint mask (0 = hard edge)
+    lighting: str | None = None         # Lighting preset: morning | midday | night (None = midday)
 
 
 # ── Perspective-aware sizing ──────────────────────────────────────────────────
@@ -97,6 +100,7 @@ def insert_object(
     use_crop: bool = False,
     guidance_scale: float = 30.0,
     num_inference_steps: int = 50,
+    mask_blur: int = 0,
 ) -> tuple[Image.Image, tuple | None]:
     """Insert one trash object at (cx, cy) using FLUX Fill.
 
@@ -126,7 +130,7 @@ def insert_object(
         crop = image.crop((x0, y0, x1, y1))
         cw, ch = crop.size
 
-        mask = create_mask(cw, ch, cx - x0, cy - y0, obj_w, obj_h)
+        mask = create_mask(cw, ch, cx - x0, cy - y0, obj_w, obj_h, blur_radius=mask_blur)
         result_crop = model.inpaint(crop, mask, prompt,
                                     num_inference_steps=num_inference_steps,
                                     guidance_scale=guidance_scale)
@@ -146,7 +150,7 @@ def insert_object(
         return result, bbox
 
     # Full-image mode
-    mask = create_mask(img_w, img_h, cx, cy, obj_w, obj_h)
+    mask = create_mask(img_w, img_h, cx, cy, obj_w, obj_h, blur_radius=mask_blur)
     result = model.inpaint(image, mask, prompt,
                            num_inference_steps=num_inference_steps,
                            guidance_scale=guidance_scale)
@@ -229,7 +233,7 @@ def process_image(
     stem = img_path.stem
 
     for i, (cx, cy, class_id, obj_w, obj_h) in enumerate(positions):
-        prompt = random.choice(prompts_by_class[class_id])
+        prompt = resolve_lighting(random.choice(prompts_by_class[class_id]), cfg.lighting)
         cls_name = class_names.get(class_id, "")
         depth = _depth_scale(cy, img_h)
         print(f"    [{i+1}/{len(positions)}] {cls_name} @ ({cx},{cy}) {obj_w}×{obj_h}px  depth×{depth:.2f}")
@@ -240,6 +244,7 @@ def process_image(
             prompt, cfg.use_crop,
             guidance_scale=cfg.guidance_scale,
             num_inference_steps=cfg.num_inference_steps,
+            mask_blur=cfg.mask_blur,
         )
 
         if bbox is None:

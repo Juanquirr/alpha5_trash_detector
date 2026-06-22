@@ -1,25 +1,25 @@
 prompt,class_name,class_id
-"a plastic water bottle floating on the water surface, partially submerged, wet, photorealistic",container,0
-"a transparent plastic bottle drifting on sea water, water droplets on surface, natural lighting, realistic",container,0
-"a glass jar floating on calm water, sunlight reflecting on wet surface, photorealistic",container,0
-"a rigid plastic container half-submerged in water, wet, realistic, natural light",container,0
-"a white plastic bag spread on water surface, partially transparent, waterlogged, photorealistic",plastic,1
-"a translucent plastic film floating on water, partially underwater, natural lighting, realistic",plastic,1
-"a crumpled plastic bag drifting on sea surface, wet and clinging to water, photorealistic",plastic,1
-"a dark plastic sheet spread flat on water surface, waterlogged, photorealistic",plastic,1
-"an aluminum soda can floating on water, partially crushed, wet metal surface, photorealistic",metal,2
-"crumpled aluminium foil floating on water, shiny surface, wet, photorealistic",metal,2
-"a rusted metal can partially submerged in water, wet metallic surface, natural lighting, realistic",metal,2
-"a metal food tin drifting on sea water, label worn, partially submerged, photorealistic",metal,2
-"a white polystyrene foam block floating on water surface, matte texture, waterlogged edges, photorealistic",polystyrene,3
-"a piece of expanded polystyrene drifting on sea water, white and buoyant, natural lighting, realistic",polystyrene,3
-"a polystyrene foam cup floating on water, white opaque, partially submerged, photorealistic",polystyrene,3
-"a chunk of EPS foam floating on calm water, white matte surface, realistic, natural light",polystyrene,3
-"a floating patch of marine debris on water, clearly visible containers, plastic bags and mixed waste, photorealistic",trash_pile,4
-"a cluster of floating garbage on sea water, mixed plastic waste accumulation, photorealistic",trash_pile,4
-"an accumulation of floating rubbish on water surface, plastic containers and bags visible, realistic",trash_pile,4
-"a raft of floating litter on sea water, mixed marine debris, photorealistic",trash_pile,4
-"a small piece of floating garbage on water surface, wet and waterlogged, photorealistic",trash,5
-"unidentified debris drifting on sea water, partially submerged, natural lighting, realistic",trash,5
-"a piece of floating trash in water, wet and discolored, photorealistic",trash,5
-"small floating waste on water surface, waterlogged, natural lighting, photorealistic",trash,5
+"a rigid cylindrical plastic bottle bobbing in choppy grey-blue sea water, sharp geometric outline, reacting to small waves, partially submerged, high-angle view[LIGHTING]",container,0
+"a rigid spherical glass jar drifting on rough ocean surface, clean distinct edges, non-reflective body tossed by small waves, elevated perspective[LIGHTING]",container,0
+"a transparent PET water bottle half-submerged in turbulent coastal water, cap still on, water droplets on surface, seen from above[LIGHTING]",container,0
+"a rigid plastic food container floating on grey-blue sea surface, clean geometric shape, partially filled with water, waterlogged, high-angle view[LIGHTING]",container,0
+"a flexible amorphous plastic film trapped in choppy sea waves, highly wrinkled surface texture, soft irregular folded contours, waterlogged and semi-submerged in grey ocean water[LIGHTING]",plastic,1
+"a crumpled soft plastic wrapper floating on turbulent coastal water, no rigid shapes, chaotic folded texture, deformed by wave movement, elevated view[LIGHTING]",plastic,1
+"a large transparent plastic bag spread flat on rough sea water, partially submerged and waterlogged, flexible and shapeless, high-angle view[LIGHTING]",plastic,1
+"a dark plastic sheet undulating on grey-blue ocean surface, thin and flexible, conforming to wave shapes, no sharp edges, elevated perspective[LIGHTING]",plastic,1
+"a crushed aluminium soda can floating in turbulent coastal water, sharp metallic facets showing intense specular reflectance, metallic glint matching the environment, high-angle view[LIGHTING]",metal,2
+"crumpled aluminium foil floating on choppy sea surface, highly reflective metallic surface, intense glare on sharp distorted metallic edges, elevated perspective[LIGHTING]",metal,2
+"a rusted steel food can drifting on grey-blue ocean water, corroded metallic surface, partially sunk, tossed by small waves, high-angle view[LIGHTING]",metal,2
+"a metal aerosol can floating horizontally on rough sea water, dented, wet metallic sheen reflecting sky, elevated perspective[LIGHTING]",metal,2
+"a rigid block of white expanded polystyrene floating in choppy grey-blue ocean water, distinct porous granular texture, block-like geometry battered by small waves, matte surface[LIGHTING]",polystyrene,3
+"broken polystyrene chunks tossing in rough coastal water, irregular rigid pieces, visible beaded foam texture weathered by the sea, high detail texture[LIGHTING]",polystyrene,3
+"a white polystyrene fish crate floating on turbulent sea surface, partially submerged, foam texture visible, block shape, elevated perspective[LIGHTING]",polystyrene,3
+"a thick slab of expanded foam insulation drifting on grey-blue ocean water, white matte porous surface, rigid rectangular shape, high-angle view[LIGHTING]",polystyrene,3
+"a dense compact mass of floating marine debris trapped in choppy coastal water, an amorphous single cluster of intertwined waste, no distinct individual objects discernible, chaotic fused textures bobbing in the waves[LIGHTING]",trash_pile,4
+"a wide solid raft of floating garbage on rough grey-blue sea surface, compressed single mass of unidentifiable debris, chaotic textures interacting with small wave crests, large scale pile[LIGHTING]",trash_pile,4
+"a massive patch of floating litter on turbulent harbour water, tightly packed mixed waste forming one continuous mass, no individual items recognisable, large footprint, high-angle view[LIGHTING]",trash_pile,4
+"a dense island of floating marine debris on choppy ocean water, amorphous compressed cluster of mixed waste, fused chaotic surface, spanning a wide area, elevated perspective[LIGHTING]",trash_pile,4
+"a weathered waterlogged piece of wood drifting in rough sea water, dark organic fibrous texture, heavily saturated, interacting with small waves, high-angle view[LIGHTING]",trash,5
+"a tangled cluster of wet old ropes and fishing netting tossing in choppy grey ocean water, chaotic fibrous structure, semi-submerged, elevated perspective[LIGHTING]",trash,5
+"an unidentified dark waterlogged object floating on turbulent coastal water, partially submerged, amorphous shape, high-angle view[LIGHTING]",trash,5
+"a piece of discoloured debris drifting on grey-blue sea surface, unrecognisable material, weathered and saturated, tossed by small waves, elevated perspective[LIGHTING]",trash,5

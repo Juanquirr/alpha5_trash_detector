@@ -12,6 +12,8 @@ max_images: 21
 water_method: sam
 min_water_coverage: 0.40
 crop: false
+mask_blur: 0              # 0 = hard edge, 16-32 = soft blend with surroundings
+lighting: midday          # morning | midday | night (injected into [LIGHTING] placeholder)
 
 experiments:
   - name: A

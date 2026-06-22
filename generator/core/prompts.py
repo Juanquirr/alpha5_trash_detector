@@ -1,6 +1,23 @@
 """Prompt and class name loading from CSV configuration."""
 
 import csv
+import random
+
+LIGHTING_MAPPING = {
+    "morning": ", soft morning natural light, diffused ambient lighting, realistic look",
+    "midday":  ", harsh midday sunlight, bright overhead lighting, high contrast shadows",
+    "night":   ", dim night lighting, low ambient light, dark coastal atmosphere, realistic noise",
+}
+
+DEFAULT_LIGHTING = "midday"
+
+
+def resolve_lighting(prompt: str, lighting: str | None = None) -> str:
+    """Replace [LIGHTING] placeholder with the appropriate lighting string."""
+    if "[LIGHTING]" not in prompt:
+        return prompt
+    key = lighting or DEFAULT_LIGHTING
+    return prompt.replace("[LIGHTING]", LIGHTING_MAPPING.get(key, LIGHTING_MAPPING[DEFAULT_LIGHTING]))
 
 
 def load_prompts(csv_path: str) -> dict:

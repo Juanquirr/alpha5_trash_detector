@@ -18,9 +18,8 @@ OBJECT_SIZES = {
     1: (50,  90,  35,  65),   # plastic          - flat, spread out (bags, film)
     2: (30,  60,  25,  50),   # metal            - variable (cans, foil, scrap)
     3: (50,  85,  40,  70),   # polystyrene      - chunky, medium-large (foam blocks)
-    4: (15,  35,  12,  28),   # plastic_fragment - small, compact (caps, fragments)
-    5: (75, 120,  60,  95),   # trash_pile       - largest (dense cluster)
-    6: (30,  52,  22,  40),   # trash            - generic single item
+    4: (100, 180, 80, 140),   # trash_pile       - largest (dense mass, wide footprint)
+    5: (30,  52,  22,  40),   # trash            - generic single item
 }
 
 # Crop-based inpainting settings.

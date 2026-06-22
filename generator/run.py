@@ -220,6 +220,8 @@ def _cmd_fill(args):
     guidance_scale    = args.guidance_scale     if args.guidance_scale     is not None else _ask_guidance_scale()
     steps             = args.steps              if args.steps              is not None else _ask_steps()
     use_crop          = args.crop               if args.crop               is not None else _ask_crop_mode()
+    mask_blur         = getattr(args, "mask_blur", None) or 0
+    lighting          = getattr(args, "lighting", None)
 
     # ── Validate ──────────────────────────────────────────────────────────────
 
@@ -262,6 +264,8 @@ def _cmd_fill(args):
         class_filter=class_filter,
         guidance_scale=guidance_scale,
         num_inference_steps=steps,
+        mask_blur=mask_blur,
+        lighting=lighting,
     )
 
     # ── Generation loop ───────────────────────────────────────────────────────
@@ -299,6 +303,8 @@ def _cmd_batch(args):
     water_method  = raw.get("water_method", "hsv")
     min_water     = raw.get("min_water_coverage", 0.40)
     use_crop      = raw.get("crop", False)
+    mask_blur     = raw.get("mask_blur", 0)
+    lighting      = raw.get("lighting", None)
     classes_raw   = raw.get("classes", list(ALL_CLASSES.keys()))
     class_filter  = (
         list(ALL_CLASSES.keys()) if classes_raw == "all"
@@ -357,6 +363,8 @@ def _cmd_batch(args):
             class_filter=class_filter,
             guidance_scale=guidance_scale,
             num_inference_steps=steps,
+            mask_blur=exp.get("mask_blur", mask_blur),
+            lighting=exp.get("lighting", lighting),
         )
 
         try:
@@ -401,6 +409,11 @@ def main():
     p_fill.add_argument("--guidance-scale", type=float, default=None)
     p_fill.add_argument("--steps",          type=int,   default=None)
     p_fill.add_argument("--crop",           action="store_true", default=None)
+    p_fill.add_argument("--mask-blur",     type=int, default=None,
+                        help="Gaussian blur on inpaint mask (0=hard, 16-32=soft blend)")
+    p_fill.add_argument("--lighting",      default=None,
+                        choices=["morning", "midday", "night"],
+                        help="Lighting preset injected into prompts")
     p_fill.add_argument("--model",          default="fill", choices=["fill", "canny"],
                         help="FLUX model: fill (default) or canny")
 
