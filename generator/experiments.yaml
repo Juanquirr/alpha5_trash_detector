@@ -1,45 +1,40 @@
-# Experiment grid: guidance_scale × steps
+# Factorial design: guidance_scale × mask_blur (steps fixed at 35)
 # Usage: python run.py batch --config experiments.yaml
 
 input: backgrounds/
-base_output: results_close_backgrounds/
+base_output: results_PLOCAN_backgrounds/
 
-# Shared params (can be overridden per experiment)
-model: fill           # fill | canny  (default: fill; each experiment can override)
+model: fill
 classes: [0, 1, 2, 3, 4, 5]
 num_instances: 2
-max_images: 21
+max_images: 7
 water_method: sam
 min_water_coverage: 0.40
 crop: false
-mask_blur: 0              # 0 = hard edge, 16-32 = soft blend with surroundings
-lighting: midday          # morning | midday | night (injected into [LIGHTING] placeholder)
+lighting: midday
 
 experiments:
   - name: A
-    guidance_scale: 3.5
-    steps: 20
-  - name: B
-    guidance_scale: 7
-    steps: 20
-  - name: C
     guidance_scale: 10
     steps: 35
-  - name: D
-    guidance_scale: 12
-    steps: 50
-  - name: E
-    guidance_scale: 12
+    mask_blur: 0
+  - name: B
+    guidance_scale: 10
     steps: 35
+    mask_blur: 20
+  - name: C
+    guidance_scale: 14
+    steps: 35
+    mask_blur: 0
+  - name: D
+    guidance_scale: 14
+    steps: 35
+    mask_blur: 20
+  - name: E
+    guidance_scale: 18
+    steps: 35
+    mask_blur: 0
   - name: F
     guidance_scale: 18
-    steps: 50
-  - name: G
-    guidance_scale: 18
     steps: 35
-  - name: H
-    guidance_scale: 30
-    steps: 50
-  - name: I
-    guidance_scale: 30
-    steps: 35
+    mask_blur: 20
