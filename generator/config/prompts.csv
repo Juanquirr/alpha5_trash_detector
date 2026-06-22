@@ -15,15 +15,11 @@ prompt,class_name,class_id
 "a piece of expanded polystyrene drifting on sea water, white and buoyant, natural lighting, realistic",polystyrene,3
 "a polystyrene foam cup floating on water, white opaque, partially submerged, photorealistic",polystyrene,3
 "a chunk of EPS foam floating on calm water, white matte surface, realistic, natural light",polystyrene,3
-"a plastic bottle cap floating on water surface, small, colourful, wet, photorealistic",plastic_fragment,4
-"a small plastic fragment drifting on sea water, compact, rigid, partially submerged, realistic",plastic_fragment,4
-"a plastic straw floating on water, small cylindrical piece, wet, natural lighting, photorealistic",plastic_fragment,4
-"small broken plastic pieces floating on water surface, rigid fragments, wet, photorealistic",plastic_fragment,4
-"a floating patch of marine debris on water, clearly visible containers, plastic bags and mixed waste, photorealistic",trash_pile,5
-"a cluster of floating garbage on sea water, mixed plastic waste accumulation, photorealistic",trash_pile,5
-"an accumulation of floating rubbish on water surface, plastic containers and bags visible, realistic",trash_pile,5
-"a raft of floating litter on sea water, mixed marine debris, photorealistic",trash_pile,5
-"a small piece of floating garbage on water surface, wet and waterlogged, photorealistic",trash,6
-"unidentified debris drifting on sea water, partially submerged, natural lighting, realistic",trash,6
-"a piece of floating trash in water, wet and discolored, photorealistic",trash,6
-"small floating waste on water surface, waterlogged, natural lighting, photorealistic",trash,6
+"a floating patch of marine debris on water, clearly visible containers, plastic bags and mixed waste, photorealistic",trash_pile,4
+"a cluster of floating garbage on sea water, mixed plastic waste accumulation, photorealistic",trash_pile,4
+"an accumulation of floating rubbish on water surface, plastic containers and bags visible, realistic",trash_pile,4
+"a raft of floating litter on sea water, mixed marine debris, photorealistic",trash_pile,4
+"a small piece of floating garbage on water surface, wet and waterlogged, photorealistic",trash,5
+"unidentified debris drifting on sea water, partially submerged, natural lighting, realistic",trash,5
+"a piece of floating trash in water, wet and discolored, photorealistic",trash,5
+"small floating waste on water surface, waterlogged, natural lighting, photorealistic",trash,5

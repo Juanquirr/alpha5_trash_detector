@@ -6,7 +6,7 @@ base_output: results_close_backgrounds/
 
 # Shared params (can be overridden per experiment)
 model: fill           # fill | canny  (default: fill; each experiment can override)
-classes: [0, 1, 2, 3, 4, 5, 6, 7]
+classes: [0, 1, 2, 3, 4, 5]
 num_instances: 2
 max_images: 21
 water_method: sam

@@ -46,9 +46,8 @@ ALL_CLASSES = {
     1: "plastic",
     2: "metal",
     3: "polystyrene",
-    4: "plastic_fragment",
-    5: "trash_pile",
-    6: "trash",
+    4: "trash_pile",
+    5: "trash",
 }
 
 
