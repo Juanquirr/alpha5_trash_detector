@@ -70,29 +70,24 @@ def main():
     img_prefix = dcfg.img_prefix
 
     model = init_detector(args.config, args.checkpoint, device=args.device)
-    classes = getattr(model, "CLASSES", None)
-    if not classes:
-        classes = list(dcfg.get("classes", None) or cfg.get("classes", None) or [])
-    classes = list(classes)
-    if not classes:
-        raise SystemExit("Could not resolve class names from model or config.")
-    n_cls = len(classes)
-    print(f"Classes ({n_cls}): {classes}")
+    model_classes = list(getattr(model, "CLASSES", None) or [])
 
     coco = COCO(ann_file)
-    cat_id_to_idx = {}
-    for c in coco.loadCats(coco.getCatIds()):
-        if c["name"] in classes:
-            cat_id_to_idx[c["id"]] = classes.index(c["name"])
-    if not cat_id_to_idx:
-        raise SystemExit(
-            "No COCO category name matches model classes. "
-            f"COCO cats={[c['name'] for c in coco.loadCats(coco.getCatIds())]} "
-            f"model classes={classes}")
+    coco_cats = coco.loadCats(coco.getCatIds())
+    # Eval classes come from the GT (the categories actually present in the
+    # dataset), NOT from the model head. The head may declare extra classes
+    # that were never trained (e.g. plastic_fragment with 0 instances).
+    classes = [c["name"] for c in sorted(coco_cats, key=lambda c: c["id"])]
+    n_cls = len(classes)
+    name_to_idx = {n: i for i, n in enumerate(classes)}
+    catid_to_idx = {c["id"]: name_to_idx[c["name"]] for c in coco_cats}
+    print(f"Eval classes ({n_cls}, from GT): {classes}")
+    if model_classes:
+        extra = [n for n in model_classes if n not in name_to_idx]
+        if extra:
+            print(f"Model declares extra classes absent from GT (ignored): {extra}")
 
     # collect predictions and GT per image
-    # preds[img]: list of (cls_idx, score, box)
-    # gts[img]:   list of (cls_idx, box)
     all_preds, all_gts = {}, {}
     n_gt_per_cls = np.zeros(n_cls, dtype=int)
 
@@ -103,22 +98,31 @@ def main():
 
         gts = []
         for ann in coco.loadAnns(coco.getAnnIds(imgIds=img_id)):
-            if ann["category_id"] not in cat_id_to_idx:
+            if ann["category_id"] not in catid_to_idx:
                 continue
             x, y, w, h = ann["bbox"]
-            ci = cat_id_to_idx[ann["category_id"]]
+            ci = catid_to_idx[ann["category_id"]]
             gts.append((ci, np.array([x, y, x + w, y + h], dtype=float)))
             n_gt_per_cls[ci] += 1
         all_gts[img_id] = gts
 
         bbox_result = get_bbox_result(inference_detector(model, img_path))
-        if len(bbox_result) != n_cls:
+        if model_classes and len(bbox_result) != len(model_classes):
             raise SystemExit(
-                f"Model returned {len(bbox_result)} class arrays but {n_cls} classes "
-                "expected. Check the config head num_classes matches CLASSES.")
+                f"Model returned {len(bbox_result)} class arrays but CLASSES has "
+                f"{len(model_classes)}. Config head mismatch.")
         preds = []
-        for ci in range(n_cls):
-            arr = bbox_result[ci]
+        for mi, arr in enumerate(bbox_result):
+            # map model output index -> eval class by name; skip untrained extras
+            if model_classes:
+                name = model_classes[mi]
+                if name not in name_to_idx:
+                    continue
+                ci = name_to_idx[name]
+            else:
+                if mi >= n_cls:
+                    continue
+                ci = mi
             for det in arr:
                 preds.append((ci, float(det[4]), det[:4].astype(float)))
         all_preds[img_id] = preds
