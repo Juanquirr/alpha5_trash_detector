@@ -21,6 +21,7 @@ paths resolve):
 Defaults to the val split declared in the config. mmdet 2.x API.
 """
 import argparse
+import os.path as osp
 from collections import defaultdict
 
 import numpy as np
@@ -28,7 +29,7 @@ import mmcv
 from mmdet.apis import init_detector, inference_detector
 from pycocotools.coco import COCO
 
-import mmdet_custom  # noqa: F401  registers Alpha5Dataset
+import mmdet_custom  # noqa: F401  registers InternImage backbone, DINO head, Alpha5Dataset
 
 
 def iou_xyxy(a, boxes):
@@ -69,7 +70,12 @@ def main():
     img_prefix = dcfg.img_prefix
 
     model = init_detector(args.config, args.checkpoint, device=args.device)
-    classes = list(model.CLASSES)
+    classes = getattr(model, "CLASSES", None)
+    if not classes:
+        classes = list(dcfg.get("classes", None) or cfg.get("classes", None) or [])
+    classes = list(classes)
+    if not classes:
+        raise SystemExit("Could not resolve class names from model or config.")
     n_cls = len(classes)
     print(f"Classes ({n_cls}): {classes}")
 
@@ -78,6 +84,11 @@ def main():
     for c in coco.loadCats(coco.getCatIds()):
         if c["name"] in classes:
             cat_id_to_idx[c["id"]] = classes.index(c["name"])
+    if not cat_id_to_idx:
+        raise SystemExit(
+            "No COCO category name matches model classes. "
+            f"COCO cats={[c['name'] for c in coco.loadCats(coco.getCatIds())]} "
+            f"model classes={classes}")
 
     # collect predictions and GT per image
     # preds[img]: list of (cls_idx, score, box)
@@ -88,7 +99,7 @@ def main():
     img_ids = coco.getImgIds()
     for i, img_id in enumerate(img_ids):
         info = coco.loadImgs(img_id)[0]
-        img_path = mmcv.osp.join(img_prefix, info["file_name"])
+        img_path = osp.join(img_prefix, info["file_name"])
 
         gts = []
         for ann in coco.loadAnns(coco.getAnnIds(imgIds=img_id)):
@@ -101,6 +112,10 @@ def main():
         all_gts[img_id] = gts
 
         bbox_result = get_bbox_result(inference_detector(model, img_path))
+        if len(bbox_result) != n_cls:
+            raise SystemExit(
+                f"Model returned {len(bbox_result)} class arrays but {n_cls} classes "
+                "expected. Check the config head num_classes matches CLASSES.")
         preds = []
         for ci in range(n_cls):
             arr = bbox_result[ci]
