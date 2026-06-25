@@ -59,6 +59,41 @@ CSV_FIELDS = [
 ]
 
 
+# -- Visualization ----------------------------------------------------------
+
+def draw_boxes(image, gt_boxes, pred_boxes, matches, out_path):
+    """Save annotated image: GT=green, matched pred=cyan, unmatched pred=red."""
+    from PIL import ImageDraw, ImageFont
+    img = image.copy()
+    draw = ImageDraw.Draw(img)
+    W, H = img.size
+
+    def px(box):
+        return [box[0] * W, box[1] * H, box[2] * W, box[3] * H]
+
+    matched_pred_indices = set()
+    for m in matches:
+        if m["matched"]:
+            for j, pred in enumerate(pred_boxes):
+                if pred["cls"] == m["pred_cls"] and j not in matched_pred_indices:
+                    matched_pred_indices.add(j)
+                    break
+
+    for b in gt_boxes:
+        x1, y1, x2, y2 = px(b["box"])
+        draw.rectangle([x1, y1, x2, y2], outline="lime", width=3)
+        draw.text((x1 + 2, y1 + 2), f"GT:{b['cls']}", fill="lime")
+
+    for j, pred in enumerate(pred_boxes):
+        x1, y1, x2, y2 = px(pred["box"])
+        color = "cyan" if j in matched_pred_indices else "red"
+        draw.rectangle([x1, y1, x2, y2], outline=color, width=2)
+        draw.text((x1 + 2, y2 - 14), pred["cls"], fill=color)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(out_path)
+
+
 # -- Bounding box parsing ---------------------------------------------------
 
 # 4 coordinates inside parentheses; each coord may have a leading letter
@@ -273,7 +308,8 @@ def collect_images(dataset: Path | None, images_dir: Path | None,
 # -- Model inference --------------------------------------------------------
 
 def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
-                  iou_threshold: float, lora_adapter: Path | None = None) -> None:
+                  iou_threshold: float, lora_adapter: Path | None = None,
+                  viz_dir: Path | None = None) -> None:
     """Run grounding inference and save results."""
     import torch
     from PIL import Image
@@ -379,6 +415,10 @@ def run_grounding(model_key: str, pairs: list[dict], out_csv: Path,
                 write_header = False
             writer.writerow(row)
 
+        if viz_dir is not None:
+            draw_boxes(image, gt, preds, matches,
+                       viz_dir / f"{pair['image'].stem}_viz.jpg")
+
         ok = "+" if n_matched > 0 else "-"
         eta_s = (time.perf_counter() - t_start) / i * (len(pairs) - i)
         eta_m = int(eta_s // 60)
@@ -436,6 +476,8 @@ def main() -> None:
                         help="Output directory (default: grounding_results)")
     parser.add_argument("--lora-adapter", default=None, dest="lora_adapter",
                         help="Path to saved LoRA adapter directory (e.g. pope_results_v7/qwen_2b_lora)")
+    parser.add_argument("--visualize", action="store_true",
+                        help="Save annotated images (GT=green, matched=cyan, unmatched=red) to <out>/viz/")
     args = parser.parse_args()
 
     out_dir = Path(args.out)
@@ -458,7 +500,9 @@ def main() -> None:
     n_labeled = sum(1 for p in pairs if p["label"].exists() and p["label"].stat().st_size > 0)
     print(f"Selected {len(pairs)} images ({n_labeled} with GT labels)")
 
-    run_grounding(args.model, pairs, out_csv, args.iou_threshold, lora_adapter=lora_path)
+    viz_dir = (out_dir / "viz") if args.visualize else None
+    run_grounding(args.model, pairs, out_csv, args.iou_threshold,
+                  lora_adapter=lora_path, viz_dir=viz_dir)
 
 
 if __name__ == "__main__":
