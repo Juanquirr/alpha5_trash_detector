@@ -80,4 +80,5 @@ runs/*
 InternImage/*
 !InternImage/detection/
 !InternImage/detection/work_dirs/*/*.json
-
+!InternImage/detection/cascade_pr.json
+!InternImage/detection/dino_pr.json
