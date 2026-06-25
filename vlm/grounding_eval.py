@@ -236,6 +236,11 @@ def collect_images(dataset: Path | None, images_dir: Path | None,
     """
     pairs = []
 
+    # Skip preview/debug images that have boxes or masks drawn on top, so the
+    # VLM only sees the clean scene (never an image with the GT box overlaid).
+    def _is_debug(img):
+        return "_debug" in img.stem
+
     if dataset:
         for split in ("val", "train", "test"):
             img_dir = dataset / split / "images"
@@ -243,14 +248,14 @@ def collect_images(dataset: Path | None, images_dir: Path | None,
             if not img_dir.exists():
                 continue
             for img in sorted(img_dir.iterdir()):
-                if img.suffix.lower() in IMAGE_EXTS:
+                if img.suffix.lower() in IMAGE_EXTS and not _is_debug(img):
                     lbl = lbl_dir / (img.stem + ".txt")
                     pairs.append({"image": img, "label": lbl})
     else:
         img_dir = images_dir or Path("images")
         lbl_dir = labels_dir or img_dir
         for img in sorted(img_dir.iterdir()):
-            if img.suffix.lower() in IMAGE_EXTS:
+            if img.suffix.lower() in IMAGE_EXTS and not _is_debug(img):
                 lbl = lbl_dir / (img.stem + ".txt")
                 pairs.append({"image": img, "label": lbl})
 
