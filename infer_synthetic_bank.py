@@ -96,7 +96,7 @@ def main():
 
         for method_name in args.methods:
             method = get_method(method_name)
-            params = dict(method.get_default_params())
+            params = dict(method.default_params)
             params["conf"] = args.conf
             params["trash_class_id"] = args.trash_id
 
