@@ -1,0 +1,55 @@
+{
+  "config": "work_dirs/dino_4scale_internimage_l_alpha5_3x/dino_4scale_internimage_l_alpha5_3x.py",
+  "checkpoint": "work_dirs/dino_4scale_internimage_l_alpha5_3x/best_bbox_mAP_epoch_34.pth",
+  "iou_threshold": 0.5,
+  "best_conf_threshold": 0.5,
+  "global": {
+    "P": 0.6876,
+    "R": 0.6125,
+    "F1": 0.6479
+  },
+  "per_class": [
+    {
+      "class": "container",
+      "P": 0.6843,
+      "R": 0.7083,
+      "F1": 0.6961,
+      "GT": 456
+    },
+    {
+      "class": "plastic",
+      "P": 0.8235,
+      "R": 0.6498,
+      "F1": 0.7264,
+      "GT": 474
+    },
+    {
+      "class": "metal",
+      "P": 0.6327,
+      "R": 0.6263,
+      "F1": 0.6294,
+      "GT": 99
+    },
+    {
+      "class": "polystyrene",
+      "P": 0.8173,
+      "R": 0.8173,
+      "F1": 0.8173,
+      "GT": 208
+    },
+    {
+      "class": "trash_pile",
+      "P": 0.0,
+      "R": 0.0,
+      "F1": 0.0,
+      "GT": 28
+    },
+    {
+      "class": "trash",
+      "P": 0.0,
+      "R": 0.0,
+      "F1": 0.0,
+      "GT": 144
+    }
+  ]
+}

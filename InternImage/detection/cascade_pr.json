@@ -1,0 +1,55 @@
+{
+  "config": "work_dirs/cascade_internimage_l_alpha5_3x/cascade_internimage_l_alpha5_3x.py",
+  "checkpoint": "work_dirs/cascade_internimage_l_alpha5_3x/best_bbox_mAP_epoch_33.pth",
+  "iou_threshold": 0.5,
+  "best_conf_threshold": 0.9,
+  "global": {
+    "P": 0.7849,
+    "R": 0.6473,
+    "F1": 0.7095
+  },
+  "per_class": [
+    {
+      "class": "container",
+      "P": 0.8947,
+      "R": 0.7829,
+      "F1": 0.8351,
+      "GT": 456
+    },
+    {
+      "class": "plastic",
+      "P": 0.8329,
+      "R": 0.6414,
+      "F1": 0.7247,
+      "GT": 474
+    },
+    {
+      "class": "metal",
+      "P": 0.7882,
+      "R": 0.6768,
+      "F1": 0.7283,
+      "GT": 99
+    },
+    {
+      "class": "polystyrene",
+      "P": 0.934,
+      "R": 0.8846,
+      "F1": 0.9086,
+      "GT": 208
+    },
+    {
+      "class": "trash_pile",
+      "P": 0.0,
+      "R": 0.0,
+      "F1": 0.0,
+      "GT": 28
+    },
+    {
+      "class": "trash",
+      "P": 0.0,
+      "R": 0.0,
+      "F1": 0.0,
+      "GT": 144
+    }
+  ]
+}
