@@ -21,6 +21,7 @@ paths resolve):
 Defaults to the val split declared in the config. mmdet 2.x API.
 """
 import argparse
+import json
 import os.path as osp
 from collections import defaultdict
 
@@ -62,6 +63,7 @@ def main():
     ap.add_argument("--iou", type=float, default=0.5, help="IoU match threshold")
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--split", default="val", choices=["val", "test", "train"])
+    ap.add_argument("--out", default=None, help="Save results to JSON file (e.g. cascade_pr.json)")
     args = ap.parse_args()
 
     cfg = mmcv.Config.fromfile(args.config)
@@ -178,12 +180,29 @@ def main():
     print(f"GLOBAL   P={best['P']:.3f}  R={best['R']:.3f}  F1={best['f1']:.3f}")
     print(f"\n{'class':<18}{'P':>8}{'R':>8}{'F1':>8}{'GT':>7}")
     tp, fp, fn = best["tp"], best["fp"], best["fn"]
+    per_class = []
     for ci, name in enumerate(classes):
         p = tp[ci] / max(tp[ci] + fp[ci], 1)
         r = tp[ci] / max(tp[ci] + fn[ci], 1)
         f = 2 * p * r / max(p + r, 1e-9)
         print(f"{name:<18}{p:>8.3f}{r:>8.3f}{f:>8.3f}{n_gt_per_cls[ci]:>7}")
+        per_class.append({"class": name, "P": round(p, 4), "R": round(r, 4),
+                          "F1": round(f, 4), "GT": int(n_gt_per_cls[ci])})
     print("========================================================")
+
+    if args.out:
+        result = {
+            "config": args.config,
+            "checkpoint": args.checkpoint,
+            "iou_threshold": args.iou,
+            "best_conf_threshold": thr,
+            "global": {"P": round(best["P"], 4), "R": round(best["R"], 4),
+                       "F1": round(best["f1"], 4)},
+            "per_class": per_class,
+        }
+        with open(args.out, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2, ensure_ascii=False)
+        print(f"\nResults saved → {args.out}")
 
 
 if __name__ == "__main__":
