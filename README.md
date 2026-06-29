@@ -4,7 +4,7 @@
 
 [![ULPGC](https://img.shields.io/badge/ULPGC-TFG%202025--2026-004B97)](https://www.ulpgc.es/)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
-[![YOLOv26](https://img.shields.io/badge/Model-YOLOv26-purple)](https://github.com/ultralytics/ultralytics)
+[![YOLO26](https://img.shields.io/badge/Model-YOLO26-purple)](https://github.com/ultralytics/ultralytics)
 [![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker)](https://www.docker.com/)
 [![LICENSE](https://img.shields.io/badge/License-Proprietary-red)](LICENSE.md)
 
@@ -204,13 +204,13 @@ Qwen3-VL-2B-Instruct, LLaVA-1.5-7B.
 
 ```bash
 # Build POPE questions from dataset
-python vlm/pope_build.py --dataset alpha5/datasets/alpha7
+python vlm/pope_build.py --dataset alpha5/datasets/alpha10
 
 # Run evaluation
 python vlm/pope_run.py --model all --tier all
 
 # LoRA fine-tuning + comparison
-python vlm/pope_finetune_eval.py --model qwen_2b --tier all
+python vlm/pope_finetune_eval.py --model qwen3_vl --tier all
 ```
 
 Requires two virtual environments (transformers 5.x and 4.46.x). Setup scripts
