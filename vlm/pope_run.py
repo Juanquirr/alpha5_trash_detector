@@ -8,7 +8,7 @@ Usage:
     python pope_run.py --model smolvlm --tier random
     python pope_run.py --model smolvlm --tier all
     python pope_run.py --model all --tier all
-    python pope_run.py --model smolvlm,qwen_2b --tier popular
+    python pope_run.py --model smolvlm,qwen3_vl --tier popular
 
 --model all          spawns one subprocess per model (auto-selects correct venv)
 --tier  all          runs random + popular + adversarial

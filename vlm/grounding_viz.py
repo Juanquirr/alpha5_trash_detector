@@ -8,13 +8,13 @@ Reads the structured pred_boxes JSON column written by grounding_eval.py
 instead of re-parsing raw model output.
 
 Usage:
-    python vlm/grounding_viz.py --results grounding_results/grounding_qwen_vl.csv \
+    python vlm/grounding_viz.py --results grounding_results/grounding_qwen25_vl.csv \
         --dataset ../alpha5/datasets/alpha7
 
-    python vlm/grounding_viz.py --results grounding_results/grounding_qwen_2b.csv \
+    python vlm/grounding_viz.py --results grounding_results/grounding_qwen3_vl.csv \
         --images path/to/images --labels path/to/labels
 
-    python vlm/grounding_viz.py --results grounding_results/grounding_qwen_vl.csv \
+    python vlm/grounding_viz.py --results grounding_results/grounding_qwen25_vl.csv \
         --dataset ../alpha5/datasets/alpha7 --limit 20 --out grounding_viz/
 """
 

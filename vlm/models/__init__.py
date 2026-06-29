@@ -12,15 +12,15 @@ from .llava import LLaVA
 VENV = {
     "smolvlm":      ".transformers-5.X-venv",
     "smolvlm_500m": ".transformers-5.X-venv",
-    "qwen_vl":      ".transformers-5.X-venv",
-    "qwen_2b":      ".transformers-5.X-venv",
+    "qwen25_vl":    ".transformers-5.X-venv",
+    "qwen3_vl":     ".transformers-5.X-venv",
     "llava":        ".transformers-4.46-venv",
 }
 
 REGISTRY = {
     "smolvlm":      SmolVLM,
     "smolvlm_500m": SmolVLM500M,
-    "qwen_vl":      QwenVL,
-    "qwen_2b":      QwenVL2B,
+    "qwen25_vl":    QwenVL,
+    "qwen3_vl":     QwenVL2B,
     "llava":        LLaVA,
 }

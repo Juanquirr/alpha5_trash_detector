@@ -12,7 +12,7 @@ Pipeline per model
 Note: train and eval sets share the same images (domain adaptation study, not
 generalisation benchmark). Mention data leakage in any write-up.
 
-Models: smolvlm  smolvlm_500m  qwen_vl  qwen_2b  llava
+Models: smolvlm  smolvlm_500m  qwen25_vl  qwen3_vl  llava
 
 Usage
 ─────
@@ -73,7 +73,7 @@ DEFAULT_CLASSES = [
 
 # Models that support LoRA SFT via PEFT
 FINETUNE_CAPABLE = frozenset({
-    "smolvlm", "smolvlm_500m", "qwen_vl", "qwen_2b", "llava",
+    "smolvlm", "smolvlm_500m", "qwen25_vl", "qwen3_vl", "llava",
 })
 
 # Chart colours

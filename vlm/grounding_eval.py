@@ -10,14 +10,14 @@ Pipeline:
   3. Match predicted boxes to YOLO GT boxes using greedy IoU matching.
   4. Report precision, recall, and mean IoU at configurable threshold.
 
-Supported models: qwen_vl (Qwen2.5-VL-3B), qwen_2b (Qwen3-VL-2B).
+Supported models: qwen25_vl (Qwen2.5-VL-3B), qwen3_vl (Qwen3-VL-2B).
 Other models do not support structured bounding box output.
 
 Usage:
-    python grounding_eval.py --model qwen_vl --dataset ../alpha5/datasets/alpha7
-    python grounding_eval.py --model qwen_2b --dataset ../alpha5/datasets/alpha7 --limit 50
-    python grounding_eval.py --model qwen_vl --images imgs/ --labels lbls/ --limit 100
-    python grounding_eval.py --model qwen_2b --dataset ../alpha5/datasets/alpha7 --lora-adapter pope_results_v7/qwen_2b_lora
+    python grounding_eval.py --model qwen25_vl --dataset ../alpha5/datasets/alpha7
+    python grounding_eval.py --model qwen3_vl --dataset ../alpha5/datasets/alpha7 --limit 50
+    python grounding_eval.py --model qwen25_vl --images imgs/ --labels lbls/ --limit 100
+    python grounding_eval.py --model qwen3_vl --dataset ../alpha5/datasets/alpha7 --lora-adapter pope_results_v7/qwen3_vl_lora
 """
 
 import argparse
@@ -460,8 +460,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="VLM visual grounding evaluation: locate trash and compare vs YOLO GT"
     )
-    parser.add_argument("--model", required=True, choices=["qwen_vl", "qwen_2b"],
-                        help="Model key (only Qwen models support grounding)")
+    parser.add_argument("--model", required=True, choices=["qwen25_vl", "qwen3_vl"],
+                        help="Model key: qwen25_vl=Qwen2.5-VL-3B, qwen3_vl=Qwen3-VL-2B")
     parser.add_argument("--dataset", default=None,
                         help="YOLO dataset root (train/val/valid/test splits)")
     parser.add_argument("--images", default=None,
@@ -475,7 +475,7 @@ def main() -> None:
     parser.add_argument("--out", default="grounding_results",
                         help="Output directory (default: grounding_results)")
     parser.add_argument("--lora-adapter", default=None, dest="lora_adapter",
-                        help="Path to saved LoRA adapter directory (e.g. pope_results_v7/qwen_2b_lora)")
+                        help="Path to saved LoRA adapter directory (e.g. pope_results_v7/qwen25_vl_lora)")
     parser.add_argument("--visualize", action="store_true",
                         help="Save annotated images (GT=green, matched=cyan, unmatched=red) to <out>/viz/")
     args = parser.parse_args()

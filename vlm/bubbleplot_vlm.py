@@ -23,8 +23,8 @@ import os, glob
 BASE = Path(__file__).parent / "pope_results_v10"
 
 MODEL_META = {
-    "qwen_2b":       {"label": "Qwen3-VL-2B",        "params": 2.7},
-    "qwen_vl":       {"label": "Qwen2.5-VL-3B",      "params": 3.8},
+    "qwen3_vl":      {"label": "Qwen3-VL-2B",        "params": 2.7},
+    "qwen25_vl":     {"label": "Qwen2.5-VL-3B",      "params": 3.8},
     "smolvlm":       {"label": "SmolVLM-1B",          "params": 1.0},
     "smolvlm_500m":  {"label": "SmolVLM-500M",        "params": 0.5},
     "llava":         {"label": "LLaVA-1.5-7B",         "params": 7.0},
@@ -188,10 +188,10 @@ def plot(df):
 
     # Labels — manual offsets to avoid overlaps
     LABEL_OFFSETS = {
-        ("qwen_2b", "post"):      (10, 12),
-        ("qwen_2b", "pre"):       (10, -16),
-        ("qwen_vl", "post"):      (-12, -18),
-        ("qwen_vl", "pre"):       (-12, 8),
+        ("qwen3_vl", "post"):     (10, 12),
+        ("qwen3_vl", "pre"):      (10, -16),
+        ("qwen25_vl", "post"):    (-12, -18),
+        ("qwen25_vl", "pre"):     (-12, 8),
         ("smolvlm", "post"):      (10, 6),
         ("smolvlm", "pre"):       (10, -12),
         ("smolvlm_500m", "post"): (10, 6),

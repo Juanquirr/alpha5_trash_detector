@@ -11,7 +11,7 @@ from .base import BaseVLM
 
 
 class QwenVL2B(BaseVLM):
-    name = "qwen_2b"
+    name = "qwen3_vl"
     variant = "Qwen/Qwen3-VL-2B-Instruct"
 
     def load(self) -> None:
