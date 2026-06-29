@@ -80,34 +80,13 @@ All modules share the same **6 waste categories** (shape-first taxonomy):
 - **Crushed/deformed object** → if material is still identifiable, keep its class. If shape and material are both unrecognisable → `trash`.
 - **Any remaining doubt** → `trash` by default.
 
-```
-                          ┌──────────────┐
-  Real harbour images ──► │  generator/  │ ──► Synthetic training images
-                          │  FLUX models │     + YOLO annotations
-                          └──────────────┘
-                                 │
-                                 ▼
-                          ┌──────────────┐
-  Labelled dataset ─────► │   alpha5/    │ ──► Trained model (.pt)
-                          │  YOLO train  │     + inference results
-                          │  + 6 methods │
-                          └──────────────┘
-                                 │
-                                 ▼
-                          ┌──────────────┐
-  Test images ──────────► │    vlm/      │ ──► Accuracy/speed/VRAM
-                          │  5 VLMs      │     comparison report
-                          └──────────────┘
-```
-
 ---
 
 ## Modules
 
 ### Alpha5 — Detection (`alpha5/`)
 
-YOLO26-based detection system with six configurable inference strategies and an
-interactive GUI for visual comparison.
+YOLO26-based detection system with six configurable inference strategies and an interactive GUI for visual comparison.
 
 **Components:**
 
@@ -170,7 +149,7 @@ photorealistic trash objects into real harbour/ocean photographs, producing
 paired images and YOLO annotations.
 
 **Inpainting models:** Fill (text-conditioned), Canny (edge-guided),
-Redux (visual reference), Kontext (in-context editing).
+Redux (visual reference).
 
 **Water detection:** HSV, Otsu, KMeans, Flood fill, SAM3.
 
