@@ -11,7 +11,7 @@ Evaluates vision-language models on marine litter detection using POPE (binary h
 
 | Venv | Models |
 |------|--------|
-| `.transformers-5.X-venv` | `smolvlm`, `smolvlm_500m`, `qwen_vl`, `qwen_2b` |
+| `.transformers-5.X-venv` | `smolvlm`, `smolvlm_500m`, `qwen25_vl`, `qwen3_vl` |
 | `.transformers-4.46-venv` | `llava` |
 
 ## Models
@@ -20,8 +20,8 @@ Evaluates vision-language models on marine litter detection using POPE (binary h
 |-----|-------|--------|------|
 | `smolvlm` | SmolVLM-Instruct | 2B | ~4 GB |
 | `smolvlm_500m` | SmolVLM-500M-Instruct | 500M | ~1 GB |
-| `qwen_vl` | Qwen2.5-VL-3B-Instruct | 3B | ~6 GB |
-| `qwen_2b` | Qwen3-VL-2B-Instruct | 2B | ~4 GB |
+| `qwen25_vl` | Qwen2.5-VL-3B-Instruct | 3B | ~6 GB |
+| `qwen3_vl` | Qwen3-VL-2B-Instruct | 2B | ~4 GB |
 | `llava` | llava-1.5-7b-hf | 7B | ~14 GB |
 
 All models support LoRA fine-tuning.
@@ -109,7 +109,7 @@ Runs yes/no questions against models. Auto-selects correct venv per model.
 ```powershell
 python vlm\pope_run.py --model smolvlm --tier all
 python vlm\pope_run.py --model all --tier all
-python vlm\pope_run.py --model all --tier all --without qwen_2b,llava
+python vlm\pope_run.py --model all --tier all --without qwen3_vl,llava
 ```
 
 | Flag | Default | Description |
@@ -142,7 +142,7 @@ Three-phase pipeline: pre-eval, LoRA fine-tuning, post-eval, comparison chart.
 python vlm\pope_finetune_eval.py --model smolvlm_500m --tier all
 python vlm\pope_finetune_eval.py --model all --tier all
 python vlm\pope_finetune_eval.py --model smolvlm_500m --tier all --skip-pre
-python vlm\pope_finetune_eval.py --model qwen_vl --tier all --max-train-samples 2000
+python vlm\pope_finetune_eval.py --model qwen25_vl --tier all --max-train-samples 2000
 python vlm\pope_finetune_eval.py --model smolvlm --epochs 3 --lora-r 16 --lr 1e-4
 ```
 
@@ -192,13 +192,13 @@ The same POPE questions used for evaluation also serve as LoRA training data. Th
 Asks Qwen models to locate objects with bounding boxes, then compares against YOLO ground truth via IoU matching.
 
 ```powershell
-python vlm\grounding_eval.py --model qwen_vl --dataset ..\alpha5\datasets\alpha6
-python vlm\grounding_eval.py --model qwen_2b --dataset ..\alpha5\datasets\alpha6 --limit 50
+python vlm\grounding_eval.py --model qwen25_vl --dataset ..\alpha5\datasets\alpha6
+python vlm\grounding_eval.py --model qwen3_vl --dataset ..\alpha5\datasets\alpha6 --limit 50
 ```
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--model` | required | `qwen_vl` or `qwen_2b` |
+| `--model` | required | `qwen25_vl` or `qwen3_vl` |
 | `--dataset` | none | YOLO dataset root |
 | `--images` | none | Flat image directory |
 | `--labels` | none | Separate labels dir |

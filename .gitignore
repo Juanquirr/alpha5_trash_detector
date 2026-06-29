@@ -46,10 +46,18 @@ sam3_model/
 # Data / result files
 *.csv
 !generator/config/*.csv
-!alpha5/class_contribution_yolo/*/*.csv
-!alpha5/class_contribution_yolo/*/*.png
 *.json
 *.jsonl
+
+# Compiled extensions / build output
+**/build/
+**/dist/
+**/*.egg-info/
+*.egg
+*.so
+*.o
+*.ninja
+.ninja_*
 
 # Module-specific
 generator/outputs_*/
@@ -59,15 +67,10 @@ generator/.claude/
 generator/backgrounds*/
 
 vlm/results/
-!vlm/results/*.csv
 vlm/images/
-!vlm/pope_results/**
-!vlm/pope_results_v6/**
-!vlm/pope_results_v7/**
-!vlm/pope_results_v10/**
-!vlm/pope_questions/**
-!vlm/pope_questions/metadata.json
-!vlm/grounding_results/**
+vlm/pope_results*/
+vlm/pope_questions/
+vlm/grounding_results/
 
 flowimg_eval/results/*
 !flowimg_eval/results/*.csv
@@ -76,9 +79,3 @@ flowimg_eval/test/*
 alpha5/datasets/
 
 runs/*
-
-InternImage/*
-!InternImage/detection/
-!InternImage/detection/work_dirs/*/*.json
-!InternImage/detection/cascade_pr.json
-!InternImage/detection/dino_pr.json

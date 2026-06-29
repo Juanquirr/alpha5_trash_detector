@@ -210,7 +210,7 @@ python vlm/pope_build.py --dataset alpha5/datasets/alpha7
 python vlm/pope_run.py --model all --tier all
 
 # LoRA fine-tuning + comparison
-python vlm/pope_finetune_eval.py --model qwen_2b --tier all
+python vlm/pope_finetune_eval.py --model qwen3_vl --tier all
 ```
 
 Requires two virtual environments (transformers 5.x and 4.46.x). Setup scripts
