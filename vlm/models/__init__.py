@@ -1,7 +1,7 @@
 from .smolvlm import SmolVLM
 from .smolvlm_500m import SmolVLM500M
-from .qwen_vl import QwenVL
-from .qwen2b import QwenVL2B
+from .qwen25_vl import QwenVL
+from .qwen3_vl import QwenVL2B
 from .llava import LLaVA
 
 # ── Venv reference ────────────────────────────────────────────────────────────
