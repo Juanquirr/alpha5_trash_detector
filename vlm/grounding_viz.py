@@ -9,13 +9,13 @@ instead of re-parsing raw model output.
 
 Usage:
     python vlm/grounding_viz.py --results grounding_results/grounding_qwen25_vl.csv \
-        --dataset ../alpha5/datasets/alpha7
+        --dataset ../detection/datasets/alpha10
 
     python vlm/grounding_viz.py --results grounding_results/grounding_qwen3_vl.csv \
         --images path/to/images --labels path/to/labels
 
     python vlm/grounding_viz.py --results grounding_results/grounding_qwen25_vl.csv \
-        --dataset ../alpha5/datasets/alpha7 --limit 20 --out grounding_viz/
+        --dataset ../detection/datasets/alpha10 --limit 20 --out grounding_viz/
 """
 
 import argparse

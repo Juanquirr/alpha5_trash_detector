@@ -47,12 +47,12 @@ This repository contains the source code of the following **Bachelor's Final Pro
 
 ## Repository Structure
 
-This monorepo unifies four previously independent components into a single
+This monorepo unifies three previously independent components into a single
 pipeline. Each module can run independently and has its own Dockerfile.
 
 ```
 alpha5_trash_detector/
-├── alpha5/          Detection model — training, inference, GUI visualizer
+├── detection/          Detection model — training, inference, GUI visualizer
 ├── generator/       Synthetic dataset generation with FLUX inpainting
 ├── vlm/             Vision-Language Model evaluation benchmark
 ├── LICENSE.md
@@ -88,7 +88,7 @@ All modules share the same **6 waste categories** (shape-first taxonomy):
                                  │
                                  ▼
                           ┌──────────────┐
-  Labelled dataset ─────► │   alpha5/    │ ──► Trained model (.pt)
+  Labelled dataset ─────► │   detection/    │ ──► Trained model (.pt)
                           │  YOLO train  │     + inference results
                           │  + 6 methods │
                           └──────────────┘
@@ -104,7 +104,7 @@ All modules share the same **6 waste categories** (shape-first taxonomy):
 
 ## Modules
 
-### Alpha5 — Detection (`alpha5/`)
+### Alpha5 — Detection (`detection/`)
 
 YOLO26-based detection system with six configurable inference strategies and an
 interactive GUI for visual comparison.
@@ -122,15 +122,15 @@ interactive GUI for visual comparison.
 
 ```bash
 # Dataset preparation — instance-stratified split
-python alpha5/datasets/scripts/img_stratifier.py /path/to/data \
+python detection/datasets/scripts/img_stratifier.py /path/to/data \
   --output /path/to/output --train 0.7 --val 0.2 --test 0.1
 
 # Training
-python alpha5/train/train_yolo.py /path/to/data.yaml yolo26x.pt \
+python detection/train/train_yolo.py /path/to/data.yaml yolo26x.pt \
   --epochs 300 --batch -1 --imgsz 640 --patience 15 --device 0
 
 # Hyperparameter tuning (Bayesian optimization)
-python alpha5/train/hyperparam_yolo_tunning.py /path/to/data.yaml yolo26x.pt 50 20
+python detection/train/hyperparam_yolo_tunning.py /path/to/data.yaml yolo26x.pt 50 20
 ```
 
 #### Inference Methods
@@ -147,7 +147,7 @@ python alpha5/train/hyperparam_yolo_tunning.py /path/to/data.yaml yolo26x.pt 50 
 #### GUI
 
 ```bash
-python alpha5/tests/visualizer/run_visualizer.py
+python detection/tests/visualizer/run_visualizer.py
 ```
 
 Side-by-side method comparison with zoom, pan, collapsible panels, and
@@ -156,10 +156,12 @@ adjustable confidence/IoU thresholds.
 #### Docker
 
 ```bash
-docker build -f alpha5/Dockerfile -t alpha5:latest .
+docker build -f detection/Dockerfile -t alpha5:latest .
 docker run -it --gpus all --shm-size=8g \
   -v "$(pwd):/ultralytics/USER" alpha5:latest
 ```
+
+Full documentation in [detection/README.md](detection/README.md).
 
 ---
 
@@ -204,7 +206,7 @@ Qwen3-VL-2B-Instruct, LLaVA-1.5-7B.
 
 ```bash
 # Build POPE questions from dataset
-python vlm/pope_build.py --dataset alpha5/datasets/alpha10
+python vlm/pope_build.py --dataset detection/datasets/alpha10
 
 # Run evaluation
 python vlm/pope_run.py --model all --tier all

@@ -14,10 +14,10 @@ Supported models: qwen25_vl (Qwen2.5-VL-3B), qwen3_vl (Qwen3-VL-2B).
 Other models do not support structured bounding box output.
 
 Usage:
-    python grounding_eval.py --model qwen25_vl --dataset ../alpha5/datasets/alpha7
-    python grounding_eval.py --model qwen3_vl --dataset ../alpha5/datasets/alpha7 --limit 50
+    python grounding_eval.py --model qwen25_vl --dataset ../detection/datasets/alpha10
+    python grounding_eval.py --model qwen3_vl --dataset ../detection/datasets/alpha10 --limit 50
     python grounding_eval.py --model qwen25_vl --images imgs/ --labels lbls/ --limit 100
-    python grounding_eval.py --model qwen3_vl --dataset ../alpha5/datasets/alpha7 --lora-adapter pope_results_v7/qwen3_vl_lora
+    python grounding_eval.py --model qwen3_vl --dataset ../detection/datasets/alpha10 --lora-adapter pope_results_v7/qwen3_vl_lora
 """
 
 import argparse

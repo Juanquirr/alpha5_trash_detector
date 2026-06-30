@@ -20,7 +20,7 @@ Tier negative selection:
     adversarial — classes that co-occur most with GT classes selected first (hardest)
 
 Usage:
-    python pope_build.py --dataset ../alpha5/datasets/alpha6
+    python pope_build.py --dataset ../detection/datasets/alpha10
     python pope_build.py --images images/ --out pope_questions/
     python pope_build.py --images imgs/ --labels lbls/ --out pope_questions/
     python pope_build.py --seed 0

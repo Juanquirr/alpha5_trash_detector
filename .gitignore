@@ -76,6 +76,6 @@ flowimg_eval/results/*
 !flowimg_eval/results/*.csv
 flowimg_eval/test/*
 
-alpha5/datasets/
+detection/datasets/
 
 runs/*

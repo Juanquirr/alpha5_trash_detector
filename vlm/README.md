@@ -87,7 +87,7 @@ Each tier uses n_neg = n_pos per image (~50/50 yes/no balance). Clean images (no
 Generates binary yes/no questions from YOLO annotations in three tiers with 50/50 balance.
 
 ```powershell
-python vlm\pope_build.py --dataset ..\alpha5\datasets\alpha10
+python vlm\pope_build.py --dataset ..\detection\datasets\alpha10
 python vlm\pope_build.py --images images\
 python vlm\pope_build.py --images images\ --labels labels\
 ```
@@ -192,8 +192,8 @@ The same POPE questions used for evaluation also serve as LoRA training data. Th
 Asks Qwen models to locate objects with bounding boxes, then compares against YOLO ground truth via IoU matching.
 
 ```powershell
-python vlm\grounding_eval.py --model qwen25_vl --dataset ..\alpha5\datasets\alpha10
-python vlm\grounding_eval.py --model qwen3_vl --dataset ..\alpha5\datasets\alpha10 --limit 50
+python vlm\grounding_eval.py --model qwen25_vl --dataset ..\detection\datasets\alpha10
+python vlm\grounding_eval.py --model qwen3_vl --dataset ..\detection\datasets\alpha10 --limit 50
 ```
 
 | Flag | Default | Description |

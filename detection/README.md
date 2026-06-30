@@ -21,14 +21,14 @@ per-class diagnostics, and an interactive GUI visualizer.
 
 ```bash
 # Build
-docker build -f alpha5/Dockerfile -t alpha5:latest .
+docker build -f detection/Dockerfile -t alpha5:latest .
 
 # Run — mounts repo root to /ultralytics/USER inside container
 docker run -it --gpus all --shm-size=8g \
   -v "$(pwd):/ultralytics/USER" alpha5:latest
 ```
 
-All scripts use paths relative to the repo root (`alpha5/datasets/...`,
+All scripts use paths relative to the repo root (`detection/datasets/...`,
 `runs/detect/...`), which resolves correctly under the volume mount.
 
 **Specific GPU:**
@@ -70,11 +70,11 @@ Force it with `--from-split`.
 
 ```bash
 # Flat folder (images + .txt side-by-side)
-python alpha5/datasets/scripts/img_stratifier.py /data/raw \
+python detection/datasets/scripts/img_stratifier.py /data/raw \
   --output /data/split --train 0.7 --val 0.2 --test 0.1
 
 # Already-split dataset (re-stratify)
-python alpha5/datasets/scripts/img_stratifier.py /data/split \
+python detection/datasets/scripts/img_stratifier.py /data/split \
   --output /data/split_v2 --train 0.7 --val 0.2 --test 0.1
 ```
 
@@ -101,7 +101,7 @@ JSON format. Reads class names from `data.yaml`. COCO `category_id` = YOLO
 class ID + 1 (COCO is 1-indexed).
 
 ```bash
-python alpha5/datasets/scripts/yolo2coco.py \
+python detection/datasets/scripts/yolo2coco.py \
   --input /data/yolo_dataset --output /data/coco_dataset
 ```
 
@@ -114,7 +114,7 @@ Replaces every class ID in a YOLO dataset with a single `--target_id`
 from a multi-class annotated dataset without relabelling.
 
 ```bash
-python alpha5/datasets/scripts/collapse_classes.py /data/yolo_dataset \
+python detection/datasets/scripts/collapse_classes.py /data/yolo_dataset \
   --output /data/binary_dataset --target_id 0
 ```
 
@@ -126,9 +126,9 @@ Scans a single split directory for images missing their `.txt` label file and
 creates empty ones (hard negatives).
 
 ```bash
-python alpha5/datasets/scripts/create_empty_labels.py /data/split/train --check_only
-python alpha5/datasets/scripts/create_empty_labels.py /data/split/train --dry_run
-python alpha5/datasets/scripts/create_empty_labels.py /data/split/train
+python detection/datasets/scripts/create_empty_labels.py /data/split/train --check_only
+python detection/datasets/scripts/create_empty_labels.py /data/split/train --dry_run
+python detection/datasets/scripts/create_empty_labels.py /data/split/train
 ```
 
 ---
@@ -138,14 +138,14 @@ python alpha5/datasets/scripts/create_empty_labels.py /data/split/train
 ### `train/train_yolo.py`
 
 ```bash
-python alpha5/train/train_yolo.py data.yaml yolo26x.pt \
+python detection/train/train_yolo.py data.yaml yolo26x.pt \
   --epochs 300 --batch -1 --imgsz 640 --patience 15 --device 0
 ```
 
 **Resume interrupted training:**
 
 ```bash
-python alpha5/train/train_yolo.py data.yaml \
+python detection/train/train_yolo.py data.yaml \
   runs/detect/train/<run_name>/weights/last.pt \
   --resume --batch <original_batch>
 ```
@@ -180,7 +180,7 @@ Bayesian hyperparameter search using Ultralytics `model.tune()`. Best
 hyperparameters saved under `runs/detect/tune/`.
 
 ```bash
-python alpha5/train/hyperparam_yolo_tunning.py data.yaml yolo26x.pt 30 50 \
+python detection/train/hyperparam_yolo_tunning.py data.yaml yolo26x.pt 30 50 \
   --device 0 --name tune_exp --tune_kwargs hparams_seed.yaml
 ```
 
@@ -200,7 +200,7 @@ Reads Ultralytics `results.csv` and prints the row with the highest
 across Ultralytics versions.
 
 ```bash
-python alpha5/tests/experiments/best_epoch.py \
+python detection/tests/experiments/best_epoch.py \
   runs/detect/train/exp/results.csv
 ```
 
@@ -214,7 +214,7 @@ Full validation with per-class diagnostics, optional CSV export, bar chart,
 and predicted-image export.
 
 ```bash
-python alpha5/tests/experiments/val_yolo.py data.yaml best.pt \
+python detection/tests/experiments/val_yolo.py data.yaml best.pt \
   --per_class_csv --plot_classes --plots --predict_val --concat
 ```
 
@@ -265,7 +265,7 @@ All methods write annotated JPEGs to `--out_dir`. All accept `--device`
 ### `inference.py` — Basic
 
 ```bash
-python alpha5/tests/experiments/inference.py images/ best.pt output/ \
+python detection/tests/experiments/inference.py images/ best.pt output/ \
   --conf 0.25 --imgsz 640
 ```
 
@@ -276,7 +276,7 @@ Logs wall-clock time and RSS memory delta per image. Baseline for benchmarking.
 ### `static_slices.py` — Tiled (NMS)
 
 ```bash
-python alpha5/tests/experiments/static_slices.py images/ best.pt \
+python detection/tests/experiments/static_slices.py images/ best.pt \
   --crops 4 --overlap 0.2 --iou 0.45
 ```
 
@@ -288,7 +288,7 @@ Max 8 crops recommended.
 ### `inference_tiled.py` — Tiled with WBF + Deduplication
 
 ```bash
-python alpha5/tests/experiments/inference_tiled.py images/ best.pt \
+python detection/tests/experiments/inference_tiled.py images/ best.pt \
   --crops 6 --overlap 0.2 --fusion wbf --iou 0.5 \
   --iou_dedup 0.5 --prioritize_specific --trash_id 7
 ```
@@ -302,7 +302,7 @@ on overlap regardless of confidence.
 ### `multi_scale_ensemble.py` — Multi-Scale
 
 ```bash
-python alpha5/tests/experiments/multi_scale_ensemble.py images/ best.pt \
+python detection/tests/experiments/multi_scale_ensemble.py images/ best.pt \
   --scales 640 960 1280 --nms_thresh 0.5
 ```
 
@@ -314,7 +314,7 @@ python alpha5/tests/experiments/multi_scale_ensemble.py images/ best.pt \
 scale 1.1×. Boxes are un-transformed before fusion.
 
 ```bash
-python alpha5/tests/experiments/tta.py images/ best.pt \
+python detection/tests/experiments/tta.py images/ best.pt \
   --conf 0.25 --tta_iou 0.5 --imgsz 640
 ```
 
@@ -330,7 +330,7 @@ python alpha5/tests/experiments/tta.py images/ best.pt \
 | `real_esrgan` | Real-ESRGAN ×2 | `basicsr`, `realesrgan` |
 
 ```bash
-python alpha5/tests/experiments/preprocessing_method.py images/ best.pt \
+python detection/tests/experiments/preprocessing_method.py images/ best.pt \
   --sr_method clahe --conf 0.25
 ```
 
@@ -339,7 +339,7 @@ python alpha5/tests/experiments/preprocessing_method.py images/ best.pt \
 ### `hybrid_pipeline.py` — Hybrid 5-Stage Pipeline
 
 ```bash
-python alpha5/tests/experiments/hybrid_pipeline.py images/ best.pt \
+python detection/tests/experiments/hybrid_pipeline.py images/ best.pt \
   --crops 6 --overlap 0.2 \
   --high_iou 0.85 --suspect_iou 0.3 --merge_iou 0.5 \
   --save_intermediate --draw_grid
@@ -363,7 +363,7 @@ python alpha5/tests/experiments/hybrid_pipeline.py images/ best.pt \
 
 ```bash
 pip install sahi
-python alpha5/tests/experiments/sahi_dir.py images/ best.pt output/ \
+python detection/tests/experiments/sahi_dir.py images/ best.pt output/ \
   --slice_height 320 --slice_width 320 \
   --overlap_height_ratio 0.2 --overlap_width_ratio 0.2
 ```
@@ -374,7 +374,7 @@ python alpha5/tests/experiments/sahi_dir.py images/ best.pt output/ \
 
 ```bash
 pip install patched-yolo-infer
-python alpha5/tests/experiments/patched_inference_alpha5.py images/ best.pt \
+python detection/tests/experiments/patched_inference_alpha5.py images/ best.pt \
   --patch_size 640 --overlap 0.25 --save_comparison
 ```
 
@@ -418,7 +418,7 @@ WBF merges by averaging — smoother positions, no loss of confidence signal.
 ## GUI Visualizer
 
 ```bash
-cd alpha5/tests/visualizer
+cd detection/tests/visualizer
 python run_visualizer.py
 ```
 
@@ -437,7 +437,7 @@ click-drag pan, double-click to fit, dark theme. Method dropdown populated from
 ## Directory Structure
 
 ```
-alpha5/
+detection/
 ├── Dockerfile
 ├── train/
 │   ├── train_yolo.py               — Training entry point
