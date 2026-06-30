@@ -80,33 +80,13 @@ All modules share the same **6 waste categories** (shape-first taxonomy):
 - **Crushed/deformed object** → if material is still identifiable, keep its class. If shape and material are both unrecognisable → `trash`.
 - **Any remaining doubt** → `trash` by default.
 
-```
-                          ┌──────────────┐
-  Real harbour images ──► │  generator/  │ ──► Synthetic training images
-                          │  FLUX models │     + YOLO annotations
-                          └──────────────┘
-                                 │
-                                 ▼
-                          ┌──────────────┐
-  Labelled dataset ─────► │   detection/    │ ──► Trained model (.pt)
-                          │  YOLO train  │     + inference results
-                          │  + 6 methods │
-                          └──────────────┘
-                                 │
-                                 ▼
-                          ┌──────────────┐
-  Test images ──────────► │    vlm/      │ ──► Accuracy/speed/VRAM
-                          │  5 VLMs      │     comparison report
-                          └──────────────┘
-```
-
 ---
 
 ## Modules
 
-### Alpha5 — Detection (`detection/`)
+### Detection (`detection/`)
 
-YOLO26-based detection system with six configurable inference strategies and an interactive GUI for visual comparison.
+Ultralytics YOLO-based detection system with six configurable inference strategies and an interactive GUI for visual comparison.
 
 **Components:**
 
