@@ -106,8 +106,7 @@ All modules share the same **6 waste categories** (shape-first taxonomy):
 
 ### Alpha5 — Detection (`detection/`)
 
-YOLO26-based detection system with six configurable inference strategies and an
-interactive GUI for visual comparison.
+YOLO26-based detection system with six configurable inference strategies and an interactive GUI for visual comparison.
 
 **Components:**
 
@@ -172,7 +171,7 @@ photorealistic trash objects into real harbour/ocean photographs, producing
 paired images and YOLO annotations.
 
 **Inpainting models:** Fill (text-conditioned), Canny (edge-guided),
-Redux (visual reference), Kontext (in-context editing).
+Redux (visual reference).
 
 **Water detection:** HSV, Otsu, KMeans, Flood fill, SAM3.
 
