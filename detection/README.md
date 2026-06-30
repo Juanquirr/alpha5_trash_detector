@@ -1,4 +1,4 @@
-# Alpha5 — Detection Module
+# Detection Module
 
 YOLO-based detection system for marine/urban waste. Covers dataset preparation,
 model training, hyperparameter tuning, six inference strategies, validation with
