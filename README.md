@@ -3,7 +3,7 @@
 <div align="center">
 
 [![ULPGC](https://img.shields.io/badge/ULPGC-TFG%202025--2026-004B97)](https://www.ulpgc.es/)
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.12%2B-blue)](https://www.python.org/)
 [![YOLO26](https://img.shields.io/badge/Model-YOLO26-purple)](https://github.com/ultralytics/ultralytics)
 [![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker)](https://www.docker.com/)
 [![LICENSE](https://img.shields.io/badge/License-Proprietary-red)](LICENSE.md)
