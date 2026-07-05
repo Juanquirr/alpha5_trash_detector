@@ -25,7 +25,7 @@ BASE = Path(__file__).parent / "pope_results_v10"
 MODEL_META = {
     "qwen3_vl":      {"label": "Qwen3-VL-2B",        "params": 2.7},
     "qwen25_vl":     {"label": "Qwen2.5-VL-3B",      "params": 3.8},
-    "smolvlm":       {"label": "SmolVLM-1B",          "params": 1.0},
+    "smolvlm":       {"label": "SmolVLM",             "params": 2.2},
     "smolvlm_500m":  {"label": "SmolVLM-500M",        "params": 0.5},
     "llava":         {"label": "LLaVA-1.5-7B",         "params": 7.0},
 }
