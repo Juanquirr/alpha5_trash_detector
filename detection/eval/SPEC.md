@@ -1,42 +1,42 @@
-# Especificación: script de métricas común (`eval_detections.py`)
+# Specification: common metrics script (`eval_detections.py`)
 
-**Objetivo.** Medir con la misma regla cualquier sistema de detección (YOLO solo,
-YOLO + VLM, …) contra las etiquetas reales, para poder compararlos. No entrena,
-no usa GPU, solo lee ficheros.
+**Goal.** Measure any detection system (YOLO alone, YOLO + VLM, ...) against the
+ground-truth labels with the same rule, so the systems can be compared fairly.
+It does not train anything and needs no GPU; it only reads files.
 
-**Entradas.**
-- `--gt DIR`: etiquetas reales, un `.txt` por imagen, formato YOLO `cls cx cy w h`
-  (normalizado).
-- `--pred NOMBRE=DIR` (repetible): predicciones de un sistema, `.txt` por imagen,
-  `cls cx cy w h conf`. Deben guardarse con confianza baja (conf=0.001), igual que
-  en validación de Ultralytics, o el mAP saldrá más bajo.
-- `--images DIR` (opcional): lista de imágenes evaluadas. Sin él, se usan las
-  imágenes con etiqueta; las que no tienen `.txt` cuentan como vacías.
-- `--names a,b,c` o `--data data.yaml` (opcional): nombres de clase.
-- `--out DIR`: carpeta de salida.
+**Inputs.**
+- `--gt DIR`: ground-truth labels, one `.txt` per image, YOLO format
+  `cls cx cy w h` (normalised).
+- `--pred NAME=DIR` (repeatable): predictions of one system, one `.txt` per
+  image, `cls cx cy w h conf`. They must be saved with a low confidence
+  threshold (conf=0.001), as in Ultralytics validation, or the mAP will come out lower.
+- `--images DIR` (optional): the evaluated images. Without it, images that have a
+  label file are used; images without a `.txt` count as empty.
+- `--names a,b,c` or `--data data.yaml` (optional): class names.
+- `--out DIR`: output folder.
 
-**Salidas.** `metrics.json` y `metrics.csv` (una fila por sistema y clase, más
-fila `all`), y una tabla por pantalla; con varios sistemas, diferencia frente al
-primero.
+**Outputs.** `metrics.json` and `metrics.csv` (one row per system and class, plus
+an `all` row), and a table on screen; with several systems, the difference
+against the first one.
 
-**Método.** El mismo que Ultralytics: IoU 0,50 a 0,95 en pasos de 0,05; emparejado
-uno a uno por IoU; AP por interpolación de 101 puntos sobre la envolvente de
-precisión; P y R en la confianza que maximiza F1 (curva suavizada).
+**Method.** Same as Ultralytics: IoU 0.50 to 0.95 in steps of 0.05; one-to-one
+matching by IoU; AP by 101-point interpolation over the precision envelope; P and
+R at the confidence that maximises F1 (smoothed curve).
 
-**Criterios de aceptación.**
-1. Predicciones idénticas a las etiquetas: mAP@50 = mAP@50-95 = P = R = 1.
-2. Sin predicciones: todo 0. Sin etiquetas de una clase: esa clase se omite de la media.
-3. Casos con resultado calculado a mano (un falso positivo, un fallo, caja
-   desplazada que pasa IoU 0,5 pero no 0,75) dan el valor esperado.
-4. Una predicción de otra clase no cuenta como acierto.
-5. Con varios `--pred`, las filas salen con el mismo formato y se muestra la diferencia.
-6. Solo depende de `numpy` (y `pyyaml` si se usa `--data`).
-7. Reproducción de la cifra antigua (mAP@50 0,692 ± 0,01) cuando el usuario la
-   ejecute con las predicciones reales de YOLO26x sobre val V10: pendiente, no
-   verificable aquí.
+**Acceptance criteria.**
+1. Predictions identical to the labels: P = R = 1 and mAP@50 = mAP@50-95 = 0.995
+   (the ceiling of the 101-point interpolation).
+2. No predictions: everything is 0. A class with no ground truth is left out of the mean.
+3. Cases with hand-computed results (a false positive, a miss, a shifted box that
+   passes IoU 0.5 but not 0.75) give the expected value.
+4. A prediction of another class is not a hit.
+5. With several `--pred`, rows have the same format and the difference is shown.
+6. Depends only on `numpy` (and `pyyaml` if `--data` is used).
+7. Reproduction of the old figure (mAP@50 0.692 ± 0.01) when the user runs it with
+   the real YOLO26x predictions on the V10 val set: pending, not verifiable here.
 
-## Notas de verificación
-- El mAP máximo con perfecto acierto es 0,995 (techo de la interpolación de 101
-  puntos, igual que Ultralytics); los tests lo esperan así.
-- Tests sintéticos en un PR aparte (`detection/eval/test_eval_detections.py`), para verificar la lógica por separado.
-- No comparado todavía con Ultralytics real (no instalado aquí).
+## Verification notes
+- The maximum mAP with perfect hits is 0.995 (ceiling of the 101-point
+  interpolation, same as Ultralytics); the tests expect this.
+- Synthetic tests live in a separate PR (`detection/eval/test_eval_detections.py`), so the logic is verified independently.
+- Not yet compared against real Ultralytics (not installed here).

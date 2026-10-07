@@ -208,16 +208,16 @@ def main():
         for r in res["rows"]:
             print(f"{sysname:<14}{r['name']:<14}{r['n_gt']:>6}{r['P']:>8.3f}{r['R']:>8.3f}"
                   f"{r['mAP50']:>8.3f}{r['mAP50_95']:>10.3f}")
-        print(f"  (P y R en confianza {res['conf_at_max_f1']:.3f}, imágenes: {res['n_images']})")
+        print(f"  (P and R at confidence {res['conf_at_max_f1']:.3f}, images: {res['n_images']})")
     if len(results) > 1:
         b = {r["name"]: r for r in results[base]["rows"]}
-        print(f"\nDiferencia frente a '{base}' (columna all):")
+        print(f"\nDifference versus '{base}' (row all):")
         for sysname, res in list(results.items())[1:]:
             a = next(r for r in res["rows"] if r["name"] == "all")
             print(f"  {sysname}: mAP50 {a['mAP50']-b['all']['mAP50']:+.3f}  "
                   f"mAP50-95 {a['mAP50_95']-b['all']['mAP50_95']:+.3f}  "
                   f"P {a['P']-b['all']['P']:+.3f}  R {a['R']-b['all']['R']:+.3f}")
-    print(f"\nGuardado en {out}/metrics.csv y metrics.json")
+    print(f"\nSaved to {out}/metrics.csv y metrics.json")
 
 
 if __name__ == "__main__":
