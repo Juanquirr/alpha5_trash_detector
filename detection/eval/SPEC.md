@@ -38,5 +38,5 @@ precisión; P y R en la confianza que maximiza F1 (curva suavizada).
 ## Notas de verificación
 - El mAP máximo con perfecto acierto es 0,995 (techo de la interpolación de 101
   puntos, igual que Ultralytics); los tests lo esperan así.
-- Verificado con 10 tests sintéticos (`python -m unittest detection/eval/test_eval_detections.py`).
+- Tests sintéticos en un PR aparte (`detection/eval/test_eval_detections.py`), para verificar la lógica por separado.
 - No comparado todavía con Ultralytics real (no instalado aquí).
