@@ -217,7 +217,7 @@ def main():
             print(f"  {sysname}: mAP50 {a['mAP50']-b['all']['mAP50']:+.3f}  "
                   f"mAP50-95 {a['mAP50_95']-b['all']['mAP50_95']:+.3f}  "
                   f"P {a['P']-b['all']['P']:+.3f}  R {a['R']-b['all']['R']:+.3f}")
-    print(f"\nSaved to {out}/metrics.csv y metrics.json")
+    print(f"\nSaved to {out}/metrics.csv and metrics.json")
 
 
 if __name__ == "__main__":
